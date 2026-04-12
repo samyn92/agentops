@@ -1,11 +1,17 @@
 baseURL = "https://samyn92.github.io/agentops/"
 title = "AgentOps"
 canonifyURLs = false
-relativeURLs = true
+relativeURLs = false
 
 # Language settings
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = false
+
+[languages]
+  [languages.en]
+    languageName = "English"
+    contentDir = "content/en"
+    weight = 1
 
 # Hugo modules - Docsy theme
 [module]
