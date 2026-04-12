@@ -10,16 +10,16 @@ AgentOps is an open-source platform for deploying AI agents as native Kubernetes
 
 ## Why AgentOps?
 
-| Capability | AgentOps | kagent |
-|-----------|----------|--------|
-| **Runtime** | Go binary (Fantasy SDK) | Python (Google ADK) |
-| **Memory** | Three-layer system (working/short-term/long-term) with BM25 relevance ranking | None |
-| **Agent delegation** | Parallel fan-out with zero-polling K8s Watch | Single agent per task |
-| **Tool distribution** | Custom OCI artifacts + MCP stdio | Container images + MCP |
-| **Observability** | Per-observation OTEL injection audit trails | Basic OTEL tracing |
-| **Streaming** | FEP protocol (30+ event types) | Standard API |
-| **Console** | SolidJS PWA with real-time streaming, 12 tool card renderers | React UI |
-| **Memory service** | SQLite + FTS5, three-tier write dedup, ~1300 LOC | N/A |
+| Capability | Details |
+|-----------|---------|
+| **Runtime** | Go binary built on the [Charm Fantasy SDK](https://github.com/charmbracelet/fantasy) -- fast startup, low memory |
+| **Memory** | Three-layer system (working/short-term/long-term) with BM25 relevance-ranked context injection |
+| **Agent delegation** | Parallel fan-out with zero-polling K8s Watch result aggregation |
+| **Tool distribution** | Custom OCI artifacts + MCP stdio transport, pulled by crane init containers |
+| **Observability** | Full OTEL tracing with per-observation injection audit trails |
+| **Streaming** | Fantasy Event Protocol (FEP) over SSE -- 30+ event types |
+| **Console** | SolidJS PWA with real-time streaming and 12 specialized tool card renderers |
+| **Memory service** | SQLite + FTS5, three-tier write dedup, deterministic session summaries (~1300 LOC) |
 
 ---
 
