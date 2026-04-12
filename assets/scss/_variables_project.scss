@@ -1,53 +1,45 @@
 // =============================================================================
-// AgentOps — TRON: Neon Purple Edition
+// AgentOps — Refined dark theme
 // =============================================================================
-// Design: void-black surfaces, electric purple/magenta neon accents,
-// cyan highlights, grid patterns, glow effects. Pure Tron Legacy aesthetic.
+// Direction: deep dark, clean, minimal. Subtle purple accent only where it
+// matters. Inspired by Linear, Vercel, Raycast — premium developer tools.
 
 // -- Google Fonts --
-// Outfit: geometric, futuristic, sharp. Perfect for a Tron-inspired UI.
 $td-enable-google-fonts: true;
-$td-google-font-name: "Outfit";
-$td-google-font-family: "Outfit:wght@300;400;500;600;700;800;900";
+$td-google-font-name: "Geist";
+$td-google-font-family: "Geist:wght@300;400;500;600;700";
 
-// -- Bootstrap feature toggles --
-$enable-gradients: true;
+// -- Bootstrap --
+$enable-gradients: false;
 $enable-shadows: true;
 $enable-dark-mode: true;
 
-// -- Color palette --
-// Tron: electric purple neon, hot magenta, icy cyan
+// -- Palette: muted, sophisticated --
+$primary:   #8b5cf6;
+$secondary: #a1a1aa;
 
-// Primary: electric neon purple
-$primary:   #b24bf3;
+$dark:    #09090b;
+$light:   #fafafa;
 
-// Secondary: hot cyan — the Tron grid color
-$secondary: #00f0ff;
-
-// Neutral void
-$dark:    #050508;
-$light:   #f0f0f5;
-
-// Semantic colors — neon-tinted
-$success: #39ff14;
-$info:    #00f0ff;
-$warning: #ff6e00;
-$danger:  #ff003c;
+$success: #22c55e;
+$info:    #3b82f6;
+$warning: #f59e0b;
+$danger:  #ef4444;
 
 // -- Typography --
-$font-family-sans-serif: "Outfit", system-ui, -apple-system, sans-serif;
+$font-family-sans-serif: "Geist", system-ui, -apple-system, sans-serif;
 $td-font-weight-body-text: 400;
 
-// -- Body defaults --
-$body-bg:    #050508;
-$body-color: #c8c8d0;
+// -- Body --
+$body-bg:    #09090b;
+$body-color: #a1a1aa;
 
 // -- Navbar --
-$td-navbar-bg-color: rgba(5, 5, 8, 0.75);
-$td-navbar-min-height: 4rem;
+$td-navbar-bg-color: rgba(9, 9, 11, 0.8);
+$td-navbar-min-height: 3.5rem;
 
-// -- Code blocks --
-$pre-color: #d0d0e0;
+// -- Code --
+$pre-color: #d4d4d8;
 
 // -- Spacing --
 $td-block-space-top-base: 3rem;

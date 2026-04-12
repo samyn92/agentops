@@ -1,15 +1,11 @@
 // =============================================================================
-// Extended color maps — Tron neon palette
+// Extended color maps
 // =============================================================================
 
 $custom-colors: (
-  "surface":     #0a0a10,
-  "surface-alt":  #12121c,
-  "neon":        #b24bf3,
-  "neon-cyan":   #00f0ff,
-  "neon-magenta": #ff00aa,
-  "grid":        #1a1a2e,
-  "muted":       #6b6b80,
+  "surface":     #0a0a0c,
+  "surface-alt":  #141418,
+  "muted":       #71717a,
 );
 
 $theme-colors: map-merge($theme-colors, $custom-colors);
