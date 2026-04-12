@@ -60,7 +60,7 @@ defaultContentLanguageInSubdir = false
     navbar_logo = true
     footer_about_enable = true
     breadcrumb_disable = false
-    showLightDarkModeMenu = true
+    showLightDarkModeMenu = false
     navbar_theme = "dark"
 
   [params.ui.readingtime]

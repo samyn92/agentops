@@ -1,46 +1,57 @@
 // =============================================================================
-// AgentOps — Refined dark theme
+// AgentOps — World-class design system
 // =============================================================================
-// Direction: deep dark, clean, minimal. Subtle purple accent only where it
-// matters. Inspired by Linear, Vercel, Raycast — premium developer tools.
+// Direction: the visual density and polish of Linear meets the spatial
+// elegance of Stripe meets the boldness of Vercel. Every pixel intentional.
+// Purple is the signature. Restraint is the discipline.
 
 // -- Google Fonts --
 $td-enable-google-fonts: true;
 $td-google-font-name: "Geist";
-$td-google-font-family: "Geist:wght@300;400;500;600;700";
+$td-google-font-family: "Geist:wght@300;400;500;600;700;800;900";
 
 // -- Bootstrap --
 $enable-gradients: false;
 $enable-shadows: true;
 $enable-dark-mode: true;
 
-// -- Palette: muted, sophisticated --
-$primary:   #8b5cf6;
-$secondary: #a1a1aa;
+// -- Palette: considered, layered --
+$primary:   #8b5cf6;   // Violet 500 — signature
+$secondary: #a1a1aa;   // Zinc 400
 
-$dark:    #09090b;
-$light:   #fafafa;
+$dark:    #09090b;      // Zinc 950
+$light:   #fafafa;      // Zinc 50
 
-$success: #22c55e;
-$info:    #3b82f6;
-$warning: #f59e0b;
-$danger:  #ef4444;
+$success: #22c55e;      // Green 500
+$info:    #3b82f6;      // Blue 500
+$warning: #f59e0b;      // Amber 500
+$danger:  #ef4444;      // Red 500
 
 // -- Typography --
-$font-family-sans-serif: "Geist", system-ui, -apple-system, sans-serif;
+$font-family-sans-serif: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
 $td-font-weight-body-text: 400;
+$headings-font-weight: 600;
+$font-size-base: 1rem;
 
 // -- Body --
 $body-bg:    #09090b;
 $body-color: #a1a1aa;
 
 // -- Navbar --
-$td-navbar-bg-color: rgba(9, 9, 11, 0.8);
-$td-navbar-min-height: 3.5rem;
+$td-navbar-bg-color: rgba(9, 9, 11, 0.7);
+$td-navbar-min-height: 3.75rem;
 
 // -- Code --
 $pre-color: #d4d4d8;
 
+// -- Border radius --
+$border-radius: 0.5rem;
+$border-radius-sm: 0.375rem;
+$border-radius-lg: 0.75rem;
+
 // -- Spacing --
 $td-block-space-top-base: 3rem;
 $td-block-space-bottom-base: 3rem;
+
+// -- Transitions --
+$transition-base: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);

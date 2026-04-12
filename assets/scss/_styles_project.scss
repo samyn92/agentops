@@ -1,13 +1,41 @@
 // =============================================================================
-// AgentOps — Clean dark theme
-// Linear / Vercel / Raycast inspired. Subtle. Premium.
-// Purple only where it earns attention.
+// AgentOps — Premium Visual System
+// =============================================================================
+// The visual language of a $10B dev tools company.
+// Every shadow, every transition, every gradient — intentional.
+// Linear's density. Stripe's elegance. Vercel's boldness. Raycast's polish.
 // =============================================================================
 
 @import "td/code-dark";
 
 // =============================================================================
-// Dark mode
+// CSS Custom Properties — the foundation of everything
+// =============================================================================
+
+:root {
+  // Easing curves
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  // Elevation shadows (dark mode defaults)
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
+  --shadow-glow-intense: 0 0 60px rgba(139, 92, 246, 0.25), 0 0 120px rgba(139, 92, 246, 0.1);
+
+  // Grid pattern
+  --grid-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+  // Mono font stack
+  --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code", monospace;
+}
+
+// =============================================================================
+// Dark mode — the default, the star
 // =============================================================================
 
 [data-bs-theme="dark"] {
@@ -17,9 +45,40 @@
   --bs-body-color-rgb: 161, 161, 170;
   --bs-tertiary-bg: #18181b;
   --bs-secondary-bg: #0f0f12;
-  --bs-border-color: #27272a;
+  --bs-border-color: #1e1e24;
   --bs-emphasis-color: #fafafa;
   --td-pre-bg: #0c0c0f;
+
+  // Custom surface tokens — 6-tier depth system
+  --surface-0: #050507;
+  --surface-1: #09090b;
+  --surface-2: #0c0c10;
+  --surface-3: #111115;
+  --surface-4: #16161b;
+  --surface-5: #1c1c22;
+
+  // Border tokens — 4-tier visibility system
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.06);
+  --border-emphasis: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  // Text tokens — 4-tier hierarchy
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-tertiary: #71717a;
+  --text-quaternary: #52525b;
+
+  // Accent tokens — violet
+  --accent: #8b5cf6;
+  --accent-light: #a78bfa;
+  --accent-lighter: #c4b5fd;
+  --accent-subtle: rgba(139, 92, 246, 0.08);
+  --accent-muted: rgba(139, 92, 246, 0.15);
+
+  // Complementary accent — sky
+  --accent-2: #38bdf8;
+  --accent-2-subtle: rgba(56, 189, 248, 0.08);
 }
 
 [data-bs-theme="light"] {
@@ -29,87 +88,212 @@
   --bs-secondary-bg: #ffffff;
   --bs-border-color: #e4e4e7;
   --td-pre-bg: #f4f4f5;
+
+  --surface-0: #ffffff;
+  --surface-1: #fafafa;
+  --surface-2: #f4f4f5;
+  --surface-3: #e4e4e7;
+  --surface-4: #d4d4d8;
+  --surface-5: #a1a1aa;
+
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-emphasis: rgba(0, 0, 0, 0.12);
+  --border-strong: rgba(0, 0, 0, 0.2);
+
+  --text-primary: #09090b;
+  --text-secondary: #3f3f46;
+  --text-tertiary: #71717a;
+  --text-quaternary: #a1a1aa;
+
+  --accent: #7c3aed;
+  --accent-light: #8b5cf6;
+  --accent-lighter: #a78bfa;
+  --accent-subtle: rgba(124, 58, 237, 0.06);
+  --accent-muted: rgba(124, 58, 237, 0.12);
+
+  --accent-2: #0284c7;
+  --accent-2-subtle: rgba(2, 132, 199, 0.06);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.16), 0 8px 20px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.08), 0 0 80px rgba(124, 58, 237, 0.03);
 }
 
 // =============================================================================
-// Navbar — thin, clean, barely there
+// Global resets and enhancements
 // =============================================================================
+
+::selection {
+  background: rgba(139, 92, 246, 0.3);
+  color: var(--text-primary);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+// =============================================================================
+// Navbar — the thin glass ribbon
+// =============================================================================
+
+// Hide navbar brand (logo + name) on homepage when cover is visible
+.td-navbar-cover .navbar-brand {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
 
 .td-navbar {
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  transition: all 0.2s ease;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  transition: all 0.3s var(--ease-out-expo);
+  z-index: 1030;
+
+  [data-bs-theme="dark"] & {
+    background: rgba(9, 9, 11, 0.8) !important;
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 0 var(--border-subtle),
+                inset 0 -1px 0 var(--border-subtle);
+  }
+
+  [data-bs-theme="light"] & {
+    background: rgba(250, 250, 250, 0.85) !important;
+    border-bottom: 1px solid var(--border-default);
+    box-shadow: var(--shadow-xs);
+  }
 }
 
-[data-bs-theme="dark"] .td-navbar {
-  background: rgba(9, 9, 11, 0.85) !important;
-  border-bottom: 1px solid #27272a;
-}
+.td-navbar .navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: opacity 0.2s ease;
 
-[data-bs-theme="light"] .td-navbar {
-  background: rgba(250, 250, 250, 0.9) !important;
-  border-bottom: 1px solid #e4e4e7;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .td-navbar .navbar-brand__name {
   font-weight: 700;
   letter-spacing: -0.04em;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .td-navbar .nav-link {
   font-weight: 500;
-  font-size: 0.8rem;
-  letter-spacing: 0.01em;
-  opacity: 0.6;
-  transition: opacity 0.15s ease;
+  font-size: 0.815rem;
+  letter-spacing: -0.01em;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  position: relative;
 
-  &:hover, &.active {
-    opacity: 1;
+  [data-bs-theme="dark"] & {
+    color: var(--text-tertiary);
+  }
+
+  &:hover {
+    [data-bs-theme="dark"] & {
+      color: var(--text-primary);
+      background: var(--border-subtle);
+    }
+    [data-bs-theme="light"] & {
+      color: var(--text-primary);
+      background: var(--border-subtle);
+    }
+  }
+
+  &.active {
+    [data-bs-theme="dark"] & {
+      color: var(--text-primary);
+      background: var(--border-default);
+    }
+    [data-bs-theme="light"] & {
+      color: var(--text-primary);
+      background: var(--border-default);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
   }
 }
 
 // =============================================================================
-// Hero — subtle gradient with logo
+// Hero Section — the main event
 // =============================================================================
 
 .td-cover-block {
   position: relative;
   overflow: hidden;
-  padding-top: 5rem !important;
-  padding-bottom: 5rem !important;
+  padding-top: 8rem !important;
+  padding-bottom: 8rem !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
 
   [data-bs-theme="dark"] & {
-    background: linear-gradient(
-      180deg,
-      #09090b 0%,
-      #0c0c12 40%,
-      #0f0f18 60%,
-      #09090b 100%
-    ) !important;
+    background: var(--surface-0) !important;
   }
 
-  // Override Docsy's dark overlay — we control background ourselves
+  [data-bs-theme="light"] & {
+    background: var(--surface-0) !important;
+  }
+
   &.td-overlay--dark::after {
     background-color: transparent !important;
   }
 
-  // Faint purple radial glow behind logo area
   &::before {
     content: "";
     position: absolute;
     top: 5%;
     left: 50%;
     transform: translateX(-50%);
-    width: 700px;
-    height: 500px;
-    background: radial-gradient(
-      ellipse,
-      rgba(139, 92, 246, 0.08) 0%,
-      rgba(139, 92, 246, 0.03) 30%,
-      transparent 65%
-    );
+    width: 1100px;
+    height: 800px;
+    background:
+      radial-gradient(ellipse at 40% 40%, rgba(139, 92, 246, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 65% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 60%, rgba(139, 92, 246, 0.06) 0%, transparent 60%);
     border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: glowPulse 8s ease-in-out infinite alternate;
+    filter: blur(40px);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--grid-pattern);
+    opacity: 1;
     pointer-events: none;
     z-index: 0;
   }
@@ -120,73 +304,101 @@
   }
 }
 
-// Hero logo — Docsy renders this from page resource
+@keyframes glowPulse {
+  0% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.85; transform: translateX(-50%) scale(1.03); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+}
+
 .td-cover-logo {
-  width: 140px !important;
-  height: 140px !important;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.2));
-  animation: heroLogoIn 0.8s ease-out;
+  width: 180px !important;
+  height: 180px !important;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 0 60px rgba(139, 92, 246, 0.3))
+          drop-shadow(0 0 120px rgba(56, 189, 248, 0.12));
+  animation: heroLogoIn 1.2s var(--ease-out-expo);
+  transition: all 0.4s var(--ease-out-expo);
+
+  &:hover {
+    filter: drop-shadow(0 0 80px rgba(139, 92, 246, 0.45))
+            drop-shadow(0 0 140px rgba(56, 189, 248, 0.2));
+    transform: scale(1.02);
+  }
 }
 
 @keyframes heroLogoIn {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(10px);
+    transform: scale(0.8) translateY(24px);
+    filter: drop-shadow(0 0 0 transparent);
   }
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 60px rgba(139, 92, 246, 0.3))
+            drop-shadow(0 0 120px rgba(56, 189, 248, 0.12));
   }
 }
 
-// Hero title — Docsy renders as .display-1
 .td-cover-block .display-1 {
-  font-size: 3.5rem !important;
+  font-size: clamp(3rem, 6vw, 5rem) !important;
   font-weight: 800 !important;
-  letter-spacing: -0.05em;
-  line-height: 1.1;
-  margin-bottom: 0.5rem;
-  animation: heroFadeUp 0.6s ease-out 0.1s both;
+  letter-spacing: -0.06em;
+  line-height: 0.95;
+  margin-bottom: 1rem;
+  margin-top: 0 !important;
+  padding-bottom: 0 !important;
+  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.2s both;
 
   [data-bs-theme="dark"] & {
     color: #fafafa;
+    text-shadow: 0 0 100px rgba(139, 92, 246, 0.1);
+  }
+
+  [data-bs-theme="light"] & {
+    color: #09090b;
   }
 }
 
-// Hero subtitle — Docsy renders as .display-2
 .td-cover-block .display-2 {
-  font-size: 1.35rem !important;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  margin-bottom: 1rem;
+  font-size: clamp(1.15rem, 2vw, 1.5rem) !important;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.75rem;
   text-transform: none !important;
-  animation: heroFadeUp 0.6s ease-out 0.2s both;
+  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.3s both;
 
   [data-bs-theme="dark"] & {
-    color: #a78bfa;
+    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #38bdf8 70%, #7dd3fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  [data-bs-theme="light"] & {
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 40%, #0284c7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
 .agentops-hero-desc {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 400;
-  line-height: 1.7;
-  max-width: 540px;
-  margin: 0 auto 2rem;
-  animation: heroFadeUp 0.6s ease-out 0.3s both;
-
-  [data-bs-theme="dark"] & {
-    color: #71717a;
-  }
+  line-height: 1.8;
+  max-width: 520px;
+  margin: 0 auto 2.5rem;
+  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.4s both;
+  color: var(--text-tertiary);
 }
 
 .agentops-hero-actions {
   display: flex;
   justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  animation: heroFadeUp 0.6s ease-out 0.4s both;
+  gap: 0.875rem;
+  margin-bottom: 2.5rem;
+  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.5s both;
 }
 
 .agentops-hero-badges {
@@ -194,254 +406,345 @@
   justify-content: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  animation: heroFadeUp 0.6s ease-out 0.5s both;
+  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.6s both;
 
   a {
-    opacity: 0.7;
-    transition: opacity 0.15s ease;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+    border-radius: 4px;
 
     &:hover {
       opacity: 1;
+      transform: translateY(-1px);
     }
   }
 }
 
 @keyframes heroFadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-// Hero inner content wrapper
 .td-cover-block .lead {
   font-size: 1rem;
   font-weight: 400;
 }
+
+// =============================================================================
+// Buttons — precise, elevated, premium
+// =============================================================================
+
 .btn {
-  border-radius: 6px;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.65rem 1.5rem;
-  transition: all 0.15s ease;
+  font-size: 0.875rem;
+  padding: 0.7rem 1.5rem;
+  transition: all 0.2s var(--ease-out-expo);
   border: none;
+  position: relative;
+  isolation: isolate;
+  letter-spacing: -0.01em;
 
   &.btn-primary {
-    background: #8b5cf6;
+    background: linear-gradient(180deg, #9b7bf7 0%, #8b5cf6 10%, #7c3aed 100%);
     color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
     &:hover {
-      background: #7c3aed;
+      background: linear-gradient(180deg, #a78bfa 0%, #9b7bf7 10%, #8b5cf6 100%);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35),
+                  0 1px 3px rgba(0, 0, 0, 0.2),
+                  0 0 0 1px rgba(139, 92, 246, 0.4),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
+                  0 0 0 1px rgba(139, 92, 246, 0.3),
+                  inset 0 1px 3px rgba(0, 0, 0, 0.15);
     }
   }
 
   &.btn-secondary {
-    background: transparent;
-    color: #a1a1aa;
-    border: 1px solid #27272a;
+    background: var(--surface-3);
+    border: 1px solid var(--border-emphasis);
+    color: var(--text-secondary);
+
+    [data-bs-theme="dark"] & {
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03),
+                  0 1px 2px rgba(0, 0, 0, 0.2);
+    }
 
     &:hover {
-      background: #18181b;
-      color: #fafafa;
-      border-color: #3f3f46;
+      color: var(--text-primary);
+      transform: translateY(-1px);
+
+      [data-bs-theme="dark"] & {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: var(--border-strong);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      [data-bs-theme="light"] & {
+        background: var(--surface-2);
+        border-color: var(--border-strong);
+        box-shadow: var(--shadow-md);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 }
 
+.td-cover-block .btn-lg {
+  padding: 0.8rem 2rem;
+  font-size: 0.9rem;
+  border-radius: 12px;
+}
+
 // =============================================================================
-// Custom landing page sections
+// Landing page sections
 // =============================================================================
 
 .agentops-section {
-  padding: 5rem 0;
+  padding: 6rem 0;
   position: relative;
 }
 
-// Intro section — slightly lighter surface
 .agentops-section--intro {
   [data-bs-theme="dark"] & {
-    background: #0c0c0f;
-    border-top: 1px solid #1a1a1f;
-    border-bottom: 1px solid #1a1a1f;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+    }
   }
+
   [data-bs-theme="light"] & {
-    background: #ffffff;
-    border-top: 1px solid #e4e4e7;
-    border-bottom: 1px solid #e4e4e7;
+    background: var(--surface-0);
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
   }
 }
 
-// Features section — base dark
 .agentops-section--features {
-  [data-bs-theme="dark"] & {
-    background: #09090b;
-  }
-  [data-bs-theme="light"] & {
-    background: #fafafa;
-  }
+  [data-bs-theme="dark"] & { background: var(--surface-1); }
+  [data-bs-theme="light"] & { background: var(--surface-1); }
 }
 
-// Code section — slightly lighter
 .agentops-section--code {
   [data-bs-theme="dark"] & {
-    background: #0c0c0f;
-    border-top: 1px solid #1a1a1f;
-    border-bottom: 1px solid #1a1a1f;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
   }
   [data-bs-theme="light"] & {
-    background: #ffffff;
-    border-top: 1px solid #e4e4e7;
-    border-bottom: 1px solid #e4e4e7;
+    background: var(--surface-0);
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
   }
 }
 
-// CTA section — base dark with faint radial
 .agentops-section--cta {
-  padding: 5rem 0 6rem;
+  padding: 6rem 0 8rem;
+  position: relative;
+  overflow: hidden;
 
-  [data-bs-theme="dark"] & {
-    background: #09090b;
+  [data-bs-theme="dark"] & { background: var(--surface-1); }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    filter: blur(30px);
   }
 }
 
-// Section typography
 .agentops-section-title {
-  font-size: 2rem;
+  font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: -0.04em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  position: relative;
 
-  [data-bs-theme="dark"] & {
-    color: #fafafa;
+  &.has-accent::after {
+    content: "";
+    display: block;
+    width: 40px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--accent);
+    margin-top: 0.75rem;
   }
 }
 
 .agentops-section-lead {
-  font-size: 1.1rem;
-  line-height: 1.7;
+  font-size: 1.125rem;
+  line-height: 1.75;
   max-width: 640px;
   margin-left: auto;
   margin-right: auto;
-
-  [data-bs-theme="dark"] & {
-    color: #a1a1aa;
-  }
+  color: var(--text-secondary);
 }
 
 .agentops-section-body {
   font-size: 0.95rem;
-  line-height: 1.7;
-  margin-top: 1rem;
-
-  [data-bs-theme="dark"] & {
-    color: #71717a;
-  }
+  line-height: 1.75;
+  margin-top: 1.25rem;
+  color: var(--text-tertiary);
 
   a {
-    [data-bs-theme="dark"] & {
-      color: #a78bfa;
-      text-decoration: none;
-      &:hover { color: #c4b5fd; }
+    color: var(--accent-light);
+    text-decoration: none;
+    transition: color 0.15s ease;
+    border-bottom: 1px solid transparent;
+
+    &:hover {
+      color: var(--accent-lighter);
+      border-bottom-color: var(--accent-lighter);
     }
   }
 
   code {
-    [data-bs-theme="dark"] & {
-      background: #18181b;
-      color: #d4d4d8;
-      padding: 0.12em 0.35em;
-      border-radius: 4px;
-      font-size: 0.85em;
-    }
+    background: var(--surface-4);
+    color: var(--text-secondary);
+    padding: 0.15em 0.4em;
+    border-radius: 5px;
+    font-size: 0.84em;
+    font-family: var(--font-mono);
   }
 }
 
 // =============================================================================
-// Feature cards — the premium shaded cards
+// Feature cards
 // =============================================================================
 
 .agentops-features-grid {
-  margin-top: 2.5rem;
-  row-gap: 1.5rem;
+  margin-top: 3rem;
+  row-gap: 1.25rem;
 }
 
 .agentops-feature-card {
   height: 100%;
   padding: 2rem 1.75rem;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: 14px;
+  transition: all 0.25s var(--ease-out-expo);
   position: relative;
+  overflow: hidden;
 
   [data-bs-theme="dark"] & {
-    background: #0f0f13;
-    border: 1px solid #1c1c22;
+    background: var(--surface-3);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-xs);
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 30%, rgba(255, 255, 255, 0.06) 70%, transparent);
+    }
 
     &:hover {
-      border-color: #2a2a32;
-      background: #111116;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border-color: var(--border-emphasis);
+      background: var(--surface-4);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: -1px; left: -1px; right: -1px; bottom: -1px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, transparent 40%, transparent 60%, rgba(56, 189, 248, 0.08) 100%);
+        z-index: -1;
+        pointer-events: none;
+      }
     }
   }
 
   [data-bs-theme="light"] & {
-    background: #ffffff;
-    border: 1px solid #e4e4e7;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    background: var(--surface-0);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-xs);
 
     &:hover {
-      border-color: #d4d4d8;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transform: translateY(-2px);
+      border-color: var(--border-emphasis);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
     }
   }
 
   h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-size: 1.05rem;
+    font-weight: 650;
+    letter-spacing: -0.025em;
     margin-bottom: 0.75rem;
-
-    [data-bs-theme="dark"] & {
-      color: #e4e4e7;
-    }
+    color: var(--text-primary);
   }
 
   p {
-    font-size: 0.875rem;
-    line-height: 1.65;
+    font-size: 0.85rem;
+    line-height: 1.7;
     margin-bottom: 1rem;
-
-    [data-bs-theme="dark"] & {
-      color: #71717a;
-    }
+    color: var(--text-tertiary);
   }
 }
 
 .agentops-feature-icon {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  width: 40px;
-  height: 40px;
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
 
   [data-bs-theme="dark"] & {
-    color: #a78bfa;
-    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent-light);
+    background: var(--accent-subtle);
+    border: 1px solid rgba(139, 92, 246, 0.1);
   }
 
   [data-bs-theme="light"] & {
-    color: #7c3aed;
-    background: rgba(139, 92, 246, 0.08);
+    color: var(--accent);
+    background: var(--accent-subtle);
+    border: 1px solid rgba(124, 58, 237, 0.08);
+  }
+
+  .agentops-feature-card:hover & {
+    background: var(--accent-muted);
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
   }
 }
 
@@ -449,43 +752,79 @@
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--accent);
 
-  [data-bs-theme="dark"] & {
-    color: #8b5cf6;
-
-    &:hover {
-      color: #a78bfa;
-    }
-  }
-
-  [data-bs-theme="light"] & {
-    color: #7c3aed;
-    &:hover { color: #6d28d9; }
+  &:hover {
+    color: var(--accent-light);
+    gap: 0.5rem;
   }
 }
 
 // =============================================================================
-// Docsy box overrides (for any remaining Docsy shortcodes)
+// Principles grid
+// =============================================================================
+
+.agentops-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.agentops-principle {
+  padding: 1.75rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  transition: all 0.2s var(--ease-out-expo);
+
+  &:hover {
+    border-color: var(--border-default);
+    background: var(--surface-3);
+  }
+
+  .agentops-principle-num {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// Docsy box overrides
 // =============================================================================
 
 .td-box {
   &.-bg-dark {
-    [data-bs-theme="dark"] & {
-      background: #0c0c0f !important;
-    }
+    [data-bs-theme="dark"] & { background: var(--surface-2) !important; }
   }
-
   &.-bg-primary {
-    [data-bs-theme="dark"] & {
-      background: #09090b !important;
-    }
+    [data-bs-theme="dark"] & { background: var(--surface-1) !important; }
   }
-
   &.-bg-white {
-    [data-bs-theme="dark"] & {
-      background: #0f0f12 !important;
-    }
+    [data-bs-theme="dark"] & { background: var(--surface-3) !important; }
   }
 }
 
@@ -704,19 +1043,6 @@
 }
 
 // =============================================================================
-// Selection + scroll
-// =============================================================================
-
-::selection {
-  background: rgba(139, 92, 246, 0.25);
-  color: #fafafa;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-// =============================================================================
 // Content fade-in — very subtle
 // =============================================================================
 
@@ -727,4 +1053,53 @@ html {
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+// =============================================================================
+// Responsive — landing page only
+// =============================================================================
+
+@media (max-width: 768px) {
+  .td-cover-block {
+    padding-top: 5rem !important;
+    padding-bottom: 5rem !important;
+    min-height: auto;
+  }
+
+  .td-cover-logo {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .agentops-hero-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .agentops-section {
+    padding: 3.5rem 0;
+  }
+
+  .agentops-section-title {
+    font-size: 1.75rem;
+  }
+
+  .agentops-feature-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .agentops-principles {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .td-cover-block .display-1 {
+    font-size: 2.5rem !important;
+  }
+
+  .td-cover-block .display-2 {
+    font-size: 1rem !important;
+  }
 }

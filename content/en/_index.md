@@ -9,16 +9,14 @@ title: "AgentOps"
 </p>
 <div class="agentops-hero-actions">
   <a class="btn btn-lg btn-primary" href="docs/">
-    Documentation <i class="fas fa-arrow-alt-circle-right ml-2"></i>
+    Documentation <i class="fas fa-arrow-right ms-1"></i>
   </a>
   <a class="btn btn-lg btn-secondary" href="https://github.com/samyn92/agentops-core">
-    GitHub <i class="fab fa-github ml-2"></i>
+    <i class="fab fa-github me-1"></i> GitHub
   </a>
 </div>
 <div class="agentops-hero-badges">
   <a href="https://github.com/samyn92/agentops-platform/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-platform?label=platform&style=flat-square&color=8b5cf6" alt="Platform"></a>
-  <a href="https://github.com/samyn92/agentops-core/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-core?label=operator&style=flat-square&color=8b5cf6" alt="Operator"></a>
-  <a href="https://github.com/samyn92/agentops-runtime/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-runtime?label=runtime&style=flat-square&color=8b5cf6" alt="Runtime"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=flat-square" alt="License"></a>
 </div>
 {{< /blocks/cover >}}
@@ -39,12 +37,38 @@ title: "AgentOps"
         </p>
       </div>
     </div>
+
+    <div class="agentops-principles">
+      <div class="agentops-principle">
+        <div class="agentops-principle-num">Principle 01</div>
+        <h4>Kubernetes-Native</h4>
+        <p>Agents are CRDs, not containers wrapping scripts. Reconciliation loops, not cron jobs. The control plane, not a sidecar.</p>
+      </div>
+      <div class="agentops-principle">
+        <div class="agentops-principle-num">Principle 02</div>
+        <h4>Zero Abstractions</h4>
+        <p>No framework lock-in, no SDKs to learn. Pure Kubernetes primitives. If you know kubectl, you know AgentOps.</p>
+      </div>
+      <div class="agentops-principle">
+        <div class="agentops-principle-num">Principle 03</div>
+        <h4>Observable by Default</h4>
+        <p>Every tool call, memory read, and delegation traced end-to-end with OpenTelemetry. You see everything.</p>
+      </div>
+      <div class="agentops-principle">
+        <div class="agentops-principle-num">Principle 04</div>
+        <h4>Production-Grade</h4>
+        <p>Single static Go binaries. Predictable resources. No cold-start surprises. Built for SRE teams who run real infrastructure.</p>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="agentops-section agentops-section--features">
   <div class="container">
     <h2 class="agentops-section-title text-center">Platform Capabilities</h2>
+    <p class="agentops-section-lead text-center">
+      Every component designed for production. Every integration first-party.
+    </p>
     <div class="row agentops-features-grid">
 
       <div class="col-lg-4 col-md-6">
@@ -161,10 +185,15 @@ spec:
 
 <section class="agentops-section agentops-section--cta">
   <div class="container text-center">
-    <h2 class="agentops-section-title">Get Started</h2>
+    <h2 class="agentops-section-title">Ready to deploy intelligent agents?</h2>
     <p class="agentops-section-lead">Install the operator, apply your first Agent CR, and watch it run.</p>
-    <a class="btn btn-lg btn-primary" href="docs/getting-started/">
-      Getting Started Guide <i class="fas fa-arrow-alt-circle-right ml-2"></i>
-    </a>
+    <div class="agentops-hero-actions" style="animation: none; margin-top: 2rem;">
+      <a class="btn btn-lg btn-primary" href="docs/getting-started/">
+        Getting Started <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+      <a class="btn btn-lg btn-secondary" href="docs/getting-started/architecture/">
+        Architecture <i class="fas fa-layer-group ms-1"></i>
+      </a>
+    </div>
   </div>
 </section>

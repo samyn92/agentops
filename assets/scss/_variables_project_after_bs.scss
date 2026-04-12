@@ -1,11 +1,13 @@
 // =============================================================================
-// Extended color maps
+// Extended color maps — layered surface system
 // =============================================================================
 
 $custom-colors: (
-  "surface":     #0a0a0c,
-  "surface-alt":  #141418,
-  "muted":       #71717a,
+  "surface":      #0a0a0c,   // Deepest panels
+  "surface-alt":  #111114,   // Elevated panels
+  "surface-high": #18181c,   // Highest elevation
+  "muted":        #71717a,   // De-emphasized text
+  "accent":       #a78bfa,   // Lighter violet for gradients
 );
 
 $theme-colors: map-merge($theme-colors, $custom-colors);
