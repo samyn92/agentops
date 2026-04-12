@@ -1,237 +1,304 @@
 // =============================================================================
-// AgentOps — Custom styles
-// Dark-first Material You × Vercel aesthetic
+// AgentOps — TRON: Neon Purple Edition
+// Void-black. Neon purple. Cyan gridlines. Electric glow.
 // =============================================================================
 
 // Opt-in: dark mode code highlighting
 @import "td/code-dark";
 
-// Note: td/color-adjustments-dark not available in Docsy 0.11.0
-
 // =============================================================================
-// Dark mode defaults (applied via data-bs-theme="dark")
+// CSS Custom Properties
 // =============================================================================
 
 [data-bs-theme="dark"] {
-  --bs-body-bg: #0a0a0a;
-  --bs-body-bg-rgb: 10, 10, 10;
-  --bs-body-color: #e0e0e0;
-  --bs-body-color-rgb: 224, 224, 224;
-  --bs-tertiary-bg: #1a1a2e;
-  --bs-secondary-bg: #141414;
-  --bs-border-color: rgba(255, 255, 255, 0.08);
-  --bs-emphasis-color: #ffffff;
-  --td-pre-bg: #0d1117;
-}
+  --bs-body-bg: #050508;
+  --bs-body-bg-rgb: 5, 5, 8;
+  --bs-body-color: #c8c8d0;
+  --bs-body-color-rgb: 200, 200, 208;
+  --bs-tertiary-bg: #0e0e18;
+  --bs-secondary-bg: #0a0a12;
+  --bs-border-color: rgba(178, 75, 243, 0.12);
+  --bs-emphasis-color: #f0f0ff;
+  --td-pre-bg: #08080f;
 
-// =============================================================================
-// Light mode overrides — clean, bright, not default Bootstrap boring
-// =============================================================================
+  // Neon custom props
+  --neon-purple: #b24bf3;
+  --neon-purple-bright: #d084ff;
+  --neon-cyan: #00f0ff;
+  --neon-magenta: #ff00aa;
+  --neon-glow-purple: rgba(178, 75, 243, 0.4);
+  --neon-glow-cyan: rgba(0, 240, 255, 0.3);
+  --neon-glow-magenta: rgba(255, 0, 170, 0.3);
+  --surface-grid: #12121e;
+}
 
 [data-bs-theme="light"] {
-  --bs-body-bg: #fafafa;
-  --bs-body-color: #1a1a1a;
-  --bs-tertiary-bg: #f0f4f8;
+  --bs-body-bg: #f5f3ff;
+  --bs-body-color: #1a1a2e;
+  --bs-tertiary-bg: #ede9fe;
   --bs-secondary-bg: #ffffff;
-  --bs-border-color: rgba(0, 0, 0, 0.08);
-  --td-pre-bg: #f6f8fa;
+  --bs-border-color: rgba(139, 92, 246, 0.15);
+  --td-pre-bg: #f0ecff;
+
+  --neon-purple: #7c3aed;
+  --neon-purple-bright: #8b5cf6;
+  --neon-cyan: #06b6d4;
+  --neon-magenta: #ec4899;
+  --neon-glow-purple: rgba(124, 58, 237, 0.2);
+  --neon-glow-cyan: rgba(6, 182, 212, 0.15);
+  --surface-grid: #ede9fe;
 }
 
 // =============================================================================
-// Navbar — glass morphism
+// Navbar — glass with neon purple bottom edge
 // =============================================================================
 
 .td-navbar {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  transition: all 0.3s ease;
 }
 
 [data-bs-theme="dark"] .td-navbar {
-  background: rgba(10, 10, 10, 0.85) !important;
+  background: rgba(5, 5, 8, 0.8) !important;
+  border-bottom: 1px solid rgba(178, 75, 243, 0.2);
+  box-shadow: 0 1px 30px rgba(178, 75, 243, 0.08);
 }
 
 [data-bs-theme="light"] .td-navbar {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-bottom-color: rgba(0, 0, 0, 0.06);
+  background: rgba(245, 243, 255, 0.9) !important;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.15);
 }
 
-// Navbar brand styling
 .td-navbar .navbar-brand__name {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: 1.3rem;
+
+  [data-bs-theme="dark"] & {
+    background: linear-gradient(135deg, #b24bf3, #00f0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
-// Navbar links
 .td-navbar .nav-link {
   font-weight: 500;
   font-size: 0.875rem;
-  letter-spacing: 0.01em;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  transition: all 0.2s ease;
 
   &:hover,
   &.active {
     opacity: 1;
+
+    [data-bs-theme="dark"] & {
+      color: var(--neon-purple-bright);
+      text-shadow: 0 0 12px var(--neon-glow-purple);
+    }
   }
 }
 
 // =============================================================================
-// Hero / Cover — dramatic gradient background
+// Hero / Cover — the Tron grid
 // =============================================================================
 
 .td-cover-block {
   position: relative;
   overflow: hidden;
 
-  // Gradient overlay for dark mode
+  // Void gradient
   [data-bs-theme="dark"] & {
     background: linear-gradient(
-      135deg,
-      #0a0a0a 0%,
-      #0d1b2a 30%,
-      #1b2838 50%,
-      #0a1628 70%,
-      #0a0a0a 100%
+      180deg,
+      #050508 0%,
+      #0a0a18 20%,
+      #0d0d1f 40%,
+      #100a20 60%,
+      #0a0a18 80%,
+      #050508 100%
     ) !important;
   }
 
-  // Subtle dot grid pattern
+  // Tron grid pattern
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(
-      rgba(0, 191, 165, 0.08) 1px,
-      transparent 1px
-    );
-    background-size: 24px 24px;
+    background-image:
+      linear-gradient(rgba(178, 75, 243, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(178, 75, 243, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 80%);
     pointer-events: none;
     z-index: 0;
   }
 
-  // Glow orb — top right
+  // Neon purple glow orb — center top
   &::after {
     content: "";
     position: absolute;
-    top: -20%;
-    right: -10%;
-    width: 600px;
-    height: 600px;
+    top: -30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
     background: radial-gradient(
       circle,
-      rgba(0, 191, 165, 0.15) 0%,
-      rgba(0, 229, 255, 0.05) 40%,
+      rgba(178, 75, 243, 0.2) 0%,
+      rgba(178, 75, 243, 0.08) 25%,
+      rgba(0, 240, 255, 0.04) 50%,
       transparent 70%
     );
     border-radius: 50%;
     pointer-events: none;
     z-index: 0;
+    animation: pulseGlow 4s ease-in-out infinite alternate;
   }
 
-  // Ensure content is above decorations
   > * {
     position: relative;
     z-index: 1;
   }
 }
 
-// Hero title
-.td-cover-block h1 {
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+@keyframes pulseGlow {
+  from {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
 }
 
-// Hero lead text
+// Hero title — neon glow text
+.td-cover-block h1 {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+
+  [data-bs-theme="dark"] & {
+    color: #ffffff;
+    text-shadow:
+      0 0 20px rgba(178, 75, 243, 0.5),
+      0 0 60px rgba(178, 75, 243, 0.2);
+  }
+}
+
 .td-cover-block .lead {
-  font-weight: 400;
-  opacity: 0.8;
-  max-width: 600px;
+  font-weight: 300;
+  opacity: 0.75;
+  max-width: 620px;
   margin-left: auto;
   margin-right: auto;
+  letter-spacing: 0.01em;
 }
 
-// Hero buttons
+// Hero buttons — neon styled
 .td-cover-block .btn {
-  border-radius: 8px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  padding: 0.75rem 1.75rem;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 0.8rem 2rem;
+  transition: all 0.25s ease;
   border: none;
 
   &.btn-primary {
-    background: linear-gradient(135deg, #00bfa5, #00e5ff);
-    color: #0a0a0a;
-    box-shadow: 0 4px 20px rgba(0, 191, 165, 0.3);
+    background: linear-gradient(135deg, #b24bf3 0%, #d084ff 50%, #00f0ff 100%);
+    color: #050508;
+    box-shadow:
+      0 0 20px rgba(178, 75, 243, 0.4),
+      0 0 60px rgba(178, 75, 243, 0.15);
 
     &:hover {
-      box-shadow: 0 6px 28px rgba(0, 191, 165, 0.45);
-      transform: translateY(-1px);
+      box-shadow:
+        0 0 30px rgba(178, 75, 243, 0.6),
+        0 0 80px rgba(178, 75, 243, 0.25),
+        0 0 120px rgba(0, 240, 255, 0.1);
+      transform: translateY(-2px);
     }
   }
 
   &.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: none;
+    background: transparent;
+    color: var(--neon-cyan);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(0, 240, 255, 0.06);
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow:
+        0 0 20px rgba(0, 240, 255, 0.2),
+        inset 0 0 20px rgba(0, 240, 255, 0.05);
     }
   }
 }
 
 // =============================================================================
-// Homepage feature blocks / sections
+// Homepage sections — Tron surface treatment
 // =============================================================================
 
 .td-box {
-  // Dark sections
   &.-bg-dark {
     [data-bs-theme="dark"] & {
-      background: #0f0f0f !important;
+      background: #08080f !important;
+      border-top: 1px solid rgba(178, 75, 243, 0.06);
+      border-bottom: 1px solid rgba(178, 75, 243, 0.06);
     }
   }
 
   &.-bg-primary {
     [data-bs-theme="dark"] & {
-      background: linear-gradient(180deg, #0a1a18 0%, #0a0a0a 100%) !important;
+      background: linear-gradient(180deg, #0a0815 0%, #050508 100%) !important;
     }
   }
 
   &.-bg-white {
     [data-bs-theme="dark"] & {
-      background: #141414 !important;
+      background: #0a0a12 !important;
     }
   }
 }
 
-// Feature cards
+// Feature icons — neon glow
 .td-box--feature {
   .feature-icon {
-    font-size: 2rem;
+    font-size: 2.25rem;
     margin-bottom: 1rem;
 
     [data-bs-theme="dark"] & {
-      color: #00bfa5;
-      filter: drop-shadow(0 0 8px rgba(0, 191, 165, 0.3));
+      color: var(--neon-purple-bright);
+      filter: drop-shadow(0 0 12px var(--neon-glow-purple));
     }
   }
 
   h4, .h4 {
     font-weight: 700;
     letter-spacing: -0.01em;
+
+    [data-bs-theme="dark"] & {
+      color: #e8e0ff;
+    }
+  }
+
+  p {
+    [data-bs-theme="dark"] & {
+      color: #9090a8;
+    }
   }
 }
 
 // =============================================================================
-// Content area — clean readable typography
+// Content — crisp typography with neon accents
 // =============================================================================
 
 .td-content {
@@ -247,65 +314,79 @@
     padding-bottom: 0.5rem;
 
     [data-bs-theme="dark"] & {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(178, 75, 243, 0.1);
     }
   }
 
-  // Links
+  // Neon purple links
   a:not(.btn):not(.nav-link) {
-    color: #00bfa5;
     text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease;
-
-    &:hover {
-      border-bottom-color: #00bfa5;
-    }
-  }
-
-  // Inline code
-  code:not([class*="language-"]) {
-    font-size: 0.875em;
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
-    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Cascadia Code", monospace;
+    transition: all 0.2s ease;
 
     [data-bs-theme="dark"] & {
-      background: rgba(0, 191, 165, 0.1);
-      color: #4fd1c5;
+      color: var(--neon-purple-bright);
+      border-bottom: 1px solid transparent;
+
+      &:hover {
+        color: #e0b0ff;
+        border-bottom-color: var(--neon-purple-bright);
+        text-shadow: 0 0 8px var(--neon-glow-purple);
+      }
     }
 
     [data-bs-theme="light"] & {
-      background: rgba(0, 191, 165, 0.08);
-      color: #00897b;
+      color: var(--neon-purple);
+
+      &:hover {
+        color: var(--neon-purple-bright);
+      }
+    }
+  }
+
+  // Inline code — neon tinted
+  code:not([class*="language-"]) {
+    font-size: 0.85em;
+    padding: 0.15em 0.45em;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+
+    [data-bs-theme="dark"] & {
+      background: rgba(178, 75, 243, 0.1);
+      color: #d084ff;
+      border: 1px solid rgba(178, 75, 243, 0.15);
+    }
+
+    [data-bs-theme="light"] & {
+      background: rgba(124, 58, 237, 0.08);
+      color: #7c3aed;
     }
   }
 }
 
 // =============================================================================
-// Code blocks — GitHub-dark inspired
+// Code blocks — void terminal with neon border
 // =============================================================================
 
 .td-content pre {
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 0.85rem;
   line-height: 1.6;
   font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
 
   [data-bs-theme="dark"] & {
-    background: #0d1117 !important;
-    border-color: rgba(255, 255, 255, 0.08);
+    background: #08080f !important;
+    border: 1px solid rgba(178, 75, 243, 0.15);
+    box-shadow: 0 0 20px rgba(178, 75, 243, 0.05);
   }
 
   [data-bs-theme="light"] & {
-    background: #f6f8fa !important;
-    border-color: rgba(0, 0, 0, 0.08);
+    background: #f0ecff !important;
+    border: 1px solid rgba(124, 58, 237, 0.12);
   }
 }
 
 // =============================================================================
-// Tables — clean and subtle
+// Tables — gridline aesthetic
 // =============================================================================
 
 .td-content table {
@@ -316,33 +397,33 @@
   thead th {
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
 
     [data-bs-theme="dark"] & {
-      background: #1a1a2e;
-      color: #9e9e9e;
-      border-color: rgba(255, 255, 255, 0.06);
+      background: #0e0e18;
+      color: var(--neon-purple-bright);
+      border-color: rgba(178, 75, 243, 0.12);
     }
   }
 
   tbody td {
     [data-bs-theme="dark"] & {
-      border-color: rgba(255, 255, 255, 0.04);
+      border-color: rgba(178, 75, 243, 0.06);
     }
   }
 
   tbody tr {
     [data-bs-theme="dark"] & {
       &:hover {
-        background: rgba(0, 191, 165, 0.03);
+        background: rgba(178, 75, 243, 0.04);
       }
     }
   }
 }
 
 // =============================================================================
-// Sidebar — refined
+// Sidebar — neon active states
 // =============================================================================
 
 .td-sidebar-nav {
@@ -353,10 +434,12 @@
     border-radius: 6px;
     transition: all 0.15s ease;
     font-weight: 400;
+    border-left: 2px solid transparent;
 
     &:hover {
       [data-bs-theme="dark"] & {
-        background: rgba(0, 191, 165, 0.06);
+        background: rgba(178, 75, 243, 0.06);
+        border-left-color: rgba(178, 75, 243, 0.3);
       }
     }
 
@@ -364,39 +447,47 @@
       font-weight: 600;
 
       [data-bs-theme="dark"] & {
-        color: #00bfa5;
-        background: rgba(0, 191, 165, 0.08);
+        color: var(--neon-purple-bright);
+        background: rgba(178, 75, 243, 0.08);
+        border-left-color: var(--neon-purple);
+        box-shadow: -2px 0 12px rgba(178, 75, 243, 0.15);
       }
     }
   }
 }
 
 // =============================================================================
-// Footer — minimal
+// Footer — void with subtle grid line
 // =============================================================================
 
 .td-footer {
   [data-bs-theme="dark"] & {
-    background: #050505;
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    background: #030305;
+    border-top: 1px solid rgba(178, 75, 243, 0.1);
+    box-shadow: 0 -1px 30px rgba(178, 75, 243, 0.03);
   }
 }
 
 // =============================================================================
-// Breadcrumbs — subtle
+// Breadcrumbs
 // =============================================================================
 
 .td-breadcrumbs {
   font-size: 0.8rem;
-  opacity: 0.6;
+  opacity: 0.5;
+  letter-spacing: 0.02em;
 
   a {
     text-decoration: none;
+
+    [data-bs-theme="dark"] & {
+      color: var(--neon-purple-bright);
+    }
   }
 }
 
 // =============================================================================
-// Search
+// Search — neon focus ring
 // =============================================================================
 
 .td-search__input {
@@ -404,71 +495,127 @@
   font-size: 0.875rem;
 
   [data-bs-theme="dark"] & {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #e0e0e0;
+    background: rgba(178, 75, 243, 0.04);
+    border: 1px solid rgba(178, 75, 243, 0.15);
+    color: #c8c8d0;
+
+    &::placeholder {
+      color: #6b6b80;
+    }
 
     &:focus {
-      border-color: #00bfa5;
-      box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.15);
+      border-color: var(--neon-purple);
+      box-shadow:
+        0 0 0 3px rgba(178, 75, 243, 0.15),
+        0 0 20px rgba(178, 75, 243, 0.1);
     }
   }
 }
 
 // =============================================================================
-// Alerts / Admonitions
+// Alerts — neon left border
 // =============================================================================
 
 .alert {
   border-radius: 8px;
-  border-left-width: 4px;
+  border-left-width: 3px;
   font-size: 0.9rem;
 
   [data-bs-theme="dark"] & {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(178, 75, 243, 0.03);
+    border-color: rgba(178, 75, 243, 0.2);
   }
 }
 
 // =============================================================================
-// Page info box
+// Page meta
 // =============================================================================
 
 .td-page-meta {
   [data-bs-theme="dark"] & {
-    border-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(178, 75, 243, 0.1);
   }
 }
 
 // =============================================================================
-// Smooth scrolling + selection color
+// Scrollbar — neon purple (Webkit)
+// =============================================================================
+
+[data-bs-theme="dark"] {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #050508;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(178, 75, 243, 0.25);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(178, 75, 243, 0.4);
+    }
+  }
+}
+
+// =============================================================================
+// Selection color — neon
+// =============================================================================
+
+::selection {
+  background: rgba(178, 75, 243, 0.35);
+  color: #ffffff;
+}
+
+// =============================================================================
+// Smooth scroll
 // =============================================================================
 
 html {
   scroll-behavior: smooth;
 }
 
-::selection {
-  background: rgba(0, 191, 165, 0.3);
-  color: inherit;
-}
-
 // =============================================================================
-// Subtle animations
+// Animations — fade in with subtle neon
 // =============================================================================
 
 .td-content,
 .td-sidebar,
 .td-toc {
-  animation: fadeInUp 0.3s ease-out;
+  animation: neonFadeIn 0.4s ease-out;
 }
 
-@keyframes fadeInUp {
+@keyframes neonFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
+    filter: brightness(0.8);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: brightness(1);
   }
+}
+
+// =============================================================================
+// Global neon scan line effect (very subtle)
+// =============================================================================
+
+[data-bs-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(178, 75, 243, 0.008) 2px,
+    rgba(178, 75, 243, 0.008) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
 }

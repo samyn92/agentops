@@ -1,15 +1,14 @@
 // =============================================================================
-// AgentOps — Dark-first Material You × Vercel theme
+// AgentOps — TRON: Neon Purple Edition
 // =============================================================================
-// Design direction: deep dark surfaces, vibrant teal/cyan primary accent,
-// warm secondary, glass/blur effects. Inspired by Material You dynamic color
-// and Vercel's developer-focused dark aesthetic.
+// Design: void-black surfaces, electric purple/magenta neon accents,
+// cyan highlights, grid patterns, glow effects. Pure Tron Legacy aesthetic.
 
 // -- Google Fonts --
-// DM Sans: geometric, modern, excellent readability. Not overused like Inter.
+// Outfit: geometric, futuristic, sharp. Perfect for a Tron-inspired UI.
 $td-enable-google-fonts: true;
-$td-google-font-name: "DM Sans";
-$td-google-font-family: "DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400";
+$td-google-font-name: "Outfit";
+$td-google-font-family: "Outfit:wght@300;400;500;600;700;800;900";
 
 // -- Bootstrap feature toggles --
 $enable-gradients: true;
@@ -17,39 +16,39 @@ $enable-shadows: true;
 $enable-dark-mode: true;
 
 // -- Color palette --
-// Material You tonal palette mapped to Bootstrap slots
+// Tron: electric purple neon, hot magenta, icy cyan
 
-// Primary: vibrant teal — the hero accent
-$primary:   #00bfa5;
+// Primary: electric neon purple
+$primary:   #b24bf3;
 
-// Secondary: warm amber — complementary warmth
-$secondary: #ffab40;
+// Secondary: hot cyan — the Tron grid color
+$secondary: #00f0ff;
 
-// Neutral surfaces (used in dark mode)
-$dark:    #0a0a0a;
-$light:   #fafafa;
+// Neutral void
+$dark:    #050508;
+$light:   #f0f0f5;
 
-// Semantic colors
-$success: #66bb6a;
-$info:    #29b6f6;
-$warning: #ffa726;
-$danger:  #ef5350;
+// Semantic colors — neon-tinted
+$success: #39ff14;
+$info:    #00f0ff;
+$warning: #ff6e00;
+$danger:  #ff003c;
 
 // -- Typography --
-$font-family-sans-serif: "DM Sans", system-ui, -apple-system, sans-serif;
+$font-family-sans-serif: "Outfit", system-ui, -apple-system, sans-serif;
 $td-font-weight-body-text: 400;
 
 // -- Body defaults --
-$body-bg:    #0a0a0a;
-$body-color: #e0e0e0;
+$body-bg:    #050508;
+$body-color: #c8c8d0;
 
 // -- Navbar --
-$td-navbar-bg-color: rgba(10, 10, 10, 0.8);
+$td-navbar-bg-color: rgba(5, 5, 8, 0.75);
 $td-navbar-min-height: 4rem;
 
 // -- Code blocks --
-$pre-color: #e0e0e0;
+$pre-color: #d0d0e0;
 
-// -- Spacing for homepage blocks --
+// -- Spacing --
 $td-block-space-top-base: 3rem;
 $td-block-space-bottom-base: 3rem;
