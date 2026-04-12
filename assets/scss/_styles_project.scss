@@ -70,35 +70,39 @@
 }
 
 // =============================================================================
-// Hero — subtle gradient, no grid, no glow orbs. Just clean.
+// Hero — subtle gradient with logo
 // =============================================================================
 
 .td-cover-block {
   position: relative;
   overflow: hidden;
+  padding-top: 5rem !important;
+  padding-bottom: 5rem !important;
 
   [data-bs-theme="dark"] & {
     background: linear-gradient(
       180deg,
       #09090b 0%,
-      #0f0f14 50%,
+      #0c0c12 40%,
+      #0f0f18 60%,
       #09090b 100%
     ) !important;
   }
 
-  // Very faint radial highlight — barely visible
+  // Faint purple radial glow behind logo area
   &::after {
     content: "";
     position: absolute;
-    top: -40%;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
-    width: 800px;
-    height: 600px;
+    width: 700px;
+    height: 500px;
     background: radial-gradient(
       ellipse,
-      rgba(139, 92, 246, 0.06) 0%,
-      transparent 60%
+      rgba(139, 92, 246, 0.08) 0%,
+      rgba(139, 92, 246, 0.03) 30%,
+      transparent 65%
     );
     border-radius: 50%;
     pointer-events: none;
@@ -111,26 +115,102 @@
   }
 }
 
-.td-cover-block h1 {
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+// Hero logo
+.agentops-hero-logo {
+  display: block;
+  margin: 0 auto 1.5rem;
+  filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.15));
+  animation: heroLogoIn 0.8s ease-out;
+}
+
+@keyframes heroLogoIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Hero title
+.agentops-hero-title {
+  font-size: 3.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+  animation: heroFadeUp 0.6s ease-out 0.1s both;
 
   [data-bs-theme="dark"] & {
     color: #fafafa;
   }
 }
 
-.td-cover-block .lead {
-  font-weight: 400;
-  opacity: 0.6;
-  max-width: 580px;
-  margin-left: auto;
-  margin-right: auto;
+.agentops-hero-subtitle {
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  animation: heroFadeUp 0.6s ease-out 0.2s both;
+
+  [data-bs-theme="dark"] & {
+    color: #a78bfa;
+  }
 }
 
-// Buttons — solid primary, ghost secondary
-.td-cover-block .btn {
+.agentops-hero-desc {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto 2rem;
+  animation: heroFadeUp 0.6s ease-out 0.3s both;
+
+  [data-bs-theme="dark"] & {
+    color: #71717a;
+  }
+}
+
+.agentops-hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: heroFadeUp 0.6s ease-out 0.4s both;
+}
+
+.agentops-hero-badges {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  animation: heroFadeUp 0.6s ease-out 0.5s both;
+
+  a {
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Buttons — solid primary, ghost secondary (global)
+.btn {
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.85rem;
@@ -163,7 +243,218 @@
 }
 
 // =============================================================================
-// Homepage sections
+// Custom landing page sections
+// =============================================================================
+
+.agentops-section {
+  padding: 5rem 0;
+  position: relative;
+}
+
+// Intro section — slightly lighter surface
+.agentops-section--intro {
+  [data-bs-theme="dark"] & {
+    background: #0c0c0f;
+    border-top: 1px solid #1a1a1f;
+    border-bottom: 1px solid #1a1a1f;
+  }
+  [data-bs-theme="light"] & {
+    background: #ffffff;
+    border-top: 1px solid #e4e4e7;
+    border-bottom: 1px solid #e4e4e7;
+  }
+}
+
+// Features section — base dark
+.agentops-section--features {
+  [data-bs-theme="dark"] & {
+    background: #09090b;
+  }
+  [data-bs-theme="light"] & {
+    background: #fafafa;
+  }
+}
+
+// Code section — slightly lighter
+.agentops-section--code {
+  [data-bs-theme="dark"] & {
+    background: #0c0c0f;
+    border-top: 1px solid #1a1a1f;
+    border-bottom: 1px solid #1a1a1f;
+  }
+  [data-bs-theme="light"] & {
+    background: #ffffff;
+    border-top: 1px solid #e4e4e7;
+    border-bottom: 1px solid #e4e4e7;
+  }
+}
+
+// CTA section — base dark with faint radial
+.agentops-section--cta {
+  padding: 5rem 0 6rem;
+
+  [data-bs-theme="dark"] & {
+    background: #09090b;
+  }
+}
+
+// Section typography
+.agentops-section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.25rem;
+
+  [data-bs-theme="dark"] & {
+    color: #fafafa;
+  }
+}
+
+.agentops-section-lead {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+
+  [data-bs-theme="dark"] & {
+    color: #a1a1aa;
+  }
+}
+
+.agentops-section-body {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-top: 1rem;
+
+  [data-bs-theme="dark"] & {
+    color: #71717a;
+  }
+
+  a {
+    [data-bs-theme="dark"] & {
+      color: #a78bfa;
+      text-decoration: none;
+      &:hover { color: #c4b5fd; }
+    }
+  }
+
+  code {
+    [data-bs-theme="dark"] & {
+      background: #18181b;
+      color: #d4d4d8;
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+  }
+}
+
+// =============================================================================
+// Feature cards — the premium shaded cards
+// =============================================================================
+
+.agentops-features-grid {
+  margin-top: 2.5rem;
+  row-gap: 1.5rem;
+}
+
+.agentops-feature-card {
+  height: 100%;
+  padding: 2rem 1.75rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+
+  [data-bs-theme="dark"] & {
+    background: #0f0f13;
+    border: 1px solid #1c1c22;
+
+    &:hover {
+      border-color: #2a2a32;
+      background: #111116;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  [data-bs-theme="light"] & {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    &:hover {
+      border-color: #d4d4d8;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+
+    [data-bs-theme="dark"] & {
+      color: #e4e4e7;
+    }
+  }
+
+  p {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+
+    [data-bs-theme="dark"] & {
+      color: #71717a;
+    }
+  }
+}
+
+.agentops-feature-icon {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+
+  [data-bs-theme="dark"] & {
+    color: #a78bfa;
+    background: rgba(139, 92, 246, 0.1);
+  }
+
+  [data-bs-theme="light"] & {
+    color: #7c3aed;
+    background: rgba(139, 92, 246, 0.08);
+  }
+}
+
+.agentops-feature-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  [data-bs-theme="dark"] & {
+    color: #8b5cf6;
+
+    &:hover {
+      color: #a78bfa;
+    }
+  }
+
+  [data-bs-theme="light"] & {
+    color: #7c3aed;
+    &:hover { color: #6d28d9; }
+  }
+}
+
+// =============================================================================
+// Docsy box overrides (for any remaining Docsy shortcodes)
 // =============================================================================
 
 .td-box {
@@ -182,34 +473,6 @@
   &.-bg-white {
     [data-bs-theme="dark"] & {
       background: #0f0f12 !important;
-    }
-  }
-}
-
-// Feature icons — muted purple
-.td-box--feature {
-  .feature-icon {
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
-
-    [data-bs-theme="dark"] & {
-      color: #8b5cf6;
-      opacity: 0.8;
-    }
-  }
-
-  h4, .h4 {
-    font-weight: 600;
-    letter-spacing: -0.01em;
-
-    [data-bs-theme="dark"] & {
-      color: #e4e4e7;
-    }
-  }
-
-  p {
-    [data-bs-theme="dark"] & {
-      color: #71717a;
     }
   }
 }
@@ -276,14 +539,15 @@
 // Code blocks — simple, dark
 // =============================================================================
 
-.td-content pre {
+.td-content pre,
+.agentops-section pre {
   border-radius: 8px;
   font-size: 0.84rem;
   line-height: 1.65;
   font-family: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
 
   [data-bs-theme="dark"] & {
-    background: #0c0c0f !important;
+    background: #0a0a0d !important;
     border: 1px solid #1c1c20;
   }
 

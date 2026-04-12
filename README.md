@@ -1,27 +1,30 @@
-# AgentOps
+<p align="center">
+  <img src="static/images/logo.png" width="240" alt="AgentOps" />
+</p>
 
-**Kubernetes-native AI agent platform with memory, delegation, and observability.**
+<h1 align="center">AgentOps</h1>
 
-AgentOps is an open-source platform for deploying AI agents as native Kubernetes workloads. Define agents, tools, channels, and resources as Custom Resources — the operator handles deployments, networking, storage, MCP tool integration, and a purpose-built memory system with relevance-ranked context injection.
+<p align="center">
+  <a href="https://github.com/samyn92/agentops-platform/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-platform?label=platform&style=flat-square&color=8b5cf6" alt="Platform Release"></a>
+  <a href="https://github.com/samyn92/agentops-core/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-core?label=operator&style=flat-square&color=8b5cf6" alt="Operator Release"></a>
+  <a href="https://github.com/samyn92/agentops-runtime/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-runtime?label=runtime&style=flat-square&color=8b5cf6" alt="Runtime Release"></a>
+  <a href="https://github.com/samyn92/agentops/actions/workflows/deploy-pages.yml"><img src="https://img.shields.io/github/actions/workflow/status/samyn92/agentops/deploy-pages.yml?branch=main&style=flat-square&label=docs" alt="Docs Build"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=flat-square" alt="License"></a>
+</p>
 
-> Built on the [Charm Fantasy SDK](https://github.com/charmbracelet/fantasy). Pure Go. No Python runtime.
+<p align="center">
+  Kubernetes-native AI agent platform. Memory, delegation, observability.
+</p>
+
+<p align="center">
+  <a href="https://samyn92.github.io/agentops/">Documentation</a> · <a href="https://samyn92.github.io/agentops/docs/getting-started/">Getting Started</a> · <a href="https://github.com/samyn92/agentops-core">Operator</a> · <a href="https://github.com/samyn92/agentops-runtime">Runtime</a>
+</p>
 
 ---
 
-## Why AgentOps?
+Deploy AI agents as first-class Kubernetes workloads. Define agents, tools, channels, and resources as Custom Resources — the operator handles deployments, networking, storage, MCP tool integration, and a purpose-built memory system with relevance-ranked context injection.
 
-| Capability | Details |
-|-----------|---------|
-| **Runtime** | Go binary built on the [Charm Fantasy SDK](https://github.com/charmbracelet/fantasy) -- fast startup, low memory |
-| **Memory** | Three-layer system (working/short-term/long-term) with BM25 relevance-ranked context injection |
-| **Agent delegation** | Parallel fan-out with zero-polling K8s Watch result aggregation |
-| **Tool distribution** | Custom OCI artifacts + MCP stdio transport, pulled by crane init containers |
-| **Observability** | Full OTEL tracing with per-observation injection audit trails |
-| **Streaming** | Fantasy Event Protocol (FEP) over SSE -- 30+ event types |
-| **Console** | SolidJS PWA with real-time streaming and 12 specialized tool card renderers |
-| **Memory service** | SQLite + FTS5, three-tier write dedup, deterministic session summaries (~1300 LOC) |
-
----
+Built on the [Charm Fantasy SDK](https://github.com/charmbracelet/fantasy). Pure Go. No Python runtime.
 
 ## Architecture
 
@@ -29,52 +32,50 @@ AgentOps is an open-source platform for deploying AI agents as native Kubernetes
   <img src="static/images/architecture.svg" alt="AgentOps Platform Architecture" width="900" />
 </p>
 
----
+## Platform Components
 
-## Components
-
-| Repository | Description | Version |
-|-----------|-------------|---------|
-| [agentops-core](https://github.com/samyn92/agentops-core) | Kubernetes operator — 5 CRDs, MCP gateway sidecars, RBAC, concurrency control | v0.8.1 |
-| [agentops-runtime](https://github.com/samyn92/agentops-runtime) | Fantasy SDK agent binary — three-layer memory, delegation, FEP streaming | v0.8.2 |
-| [agentops-console](https://github.com/samyn92/agentops-console) | Go BFF + SolidJS PWA — real-time streaming, 60+ API endpoints, trace integration | v0.9.4 |
-| [agentops-memory](https://github.com/samyn92/agentops-memory) | Purpose-built memory service — SQLite + FTS5 BM25, three-tier write dedup | v0.2.0 |
-| [agent-tools](https://github.com/samyn92/agent-tools) | MCP tool servers (kubectl, kube-explore, git, github, gitlab, flux) + OCI CLI | v0.5.1 |
-| [agentops-platform](https://github.com/samyn92/agentops-platform) | Umbrella Helm chart — one-command full-stack deployment | v0.9.6 |
-| [agent-channels](https://github.com/samyn92/agent-channels) | Webhook and GitLab bridge channel images | v0.1.0 |
-
----
+| Repository | Description | Latest |
+|:--|:--|:--|
+| [agentops-core](https://github.com/samyn92/agentops-core) | Kubernetes operator — 5 CRDs, MCP gateway sidecars, RBAC, concurrency control | [![](https://img.shields.io/github/v/release/samyn92/agentops-core?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-core/releases) |
+| [agentops-runtime](https://github.com/samyn92/agentops-runtime) | Fantasy SDK agent binary — three-layer memory, delegation, FEP streaming | [![](https://img.shields.io/github/v/release/samyn92/agentops-runtime?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-runtime/releases) |
+| [agentops-console](https://github.com/samyn92/agentops-console) | Go BFF + SolidJS PWA — real-time streaming, 60+ API endpoints, trace integration | [![](https://img.shields.io/github/v/release/samyn92/agentops-console?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-console/releases) |
+| [agentops-memory](https://github.com/samyn92/agentops-memory) | Purpose-built memory service — SQLite + FTS5 BM25, three-tier write dedup | [![](https://img.shields.io/github/v/release/samyn92/agentops-memory?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-memory/releases) |
+| [agent-tools](https://github.com/samyn92/agent-tools) | MCP tool servers (kubectl, kube-explore, git, github, gitlab, flux) + OCI CLI | [![](https://img.shields.io/github/v/release/samyn92/agent-tools?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agent-tools/releases) |
+| [agentops-platform](https://github.com/samyn92/agentops-platform) | Umbrella Helm chart — one-command full-stack deployment | [![](https://img.shields.io/github/v/release/samyn92/agentops-platform?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-platform/releases) |
+| [agent-channels](https://github.com/samyn92/agent-channels) | Webhook and GitLab bridge channel images | [![](https://img.shields.io/github/v/release/samyn92/agent-channels?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agent-channels/releases) |
 
 ## Key Features
 
-### Three-Layer Memory System
+### Three-Layer Memory
 
 Agents remember across conversations and learn from experience.
 
-- **Working Memory** — Last N turns in runtime memory (crash-checkpointed to PVC)
+- **Working Memory** — Last N turns in runtime memory, crash-checkpointed to PVC
 - **Short-term Memory** — Deterministic session summaries (no LLM call), injected on each turn
-- **Long-term Memory** — Decisions, discoveries, lessons learned. BM25 relevance-ranked context injection. Three-tier write dedup (topic_key upsert, hash dedup, new insert)
+- **Long-term Memory** — Decisions, discoveries, lessons learned. BM25 relevance-ranked context injection with three-tier write dedup
 
-Every memory injection is recorded as an OTEL span event — you can see in Tempo exactly which memories influenced each agent response.
+Every memory injection is recorded as an OTEL span — you can trace exactly which memories influenced each response.
 
 ### Parallel Agent Delegation
 
-The `run_agents` tool dispatches to multiple agents in one call. A `DelegationWatcher` uses K8s Watch (zero polling, zero CPU) to track child runs and automatically callbacks when all complete. The parent agent stays idle and available during the wait.
+The `run_agents` tool dispatches to multiple agents in one call. A `DelegationWatcher` uses Kubernetes Watch (zero polling) to track child runs and callback when all complete. The parent agent stays idle during the wait.
 
 ### MCP Gateway Sidecar
 
-Each agent pod gets a permission-enforcing MCP gateway sidecar. Tools are distributed as custom OCI artifacts (`application/vnd.agents.io.mcp-tool.v1`), pulled by init containers, and accessed via Streamable HTTP through the gateway.
+Each agent pod gets a permission-enforcing MCP gateway sidecar. Tools are distributed as custom OCI artifacts, pulled by init containers, and accessed via Streamable HTTP through the gateway.
 
 ### Real-Time Console
 
-SolidJS PWA with FEP/SSE streaming, 12 specialized tool card renderers (Terminal, Diff, Code, FileTree, Kubernetes, Helm, DelegationFanOut, etc.), Tempo trace integration with delegation tree enrichment, and a memory management panel.
+SolidJS PWA with FEP/SSE streaming, 12 specialized tool card renderers, Tempo trace integration with delegation tree enrichment, and a memory management panel.
 
----
+### Full OTEL Observability
+
+Every agent turn, tool invocation, memory read/write, and delegation is traced end-to-end with OpenTelemetry. Per-observation injection audit trails show exactly which memories were injected and why.
 
 ## Quickstart
 
 ```bash
-# Add the chart repo
+# Install the platform
 helm install agentops oci://ghcr.io/samyn92/charts/agentops-platform \
   --namespace agent-system --create-namespace
 
@@ -84,16 +85,9 @@ kubectl apply -f https://raw.githubusercontent.com/samyn92/agentops-platform/mai
 
 # Access the console
 kubectl port-forward -n agent-system svc/agentops-console 8080:80
-# Open http://localhost:8080
 ```
 
-For the full installation guide, see the [documentation](https://samyn92.github.io/agentops/docs/).
-
----
-
-## Custom Resource Examples
-
-### Agent
+## Define an Agent
 
 ```yaml
 apiVersion: agents.agentops.io/v1alpha1
@@ -118,53 +112,28 @@ spec:
     visibility: namespace
     allowedCallers: ["orchestrator"]
   runtime:
-    image: ghcr.io/samyn92/agentops-runtime-fantasy:0.8.2
+    image: ghcr.io/samyn92/agentops-runtime-fantasy:0.8.4
 ```
-
-### AgentTool (OCI)
-
-```yaml
-apiVersion: agents.agentops.io/v1alpha1
-kind: AgentTool
-metadata:
-  name: kube-explore
-  namespace: agents
-spec:
-  type: oci
-  oci:
-    ref: ghcr.io/samyn92/agent-tools/kube-explore:0.5.1
-  env:
-    - name: MODE
-      value: readwrite
-```
-
----
 
 ## Documentation
 
-Full documentation is available at **[samyn92.github.io/agentops](https://samyn92.github.io/agentops/)**.
+Full documentation at **[samyn92.github.io/agentops](https://samyn92.github.io/agentops/)**
 
 - [Getting Started](https://samyn92.github.io/agentops/docs/getting-started/)
 - [Concepts](https://samyn92.github.io/agentops/docs/concepts/)
 - [Guides](https://samyn92.github.io/agentops/docs/guides/)
 - [API Reference](https://samyn92.github.io/agentops/docs/reference/)
 
----
-
 ## Project Status
 
-AgentOps is under active development. The platform is functional and running in production on local k3s clusters with 8 agents deployed.
+AgentOps is under active development. Running in production on local k3s clusters with 8 agents deployed (3 daemon, 5 task).
 
-Current focus areas:
-- AgentSkill CRD (curated knowledge with Git sync and OCI sources)
-- Trigger CRD (unified entry point replacing Channel)
-- Workflow CRD (declarative DAG execution with gates and conditions)
-- Tool display branding and custom card renderers
+Current focus: AgentSkill CRD, Trigger CRD, Workflow CRD, tool display branding.
 
 See the [Roadmap](https://samyn92.github.io/agentops/docs/project/roadmap/) for details.
 
 ---
 
-## License
-
-[Apache License 2.0](LICENSE)
+<p align="center">
+  <sub>Apache License 2.0</sub>
+</p>
