@@ -89,8 +89,13 @@
     ) !important;
   }
 
+  // Override Docsy's dark overlay — we control background ourselves
+  &.td-overlay--dark::after {
+    background-color: transparent !important;
+  }
+
   // Faint purple radial glow behind logo area
-  &::after {
+  &::before {
     content: "";
     position: absolute;
     top: 5%;
@@ -115,11 +120,12 @@
   }
 }
 
-// Hero logo
-.agentops-hero-logo {
-  display: block;
-  margin: 0 auto 1.5rem;
-  filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.15));
+// Hero logo — Docsy renders this from page resource
+.td-cover-logo {
+  width: 140px !important;
+  height: 140px !important;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.2));
   animation: heroLogoIn 0.8s ease-out;
 }
 
@@ -134,12 +140,12 @@
   }
 }
 
-// Hero title
-.agentops-hero-title {
+// Hero title — Docsy renders as .display-1
+.td-cover-block .display-1 {
   font-size: 3.5rem !important;
   font-weight: 800 !important;
   letter-spacing: -0.05em;
-  line-height: 1;
+  line-height: 1.1;
   margin-bottom: 0.5rem;
   animation: heroFadeUp 0.6s ease-out 0.1s both;
 
@@ -148,11 +154,13 @@
   }
 }
 
-.agentops-hero-subtitle {
-  font-size: 1.35rem;
+// Hero subtitle — Docsy renders as .display-2
+.td-cover-block .display-2 {
+  font-size: 1.35rem !important;
   font-weight: 500;
   letter-spacing: -0.02em;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  text-transform: none !important;
   animation: heroFadeUp 0.6s ease-out 0.2s both;
 
   [data-bs-theme="dark"] & {
@@ -209,7 +217,11 @@
   }
 }
 
-// Buttons — solid primary, ghost secondary (global)
+// Hero inner content wrapper
+.td-cover-block .lead {
+  font-size: 1rem;
+  font-weight: 400;
+}
 .btn {
   border-radius: 6px;
   font-weight: 600;

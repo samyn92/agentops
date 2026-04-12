@@ -2,29 +2,24 @@
 title: "AgentOps"
 ---
 
-{{< blocks/cover title="" image_anchor="top" height="full" color="dark" >}}
-<div class="mx-auto text-center">
-  <img src="/agentops/images/logo.png" alt="AgentOps" class="agentops-hero-logo" width="200" />
-  <h1 class="agentops-hero-title">AgentOps</h1>
-  <p class="agentops-hero-subtitle">AI Agents as Kubernetes Workloads</p>
-  <p class="agentops-hero-desc">
-    Define agents, tools, memory, and channels as Custom Resources.<br/>
-    The operator handles the rest.
-  </p>
-  <div class="agentops-hero-actions">
-    <a class="btn btn-lg btn-primary" href="docs/">
-      Documentation <i class="fas fa-arrow-alt-circle-right ml-2"></i>
-    </a>
-    <a class="btn btn-lg btn-secondary" href="https://github.com/samyn92/agentops-core">
-      GitHub <i class="fab fa-github ml-2"></i>
-    </a>
-  </div>
-  <div class="agentops-hero-badges">
-    <a href="https://github.com/samyn92/agentops-platform/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-platform?label=platform&style=flat-square&color=8b5cf6" alt="Platform"></a>
-    <a href="https://github.com/samyn92/agentops-core/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-core?label=operator&style=flat-square&color=8b5cf6" alt="Operator"></a>
-    <a href="https://github.com/samyn92/agentops-runtime/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-runtime?label=runtime&style=flat-square&color=8b5cf6" alt="Runtime"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=flat-square" alt="License"></a>
-  </div>
+{{< blocks/cover title="AgentOps" subtitle="AI Agents as Kubernetes Workloads" image_anchor="top" height="full" color="dark" >}}
+<p class="agentops-hero-desc">
+  Define agents, tools, memory, and channels as Custom Resources.<br/>
+  The operator handles the rest.
+</p>
+<div class="agentops-hero-actions">
+  <a class="btn btn-lg btn-primary" href="docs/">
+    Documentation <i class="fas fa-arrow-alt-circle-right ml-2"></i>
+  </a>
+  <a class="btn btn-lg btn-secondary" href="https://github.com/samyn92/agentops-core">
+    GitHub <i class="fab fa-github ml-2"></i>
+  </a>
+</div>
+<div class="agentops-hero-badges">
+  <a href="https://github.com/samyn92/agentops-platform/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-platform?label=platform&style=flat-square&color=8b5cf6" alt="Platform"></a>
+  <a href="https://github.com/samyn92/agentops-core/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-core?label=operator&style=flat-square&color=8b5cf6" alt="Operator"></a>
+  <a href="https://github.com/samyn92/agentops-runtime/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops-runtime?label=runtime&style=flat-square&color=8b5cf6" alt="Runtime"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache_2.0-blue?style=flat-square" alt="License"></a>
 </div>
 {{< /blocks/cover >}}
 
