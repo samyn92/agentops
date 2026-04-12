@@ -61,15 +61,6 @@ Every memory injection is recorded as an OTEL span event — you can see in Temp
 
 The `run_agents` tool dispatches to multiple agents in one call. A `DelegationWatcher` uses K8s Watch (zero polling, zero CPU) to track child runs and automatically callbacks when all complete. The parent agent stays idle and available during the wait.
 
-### Intent-Based Kubernetes Tools
-
-`kube-explore` replaces 3-10 kubectl commands with single intent-based calls:
-
-- `kube_find` — Fuzzy search across all namespaces and resource types
-- `kube_health` — Full cluster health snapshot (HEALTHY/DEGRADED/CRITICAL)
-- `kube_inspect` — Deep resource inspection with logs, events, owner chain, related resources
-- `kube_topology` — Relationship graph as a tree structure
-
 ### MCP Gateway Sidecar
 
 Each agent pod gets a permission-enforcing MCP gateway sidecar. Tools are distributed as custom OCI artifacts (`application/vnd.agents.io.mcp-tool.v1`), pulled by init containers, and accessed via Streamable HTTP through the gateway.
