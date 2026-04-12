@@ -1,0 +1,55 @@
+// =============================================================================
+// AgentOps — Dark-first Material You × Vercel theme
+// =============================================================================
+// Design direction: deep dark surfaces, vibrant teal/cyan primary accent,
+// warm secondary, glass/blur effects. Inspired by Material You dynamic color
+// and Vercel's developer-focused dark aesthetic.
+
+// -- Google Fonts --
+// DM Sans: geometric, modern, excellent readability. Not overused like Inter.
+$td-enable-google-fonts: true;
+$td-google-font-name: "DM Sans";
+$td-google-font-family: "DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400";
+
+// -- Bootstrap feature toggles --
+$enable-gradients: true;
+$enable-shadows: true;
+$enable-dark-mode: true;
+
+// -- Color palette --
+// Material You tonal palette mapped to Bootstrap slots
+
+// Primary: vibrant teal — the hero accent
+$primary:   #00bfa5;
+
+// Secondary: warm amber — complementary warmth
+$secondary: #ffab40;
+
+// Neutral surfaces (used in dark mode)
+$dark:    #0a0a0a;
+$light:   #fafafa;
+
+// Semantic colors
+$success: #66bb6a;
+$info:    #29b6f6;
+$warning: #ffa726;
+$danger:  #ef5350;
+
+// -- Typography --
+$font-family-sans-serif: "DM Sans", system-ui, -apple-system, sans-serif;
+$td-font-weight-body-text: 400;
+
+// -- Body defaults --
+$body-bg:    #0a0a0a;
+$body-color: #e0e0e0;
+
+// -- Navbar --
+$td-navbar-bg-color: rgba(10, 10, 10, 0.8);
+$td-navbar-min-height: 4rem;
+
+// -- Code blocks --
+$pre-color: #e0e0e0;
+
+// -- Spacing for homepage blocks --
+$td-block-space-top-base: 3rem;
+$td-block-space-bottom-base: 3rem;

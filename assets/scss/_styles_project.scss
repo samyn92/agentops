@@ -1,0 +1,474 @@
+// =============================================================================
+// AgentOps — Custom styles
+// Dark-first Material You × Vercel aesthetic
+// =============================================================================
+
+// Opt-in: dark mode code highlighting
+@import "td/code-dark";
+
+// Note: td/color-adjustments-dark not available in Docsy 0.11.0
+
+// =============================================================================
+// Dark mode defaults (applied via data-bs-theme="dark")
+// =============================================================================
+
+[data-bs-theme="dark"] {
+  --bs-body-bg: #0a0a0a;
+  --bs-body-bg-rgb: 10, 10, 10;
+  --bs-body-color: #e0e0e0;
+  --bs-body-color-rgb: 224, 224, 224;
+  --bs-tertiary-bg: #1a1a2e;
+  --bs-secondary-bg: #141414;
+  --bs-border-color: rgba(255, 255, 255, 0.08);
+  --bs-emphasis-color: #ffffff;
+  --td-pre-bg: #0d1117;
+}
+
+// =============================================================================
+// Light mode overrides — clean, bright, not default Bootstrap boring
+// =============================================================================
+
+[data-bs-theme="light"] {
+  --bs-body-bg: #fafafa;
+  --bs-body-color: #1a1a1a;
+  --bs-tertiary-bg: #f0f4f8;
+  --bs-secondary-bg: #ffffff;
+  --bs-border-color: rgba(0, 0, 0, 0.08);
+  --td-pre-bg: #f6f8fa;
+}
+
+// =============================================================================
+// Navbar — glass morphism
+// =============================================================================
+
+.td-navbar {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+[data-bs-theme="dark"] .td-navbar {
+  background: rgba(10, 10, 10, 0.85) !important;
+}
+
+[data-bs-theme="light"] .td-navbar {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+// Navbar brand styling
+.td-navbar .navbar-brand__name {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-size: 1.25rem;
+}
+
+// Navbar links
+.td-navbar .nav-link {
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+
+  &:hover,
+  &.active {
+    opacity: 1;
+  }
+}
+
+// =============================================================================
+// Hero / Cover — dramatic gradient background
+// =============================================================================
+
+.td-cover-block {
+  position: relative;
+  overflow: hidden;
+
+  // Gradient overlay for dark mode
+  [data-bs-theme="dark"] & {
+    background: linear-gradient(
+      135deg,
+      #0a0a0a 0%,
+      #0d1b2a 30%,
+      #1b2838 50%,
+      #0a1628 70%,
+      #0a0a0a 100%
+    ) !important;
+  }
+
+  // Subtle dot grid pattern
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      rgba(0, 191, 165, 0.08) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Glow orb — top right
+  &::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(
+      circle,
+      rgba(0, 191, 165, 0.15) 0%,
+      rgba(0, 229, 255, 0.05) 40%,
+      transparent 70%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Ensure content is above decorations
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Hero title
+.td-cover-block h1 {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+// Hero lead text
+.td-cover-block .lead {
+  font-weight: 400;
+  opacity: 0.8;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Hero buttons
+.td-cover-block .btn {
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.75rem 1.75rem;
+  transition: all 0.2s ease;
+  border: none;
+
+  &.btn-primary {
+    background: linear-gradient(135deg, #00bfa5, #00e5ff);
+    color: #0a0a0a;
+    box-shadow: 0 4px 20px rgba(0, 191, 165, 0.3);
+
+    &:hover {
+      box-shadow: 0 6px 28px rgba(0, 191, 165, 0.45);
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: none;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+// =============================================================================
+// Homepage feature blocks / sections
+// =============================================================================
+
+.td-box {
+  // Dark sections
+  &.-bg-dark {
+    [data-bs-theme="dark"] & {
+      background: #0f0f0f !important;
+    }
+  }
+
+  &.-bg-primary {
+    [data-bs-theme="dark"] & {
+      background: linear-gradient(180deg, #0a1a18 0%, #0a0a0a 100%) !important;
+    }
+  }
+
+  &.-bg-white {
+    [data-bs-theme="dark"] & {
+      background: #141414 !important;
+    }
+  }
+}
+
+// Feature cards
+.td-box--feature {
+  .feature-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+
+    [data-bs-theme="dark"] & {
+      color: #00bfa5;
+      filter: drop-shadow(0 0 8px rgba(0, 191, 165, 0.3));
+    }
+  }
+
+  h4, .h4 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+}
+
+// =============================================================================
+// Content area — clean readable typography
+// =============================================================================
+
+.td-content {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  h1 { font-size: 2.25rem; }
+  h2 {
+    font-size: 1.75rem;
+    margin-top: 2.5rem;
+    padding-bottom: 0.5rem;
+
+    [data-bs-theme="dark"] & {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  // Links
+  a:not(.btn):not(.nav-link) {
+    color: #00bfa5;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+
+    &:hover {
+      border-bottom-color: #00bfa5;
+    }
+  }
+
+  // Inline code
+  code:not([class*="language-"]) {
+    font-size: 0.875em;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Cascadia Code", monospace;
+
+    [data-bs-theme="dark"] & {
+      background: rgba(0, 191, 165, 0.1);
+      color: #4fd1c5;
+    }
+
+    [data-bs-theme="light"] & {
+      background: rgba(0, 191, 165, 0.08);
+      color: #00897b;
+    }
+  }
+}
+
+// =============================================================================
+// Code blocks — GitHub-dark inspired
+// =============================================================================
+
+.td-content pre {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  font-family: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+
+  [data-bs-theme="dark"] & {
+    background: #0d1117 !important;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  [data-bs-theme="light"] & {
+    background: #f6f8fa !important;
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+}
+
+// =============================================================================
+// Tables — clean and subtle
+// =============================================================================
+
+.td-content table {
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.9rem;
+
+  thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+
+    [data-bs-theme="dark"] & {
+      background: #1a1a2e;
+      color: #9e9e9e;
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  tbody td {
+    [data-bs-theme="dark"] & {
+      border-color: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  tbody tr {
+    [data-bs-theme="dark"] & {
+      &:hover {
+        background: rgba(0, 191, 165, 0.03);
+      }
+    }
+  }
+}
+
+// =============================================================================
+// Sidebar — refined
+// =============================================================================
+
+.td-sidebar-nav {
+  font-size: 0.875rem;
+
+  .td-sidebar-link {
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    font-weight: 400;
+
+    &:hover {
+      [data-bs-theme="dark"] & {
+        background: rgba(0, 191, 165, 0.06);
+      }
+    }
+
+    &.active {
+      font-weight: 600;
+
+      [data-bs-theme="dark"] & {
+        color: #00bfa5;
+        background: rgba(0, 191, 165, 0.08);
+      }
+    }
+  }
+}
+
+// =============================================================================
+// Footer — minimal
+// =============================================================================
+
+.td-footer {
+  [data-bs-theme="dark"] & {
+    background: #050505;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+  }
+}
+
+// =============================================================================
+// Breadcrumbs — subtle
+// =============================================================================
+
+.td-breadcrumbs {
+  font-size: 0.8rem;
+  opacity: 0.6;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+// =============================================================================
+// Search
+// =============================================================================
+
+.td-search__input {
+  border-radius: 8px;
+  font-size: 0.875rem;
+
+  [data-bs-theme="dark"] & {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+
+    &:focus {
+      border-color: #00bfa5;
+      box-shadow: 0 0 0 3px rgba(0, 191, 165, 0.15);
+    }
+  }
+}
+
+// =============================================================================
+// Alerts / Admonitions
+// =============================================================================
+
+.alert {
+  border-radius: 8px;
+  border-left-width: 4px;
+  font-size: 0.9rem;
+
+  [data-bs-theme="dark"] & {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+// =============================================================================
+// Page info box
+// =============================================================================
+
+.td-page-meta {
+  [data-bs-theme="dark"] & {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+}
+
+// =============================================================================
+// Smooth scrolling + selection color
+// =============================================================================
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(0, 191, 165, 0.3);
+  color: inherit;
+}
+
+// =============================================================================
+// Subtle animations
+// =============================================================================
+
+.td-content,
+.td-sidebar,
+.td-toc {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

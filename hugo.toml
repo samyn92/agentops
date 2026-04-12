@@ -34,7 +34,8 @@ defaultContentLanguageInSubdir = false
     [markup.goldmark.renderer]
       unsafe = true
   [markup.highlight]
-    style = "tango"
+    style = "dracula"
+    noClasses = false
 
 # Taxonomy
 [taxonomies]
@@ -59,6 +60,8 @@ defaultContentLanguageInSubdir = false
     navbar_logo = true
     footer_about_enable = true
     breadcrumb_disable = false
+    showLightDarkModeMenu = true
+    navbar_theme = "dark"
 
   [params.ui.readingtime]
     enable = true
