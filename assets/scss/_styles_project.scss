@@ -532,8 +532,9 @@ p { line-height: 1.75; }
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
 
-  // Hide the broken copy-to-clipboard button on landing page code blocks
-  .highlight pre button {
+  // Hide copy button and language badge on landing page code blocks
+  .highlight pre button,
+  .highlight .code-lang-badge {
     display: none !important;
   }
 }
@@ -787,6 +788,7 @@ p { line-height: 1.75; }
 
 // The .highlight container wraps all Chroma code blocks.
 // Squared edges, thin border, terminal feel.
+// fit-content width so blocks don't stretch with massive unused space.
 .td-content .highlight {
   position: relative;
   margin: 1.5rem 0;
@@ -796,6 +798,8 @@ p { line-height: 1.75; }
   border: 1px solid var(--border-default);
   box-shadow: none;
   transition: border-color 0.15s var(--ease-smooth);
+  width: fit-content;
+  max-width: 100%;
 
   &:hover {
     border-color: var(--border-emphasis);
@@ -947,23 +951,14 @@ p { line-height: 1.75; }
 // Tables — squared terminal aesthetic with thin borders
 // =============================================================================
 
-// Remove Docsy zebra stripes
-.td-content table:not(.td-initial) > tbody > tr:nth-of-type(odd) > * {
-  --bs-table-bg-type: transparent;
-}
-
-.td-content table {
-  display: block;
-  width: 100%;
-  max-width: 100%;
+// Wrapper div (injected by render-table.html render hook) handles
+// horizontal overflow so <table> can keep native display: table.
+.td-content .table-wrapper {
   overflow-x: auto;
-  border-collapse: separate;
-  border-spacing: 0;
+  max-width: 100%;
   margin: 1.5rem 0;
   border-radius: 0;
   border: 1px solid var(--border-default);
-  box-shadow: none;
-  font-size: 0.8rem;
   // Thin scrollbar
   scrollbar-width: thin;
   scrollbar-color: var(--border-emphasis) transparent;
@@ -974,13 +969,25 @@ p { line-height: 1.75; }
     background: var(--border-emphasis);
     border-radius: 0;
   }
+}
+
+// Remove Docsy zebra stripes
+.td-content table:not(.td-initial) > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-bg-type: transparent;
+}
+
+// Table keeps native table layout for proper column sizing.
+.td-content table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;                     // wrapper handles margin
+  border-radius: 0;
+  border: none;                  // wrapper handles outer border
+  box-shadow: none;
+  font-size: 0.8rem;
 
   thead {
-    // Sticky header for scrollable tables
-    position: sticky;
-    top: 0;
-    z-index: 1;
-
     th {
       font-family: var(--font-sans);
       background: var(--surface-4);
@@ -992,7 +999,7 @@ p { line-height: 1.75; }
       padding: 0.6rem 0.875rem;
       border-bottom: 1px solid var(--border-emphasis);
       border-right: 1px solid var(--border-subtle);
-      white-space: nowrap;
+      white-space: normal;
 
       &:last-child { border-right: none; }
     }
@@ -1034,6 +1041,17 @@ p { line-height: 1.75; }
     border-radius: 0;
     white-space: nowrap;
   }
+}
+
+// Fallback for tables NOT inside .table-wrapper (e.g. raw HTML tables).
+// Keeps scrolling on the table itself as a safety net.
+.td-content > table {
+  display: table;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-default);
 }
 
 // =============================================================================

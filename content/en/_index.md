@@ -166,18 +166,3 @@ spec:
 </div>
 </div>
 </section>
-
-<section class="agentops-section agentops-section--cta">
-<div class="container text-center">
-<h2 class="agentops-section-title">Ready to deploy intelligent agents?</h2>
-<p class="agentops-section-lead">Install the operator, apply your first Agent CR, and watch it run.</p>
-<div class="agentops-hero-actions" style="animation: none; margin-top: 2rem;">
-<a class="btn btn-lg btn-primary" href="docs/getting-started/">
-Getting Started <i class="fas fa-arrow-right ms-1"></i>
-</a>
-<a class="btn btn-lg btn-secondary" href="docs/getting-started/architecture/">
-Architecture <i class="fas fa-layer-group ms-1"></i>
-</a>
-</div>
-</div>
-</section>
