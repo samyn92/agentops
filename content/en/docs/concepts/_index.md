@@ -5,7 +5,7 @@ weight: 2
 description: "Core concepts and architecture of the AgentOps platform."
 ---
 
-AgentOps models AI agents as Kubernetes-native workloads. Five Custom Resource Definitions (CRDs) in the `agents.agentops.io/v1alpha1` API group describe the entire platform:
+AgentOps models AI agents as Kubernetes-native workloads. Six Custom Resource Definitions (CRDs) in the `agents.agentops.io/v1alpha1` API group describe the entire platform:
 
 | CRD | Short Name | Purpose |
 |-----|-----------|---------|
@@ -14,6 +14,7 @@ AgentOps models AI agents as Kubernetes-native workloads. Five Custom Resource D
 | `AgentTool` | `agtool` | Catalog entry for an MCP tool server, skill, or external endpoint |
 | `AgentResource` | `ares` | Declares an external resource (repo, bucket, docs) agents can work with |
 | `Channel` | `ch` | Bridges external platforms (Slack, GitHub webhooks, GitLab) to agents |
+| `Provider` | `prov` | Shared LLM provider configuration (type, credentials, endpoint, call defaults) |
 
 The operator reconciles these CRDs into standard Kubernetes primitives — Deployments, Jobs, Services, PVCs, ConfigMaps, NetworkPolicies, and RBAC — so agents run with the same operational model as any other workload.
 
@@ -36,5 +37,6 @@ The operator reconciles these CRDs into standard Kubernetes primitives — Deplo
 Read on for deep dives into each concept:
 
 - [Agents]({{< relref "agents" >}}) — CRD spec, lifecycle modes, delegation, concurrency control
+- [Providers]({{< relref "providers" >}}) — shared LLM provider configuration, type-based SDK wiring, per-call defaults
 - [Memory]({{< relref "memory" >}}) — three-layer model, context injection, write dedup, MCP tools
 - [Tools]({{< relref "tools" >}}) — MCP tool servers, OCI distribution, gateway sidecar, built-in servers

@@ -49,6 +49,39 @@ kubectl create secret generic llm-api-keys \
   --from-literal=ANTHROPIC_API_KEY=sk-ant-your-key-here
 ```
 
+### Create a Provider CR
+
+Providers define LLM backend configuration independently of agents. Create one for Anthropic:
+
+```yaml
+# provider.yaml
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: anthropic
+  namespace: agents
+spec:
+  type: anthropic
+  apiKeySecret:
+    name: llm-api-keys
+    key: ANTHROPIC_API_KEY
+```
+
+```bash
+kubectl apply -f provider.yaml
+```
+
+Verify the provider is ready:
+
+```bash
+kubectl get providers -n agents
+```
+
+```
+NAME        TYPE        PHASE   AGENTS   AGE
+anthropic   anthropic   Ready   0        5s
+```
+
 ### Apply the AgentTool CRs
 
 AgentTools define the MCP tool servers your agent can use. Each tool is pulled as an OCI artifact at pod startup.
@@ -125,11 +158,8 @@ spec:
   maxSteps: 50
 
   # LLM provider
-  providers:
+  providerRefs:
     - name: anthropic
-      apiKeySecret:
-        name: llm-api-keys
-        key: ANTHROPIC_API_KEY
   fallbackModels:
     - anthropic/claude-haiku-4-5-20251001
 

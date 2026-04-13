@@ -17,6 +17,7 @@ agentruns.agents.agentops.io
 agenttools.agents.agentops.io
 agentresources.agents.agentops.io
 channels.agents.agentops.io
+providers.agents.agentops.io
 ```
 
 ---
@@ -41,7 +42,8 @@ metadata:
 |-------|------|----------|---------|-------------|
 | `mode` | `daemon` \| `task` | Yes | -- | Agent lifecycle mode. |
 | `model` | string | Yes | -- | Primary model in `provider/model` format (e.g. `anthropic/claude-sonnet-4-20250514`). |
-| `providers` | []ProviderRef | Yes (min 1) | -- | LLM providers with API key secret references. |
+| `providerRefs` | []ProviderBinding | Yes (min 1) | -- | References to Provider CRs. See [Provider](#provider). |
+| `providers` | []ProviderRef | No | -- | **Deprecated.** Inline LLM providers with API key secret references. Use `providerRefs` instead. |
 | `image` | string | No | `ghcr.io/samyn92/agent-runtime-fantasy:latest` | Container image for the Fantasy agent runtime. |
 | `imagePullPolicy` | `Always` \| `IfNotPresent` \| `Never` | No | `IfNotPresent` | Image pull policy. |
 | `primaryProvider` | string | No | -- | Preferred provider name when the model string has no provider prefix. |
@@ -71,13 +73,12 @@ metadata:
 | `schedulePrompt` | string | No | -- | Prompt used when schedule triggers an AgentRun. |
 | `networkPolicy` | NetworkPolicySpec | No | -- | Network policy configuration. |
 
-### spec.providers[]
+### spec.providerRefs[]
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | string | Yes | Provider name (e.g. `anthropic`, `openai`, `google`). |
-| `apiKeySecret.name` | string | Yes | Secret name. |
-| `apiKeySecret.key` | string | Yes | Key within the Secret. |
+| `name` | string | Yes | Name of a Provider CR in the same namespace. |
+| `overrides` | ProviderCallDefaults | No | Per-agent overrides for the provider's default call options. |
 
 ### spec.memory
 
@@ -475,6 +476,108 @@ metadata:
 
 ---
 
+## Provider
+
+Shared LLM provider configuration. Extracts provider type, credentials, endpoint, and per-call defaults into a reusable resource that multiple agents can reference via `spec.providerRefs`. The operator validates the referenced Secret on reconcile and reports readiness via status conditions.
+
+```yaml
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: my-provider
+  namespace: agents
+```
+
+**Short name:** `prov`
+
+### spec
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `type` | `anthropic` \| `openai` \| `google` \| `azure` \| `bedrock` \| `openrouter` \| `openaicompat` | Yes | -- | Fantasy SDK backend. |
+| `apiKeySecret` | SecretKeyRef | Yes | -- | Secret containing the API key. |
+| `endpoint` | ProviderEndpoint | No | -- | API endpoint overrides. |
+| `config` | ProviderConfig | No | -- | Type-specific configuration. |
+| `defaults` | ProviderCallDefaults | No | -- | Default per-call options for all agents using this provider. |
+
+### spec.endpoint
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `baseURL` | string | No | SDK default | Base URL override. Required for `openaicompat`. |
+| `headers` | map[string]string | No | -- | Custom HTTP headers injected into every API request. |
+
+### spec.config
+
+Only fields relevant to `spec.type` are used; others are ignored.
+
+| Field | Type | Applies to | Description |
+|-------|------|------------|-------------|
+| `organization` | string | `openai` | OpenAI organization ID (sets `OpenAI-Organization` header). |
+| `project` | string | `openai` | OpenAI project ID (sets `OpenAI-Project` header). |
+| `useResponsesAPI` | bool | `openai`, `azure`, `openaicompat` | Use the OpenAI Responses API. |
+| `azureAPIVersion` | string | `azure` | Azure OpenAI API version (default: `2025-01-01-preview`). |
+| `vertex` | VertexConfig | `anthropic`, `google` | Vertex AI configuration. |
+| `bedrock` | bool | `anthropic`, `bedrock` | Enable AWS Bedrock mode. |
+
+### spec.config.vertex
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `project` | string | Yes | GCP project ID. |
+| `location` | string | Yes | GCP region (e.g. `us-central1`). |
+
+### spec.defaults
+
+Per-call options applied to every agent using this provider. Agents can override these via `providerRefs[].overrides`. Only the block matching `spec.type` is used.
+
+| Field | Type | Applies to | Description |
+|-------|------|------------|-------------|
+| `anthropic` | AnthropicCallDefaults | `anthropic`, `bedrock` | Anthropic-specific call defaults. |
+| `openai` | OpenAICallDefaults | `openai`, `azure`, `openaicompat` | OpenAI-specific call defaults. |
+| `google` | GoogleCallDefaults | `google` | Google-specific call defaults. |
+
+### spec.defaults.anthropic
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `effort` | `low` \| `medium` \| `high` \| `max` | Extended thinking effort level. |
+| `thinkingBudgetTokens` | int64 | Maximum tokens for extended thinking. |
+| `disableParallelToolUse` | bool | Disable parallel tool calls. |
+
+### spec.defaults.openai
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `reasoningEffort` | `low` \| `medium` \| `high` | Reasoning effort for o-series models. |
+| `serviceTier` | string | OpenAI service tier (e.g. `auto`, `flex`). |
+
+### spec.defaults.google
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `thinkingLevel` | `LOW` \| `MEDIUM` \| `HIGH` \| `MINIMAL` | Gemini thinking level. |
+| `thinkingBudgetTokens` | int64 | Maximum tokens for thinking. Mutually exclusive with `thinkingLevel`. |
+| `safetySettings` | []GoogleSafetySetting | Content safety thresholds. |
+
+### spec.defaults.google.safetySettings[]
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `category` | string | Harm category (e.g. `HARM_CATEGORY_HATE_SPEECH`, `HARM_CATEGORY_DANGEROUS_CONTENT`). |
+| `threshold` | string | Block threshold (e.g. `BLOCK_NONE`, `BLOCK_ONLY_HIGH`, `BLOCK_MEDIUM_AND_ABOVE`). |
+
+### status
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `phase` | `Pending` \| `Ready` \| `Failed` | Current phase. `Ready` when the referenced Secret exists and contains the expected key. |
+| `message` | string | Human-readable status message. |
+| `boundAgents` | int | Number of Agent CRs referencing this provider via `providerRefs`. |
+| `conditions` | []Condition | Standard conditions: `Ready`. |
+
+---
+
 ## Shared types
 
 ### SecretKeyRef
@@ -507,3 +610,10 @@ metadata:
 | `name` | string | Name of the AgentResource CR to bind. |
 | `readOnly` | bool | Mark the resource as read-only (advisory, enforced by runtime). |
 | `autoContext` | bool | Auto-inject resource context into every prompt. |
+
+### ProviderBinding
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Name of the Provider CR in the same namespace. |
+| `overrides` | ProviderCallDefaults | Per-agent overrides for the provider's call defaults. |

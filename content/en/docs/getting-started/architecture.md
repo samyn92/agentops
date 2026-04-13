@@ -26,7 +26,7 @@ This separation provides:
 
 ## Custom Resource Definitions
 
-AgentOps defines 5 CRDs in the `agents.agentops.io/v1alpha1` API group:
+AgentOps defines 6 CRDs in the `agents.agentops.io/v1alpha1` API group:
 
 | CRD | Short name | Description |
 |-----|------------|-------------|
@@ -35,6 +35,7 @@ AgentOps defines 5 CRDs in the `agents.agentops.io/v1alpha1` API group:
 | **AgentTool** | `agtool` | Catalog entry for a tool. Source types: `oci` (OCI artifact), `configMap`, `inline`, `mcpServer` (operator-deployed), `mcpEndpoint` (external), `skill` (prompt extension). |
 | **AgentResource** | `ares` | External resource binding (GitHub repos, GitLab projects, S3 buckets, documentation). Agents reference these; users select them in the console to scope prompts. |
 | **Channel** | `ch` | External ingress bridge. Connects Telegram, Slack, Discord, GitHub/GitLab webhooks, or generic webhooks to an Agent. |
+| **Provider** | `prov` | Shared LLM provider configuration. Declares the SDK backend type, API key secret, endpoint overrides, and per-call defaults. Agents reference providers via `spec.providerRefs`. |
 
 ## Data flow
 
@@ -67,7 +68,7 @@ All components export OpenTelemetry traces via OTLP to Tempo. The console BFF qu
 
 | Component | Image | Responsibilities |
 |-----------|-------|------------------|
-| **Operator** | `ghcr.io/samyn92/agentops-operator` | Reconciles 5 CRDs. Creates Deployments/Jobs/Services/PVCs for agents. Pulls OCI tools via crane init containers. Deploys channel bridges. Manages concurrency and scheduling. |
+| **Operator** | `ghcr.io/samyn92/agentops-operator` | Reconciles 6 CRDs. Creates Deployments/Jobs/Services/PVCs for agents. Pulls OCI tools via crane init containers. Deploys channel bridges. Manages concurrency and scheduling. Validates Provider secrets and wires enriched provider config into agent pods. |
 | **Console** | `ghcr.io/samyn92/agentops-console` | Go BFF proxying Kubernetes API and agent runtime APIs. SolidJS PWA for agent interaction, memory management, trace viewing. Connects to agents via FEP/SSE. |
 | **Memory** | `ghcr.io/samyn92/agentops-memory` | ~1300 lines of Go. SQLite + FTS5 BM25 relevance-ranked context injection. Three-tier write dedup. Deterministic session summaries. REST API on port 7437. Full OTEL tracing. |
 | **Tempo** | `grafana/tempo` | Trace storage and query. Receives OTLP on gRPC :4317 and HTTP :4318. Search API on :3200. |

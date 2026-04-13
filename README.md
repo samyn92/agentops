@@ -36,7 +36,7 @@ Built on the [Charm Fantasy SDK](https://github.com/charmbracelet/fantasy). Pure
 
 | Repository | Description | Latest |
 |:--|:--|:--|
-| [agentops-core](https://github.com/samyn92/agentops-core) | Kubernetes operator — 5 CRDs, MCP gateway sidecars, RBAC, concurrency control | [![](https://img.shields.io/github/v/release/samyn92/agentops-core?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-core/releases) |
+| [agentops-core](https://github.com/samyn92/agentops-core) | Kubernetes operator — 6 CRDs, MCP gateway sidecars, RBAC, concurrency control | [![](https://img.shields.io/github/v/release/samyn92/agentops-core?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-core/releases) |
 | [agentops-runtime](https://github.com/samyn92/agentops-runtime) | Fantasy SDK agent binary — three-layer memory, delegation, FEP streaming | [![](https://img.shields.io/github/v/release/samyn92/agentops-runtime?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-runtime/releases) |
 | [agentops-console](https://github.com/samyn92/agentops-console) | Go BFF + SolidJS PWA — real-time streaming, 60+ API endpoints, trace integration | [![](https://img.shields.io/github/v/release/samyn92/agentops-console?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-console/releases) |
 | [agentops-memory](https://github.com/samyn92/agentops-memory) | Purpose-built memory service — SQLite + FTS5 BM25, three-tier write dedup | [![](https://img.shields.io/github/v/release/samyn92/agentops-memory?style=flat-square&color=8b5cf6)](https://github.com/samyn92/agentops-memory/releases) |

@@ -26,15 +26,9 @@ spec:
   fallbackModels:
     - openai/gpt-4o
   titleModel: openai/gpt-4o-mini  # cheap model for auto-titling sessions
-  providers:
+  providerRefs:
     - name: anthropic
-      apiKeySecret:
-        name: llm-keys
-        key: ANTHROPIC_API_KEY
     - name: openai
-      apiKeySecret:
-        name: llm-keys
-        key: OPENAI_API_KEY
 
   # ── Identity ──
   systemPrompt: |
@@ -119,7 +113,8 @@ spec:
 | `model` | string | required | Primary model in `provider/model` format. |
 | `fallbackModels` | []string | `[]` | Tried in order if the primary model fails. |
 | `titleModel` | string | primary model | Cheap model for auto-titling daemon sessions. |
-| `providers` | []ProviderRef | required (min 1) | LLM providers with API key secret references. |
+| `providers` | -- | -- | _Removed._ Use `providerRefs` to reference Provider CRs. |
+| `providerRefs` | []ProviderBinding | required (min 1) | References to [Provider]({{< relref "providers" >}}) CRs with optional per-agent call default overrides. |
 | `systemPrompt` | string | `""` | Injected at the start of every session. |
 | `contextFiles` | []ContextFileRef | `[]` | ConfigMap-backed context files (e.g. AGENTS.md). |
 | `builtinTools` | []string | all defaults | Built-in Fantasy tools: `bash`, `read`, `edit`, `write`, `grep`, `ls`, `glob`, `fetch`. Set to `[]` to disable all. |

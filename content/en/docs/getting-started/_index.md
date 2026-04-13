@@ -30,7 +30,7 @@ The `agentops-platform` Helm chart deploys:
 
 | Component | Description |
 |-----------|-------------|
-| **Operator** | Kubernetes controller managing 5 CRDs (Agent, AgentRun, AgentTool, AgentResource, Channel) |
+| **Operator** | Kubernetes controller managing 6 CRDs (Agent, AgentRun, AgentTool, AgentResource, Channel, Provider) |
 | **Console** | Go BFF + SolidJS PWA for interacting with agents, viewing traces, and managing memory |
 | **Memory** | SQLite + FTS5 memory service with relevance-ranked context injection |
 | **Tempo** | Distributed tracing backend — all components emit OTLP traces |

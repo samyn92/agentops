@@ -1,9 +1,9 @@
 // =============================================================================
 // AgentOps — Custom Styles
 // =============================================================================
-// Dark-mode only site. No [data-bs-theme="dark"] wrappers needed — they're
-// always true. Minimal overrides on Docsy/Bootstrap. Hero/landing has its own
-// unique design (DO NOT SIMPLIFY hero sections).
+// Terminal-grade monospace aesthetic inspired by OpenCode. IBM Plex Mono
+// everywhere. Squared edges. Thin borders as primary separators. Layered
+// shadows for depth. Violet accent for identity.
 // =============================================================================
 
 @import "td/code-dark";
@@ -14,7 +14,9 @@
 
 :root {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code", monospace;
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --grid-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
@@ -36,7 +38,7 @@
   --surface-3: #111115;
   --surface-4: #16161b;
 
-  // Border tokens
+  // Border tokens — thin, subtle, OpenCode-style
   --border-subtle: rgba(255, 255, 255, 0.04);
   --border-default: rgba(255, 255, 255, 0.06);
   --border-emphasis: rgba(255, 255, 255, 0.1);
@@ -61,20 +63,29 @@
   --accent-2-subtle: rgba(56, 189, 248, 0.08);
 
   // Code surfaces
-  --code-bg: #18181b;
+  --code-bg: #111115;
   --code-color: #e4e4e7;
   --code-border: #27272a;
 
-  // Shadows
+  // Layered shadow system (OpenCode-inspired: multi-layer for realistic depth)
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
+  --shadow-sm: 0px 1px 1px hsla(0, 0%, 0%, 0.12),
+               0px 2px 1px hsla(0, 0%, 0%, 0.24);
+  --shadow-md: 0px 8px 4px hsla(0, 0%, 0%, 0.08),
+               0px 5px 2px hsla(0, 0%, 0%, 0.08),
+               0px 3px 2px hsla(0, 0%, 0%, 0.12),
+               0px 1px 1px hsla(0, 0%, 0%, 0.15);
+  --shadow-lg: 0px 25px 7px hsla(0, 0%, 0%, 0.03),
+               0px 16px 6px hsla(0, 0%, 0%, 0.1),
+               0px 9px 5px hsla(223, 13%, 10%, 0.33),
+               0px 4px 4px hsla(0, 0%, 0%, 0.75),
+               0px 4px 2px hsla(0, 0%, 0%, 0.25);
+  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15),
+                 0 0 80px rgba(139, 92, 246, 0.05);
 }
 
 // =============================================================================
-// Global
+// Global — monospace-everywhere terminal aesthetic
 // =============================================================================
 
 ::selection {
@@ -90,7 +101,55 @@ html {
 
 body {
   overflow-x: hidden;
+  font-family: var(--font-sans);
+  line-height: 1.75;
+  font-size: 0.9375rem;
 }
+
+// Interstellar ambient glow — barely-there cosmic light
+.td-outer {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background:
+      // Violet nebula bleed — upper left quadrant
+      radial-gradient(ellipse 80vw 60vh at 10% 15%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+      // Sky-blue drift — lower right
+      radial-gradient(ellipse 70vw 50vh at 85% 80%, rgba(56, 189, 248, 0.07) 0%, transparent 55%),
+      // Faint center warmth
+      radial-gradient(ellipse 50vw 40vh at 45% 45%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    animation: ambientDrift 25s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes ambientDrift {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.65; }
+}
+
+// Headings — Inter, tight tracking
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--font-sans);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1, .h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 700; }
+h2, .h2 { font-size: clamp(1.375rem, 3vw, 1.75rem); font-weight: 600; letter-spacing: -0.025em; }
+h3, .h3 { font-size: clamp(1.125rem, 2.5vw, 1.375rem); font-weight: 600; }
+h4, .h4 { font-size: 1.125rem; font-weight: 600; }
+
+// Paragraph spacing — tighter for mono
+p { line-height: 1.75; }
 
 // =============================================================================
 // Layout
@@ -126,9 +185,9 @@ body {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   z-index: 1030;
-  background: rgba(9, 9, 11, 0.85) !important;
-  border-bottom: 1px solid var(--bs-border-color);
-  box-shadow: var(--shadow-xs);
+  background: rgba(9, 9, 11, 0.88) !important;
+  border-bottom: 1px solid var(--border-default);
+  box-shadow: none;
 }
 
 .td-navbar .navbar-brand {
@@ -138,19 +197,21 @@ body {
 }
 
 .td-navbar .navbar-brand__name {
+  font-family: var(--font-sans);
   font-weight: 700;
   letter-spacing: -0.04em;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-primary);
 }
 
 .td-navbar .nav-link {
+  font-family: var(--font-sans);
   font-weight: 500;
-  font-size: 0.815rem;
+  font-size: 0.8rem;
   letter-spacing: -0.01em;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
-  transition: color 0.15s ease, background 0.15s ease;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0;
+  transition: color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);
   color: var(--text-tertiary);
 
   &:hover {
@@ -171,9 +232,8 @@ body {
 .td-cover-block {
   position: relative;
   overflow: hidden;
-  padding-top: 8rem !important;
-  padding-bottom: 8rem !important;
-  min-height: 100vh;
+  padding-top: 6rem !important;
+  padding-bottom: 5rem !important;
   display: flex;
   align-items: center;
 
@@ -257,8 +317,9 @@ body {
 }
 
 .td-cover-block .display-1 {
-  font-size: clamp(3rem, 6vw, 5rem) !important;
-  font-weight: 800 !important;
+  font-family: var(--font-sans);
+  font-size: clamp(2.5rem, 6vw, 4rem) !important;
+  font-weight: 700 !important;
   letter-spacing: -0.06em;
   line-height: 0.95;
   margin-bottom: 1rem;
@@ -270,8 +331,9 @@ body {
 }
 
 .td-cover-block .display-2 {
-  font-size: clamp(1.15rem, 2vw, 1.5rem) !important;
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 2vw, 1.35rem) !important;
+  font-weight: 500;
   letter-spacing: -0.025em;
   margin-bottom: 1.75rem;
   text-transform: none !important;
@@ -282,42 +344,8 @@ body {
   background-clip: text;
 }
 
-.agentops-hero-desc {
-  font-size: 1.1rem;
-  font-weight: 400;
-  line-height: 1.8;
-  max-width: 520px;
-  margin: 0 auto 2.5rem;
-  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.4s both;
-  color: var(--text-tertiary);
-}
-
-.agentops-hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.875rem;
-  margin-bottom: 2.5rem;
-  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.5s both;
-}
-
-.agentops-hero-badges {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  animation: heroFadeUp 0.9s var(--ease-out-expo) 0.6s both;
-
-  a {
-    opacity: 0.5;
-    transition: all 0.2s ease;
-    border-radius: 4px;
-
-    &:hover {
-      opacity: 1;
-      transform: translateY(-1px);
-    }
-  }
-}
+// Legacy hero classes (kept for reference, content now uses markdown in .lead)
+// .agentops-hero-desc, .agentops-hero-actions, .agentops-hero-badges — see .td-cover-block .lead
 
 @keyframes heroFadeUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -327,6 +355,92 @@ body {
 .td-cover-block .lead {
   font-size: 1rem;
   font-weight: 400;
+
+  // Description paragraph
+  > p:first-child {
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.8;
+    max-width: 520px;
+    margin: 0 auto 2rem;
+    color: var(--text-tertiary);
+    animation: heroFadeUp 0.9s var(--ease-out-expo) 0.4s both;
+  }
+
+  // Button row (rendered from markdown links separated by |)
+  > p:nth-child(2) {
+    display: flex;
+    justify-content: center;
+    gap: 0.875rem;
+    margin-bottom: 2rem;
+    animation: heroFadeUp 0.9s var(--ease-out-expo) 0.5s both;
+    font-size: 0;  // hide pipe separator text nodes
+    line-height: 0;
+
+    a {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      text-decoration: none;
+      border-radius: 0;
+      transition: all 0.2s var(--ease-smooth);
+
+      &:first-child {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
+                    0 0 0 1px rgba(139, 92, 246, 0.3);
+
+        &:hover {
+          background: var(--accent-light);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35),
+                      0 1px 3px rgba(0, 0, 0, 0.2),
+                      0 0 0 1px rgba(139, 92, 246, 0.4);
+          color: #fff;
+        }
+      }
+
+      &:last-child {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border-emphasis);
+        color: var(--text-secondary);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.07);
+          border-color: var(--border-strong);
+          color: var(--text-primary);
+          transform: translateY(-1px);
+        }
+      }
+    }
+
+    // Hide the pipe separator text between links
+    // markdownify turns "| " between links into text nodes — hide them
+  }
+
+  // Badge row
+  > p:nth-child(3) {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    animation: heroFadeUp 0.9s var(--ease-out-expo) 0.6s both;
+
+    a {
+      opacity: 0.5;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+
+      &:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+      }
+    }
+  }
 }
 
 // =============================================================================
@@ -334,28 +448,27 @@ body {
 // =============================================================================
 
 .btn {
-  border-radius: 10px;
+  border-radius: 0;
+  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 0.875rem;
-  padding: 0.7rem 1.5rem;
-  transition: all 0.2s var(--ease-out-expo);
+  font-size: 0.8125rem;
+  padding: 0.65rem 1.4rem;
+  transition: all 0.2s var(--ease-smooth);
   border: none;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 
   &.btn-primary {
-    background: linear-gradient(180deg, #9b7bf7 0%, #8b5cf6 10%, #7c3aed 100%);
+    background: var(--accent);
     color: #fff;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(139, 92, 246, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 0 0 1px rgba(139, 92, 246, 0.3);
 
     &:hover {
-      background: linear-gradient(180deg, #a78bfa 0%, #9b7bf7 10%, #8b5cf6 100%);
+      background: var(--accent-light);
       transform: translateY(-1px);
       box-shadow: 0 4px 16px rgba(139, 92, 246, 0.35),
                   0 1px 3px rgba(0, 0, 0, 0.2),
-                  0 0 0 1px rgba(139, 92, 246, 0.4),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                  0 0 0 1px rgba(139, 92, 246, 0.4);
       color: #fff;
     }
 
@@ -379,9 +492,9 @@ body {
 }
 
 .td-cover-block .btn-lg {
-  padding: 0.8rem 2rem;
-  font-size: 0.9rem;
-  border-radius: 12px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.85rem;
+  border-radius: 0;
 }
 
 // =============================================================================
@@ -418,6 +531,11 @@ body {
   background: var(--surface-2);
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
+
+  // Hide the broken copy-to-clipboard button on landing page code blocks
+  .highlight pre button {
+    display: none !important;
+  }
 }
 
 .agentops-section--cta {
@@ -483,9 +601,9 @@ body {
   code {
     background: var(--surface-4);
     color: var(--text-secondary);
-    padding: 0.15em 0.4em;
-    border-radius: 5px;
-    font-size: 0.84em;
+    padding: 0.1em 0.35em;
+    border-radius: 0;
+    font-size: 0.82em;
     font-family: var(--font-mono);
   }
 }
@@ -501,9 +619,9 @@ body {
 
 .agentops-feature-card {
   height: 100%;
-  padding: 2rem 1.75rem;
-  border-radius: 14px;
-  transition: all 0.25s var(--ease-out-expo);
+  padding: 1.75rem 1.5rem;
+  border-radius: 0;
+  transition: all 0.2s var(--ease-smooth);
   position: relative;
   overflow: hidden;
   background: var(--surface-3);
@@ -523,20 +641,21 @@ body {
   &:hover {
     border-color: var(--border-emphasis);
     background: var(--surface-4);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
   h3 {
-    font-size: 1.05rem;
-    font-weight: 650;
-    letter-spacing: -0.025em;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
     margin-bottom: 0.75rem;
     color: var(--text-primary);
   }
 
   p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     line-height: 1.7;
     margin-bottom: 1rem;
     color: var(--text-tertiary);
@@ -544,22 +663,21 @@ body {
 }
 
 .agentops-feature-icon {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   margin-bottom: 1.25rem;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  transition: all 0.2s ease;
+  border-radius: 0;
+  transition: all 0.15s var(--ease-smooth);
   color: var(--accent-light);
   background: var(--accent-subtle);
   border: 1px solid rgba(139, 92, 246, 0.1);
 
   .agentops-feature-card:hover & {
     background: var(--accent-muted);
-    transform: scale(1.05);
   }
 }
 
@@ -591,11 +709,11 @@ body {
 }
 
 .agentops-principle {
-  padding: 1.75rem;
-  border-radius: 12px;
+  padding: 1.5rem;
+  border-radius: 0;
   border: 1px solid var(--border-subtle);
   background: var(--surface-2);
-  transition: all 0.2s var(--ease-out-expo);
+  transition: all 0.15s var(--ease-smooth);
 
   &:hover {
     border-color: var(--border-default);
@@ -603,24 +721,25 @@ body {
   }
 
   .agentops-principle-num {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 0.75rem;
   }
 
   h4 {
-    font-size: 1rem;
-    font-weight: 650;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
   }
 
   p {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     line-height: 1.65;
     color: var(--text-tertiary);
     margin: 0;
@@ -650,53 +769,52 @@ body {
     &:hover { color: var(--accent-lighter); }
   }
 
-  // Inline code — add border + padding Docsy doesn't
+  // Inline code — squared, tighter
   code:not([class*="language-"]) {
     font-family: var(--font-mono);
-    font-size: 0.84em;
+    font-size: 0.82em;
     background: var(--code-bg);
     color: var(--code-color);
     border: 1px solid var(--code-border);
-    padding: 0.15em 0.4em;
-    border-radius: 5px;
+    padding: 0.1em 0.35em;
+    border-radius: 0;
   }
 }
 
 // =============================================================================
-// Code blocks — CNCF-grade (Helm language labels + Argo CD progressive reveal)
+// Code blocks — squared terminal aesthetic (OpenCode-inspired)
 // =============================================================================
 
 // The .highlight container wraps all Chroma code blocks.
-// We make it the positioning context for the language badge and copy button.
+// Squared edges, thin border, terminal feel.
 .td-content .highlight {
   position: relative;
-  margin: 1.75rem 0;
-  border-radius: 10px;
+  margin: 1.5rem 0;
+  border-radius: 0;
   overflow: hidden;
-  background: var(--surface-3);
+  background: var(--surface-2);
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-xs);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none;
+  transition: border-color 0.15s var(--ease-smooth);
 
   &:hover {
     border-color: var(--border-emphasis);
-    box-shadow: var(--shadow-sm);
   }
 
-  // Language badge — top-left label (inspired by Helm/Docusaurus)
+  // Language badge — top-left label, squared
   .code-lang-badge {
     display: inline-block;
-    padding: 0.3rem 0.7rem;
+    padding: 0.25rem 0.6rem;
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: var(--text-quaternary);
+    color: var(--text-muted);
     background: var(--surface-4);
     border-bottom: 1px solid var(--border-default);
     border-right: 1px solid var(--border-default);
-    border-radius: 0 0 6px 0;
+    border-radius: 0;
     user-select: none;
     position: absolute;
     top: 0;
@@ -705,7 +823,7 @@ body {
     line-height: 1;
   }
 
-  // Copy button — progressive reveal (inspired by Argo CD)
+  // Copy button — progressive reveal
   .click-to-copy {
     display: block;
     position: absolute;
@@ -716,27 +834,27 @@ body {
 
   pre button.td-click-to-copy {
     position: absolute;
-    top: 0.35rem;
-    right: 0.35rem;
-    width: 2rem;
-    height: 2rem;
+    top: 0.3rem;
+    right: 0.3rem;
+    width: 1.75rem;
+    height: 1.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
     border: 1px solid transparent;
-    border-radius: 6px;
+    border-radius: 0;
     background: transparent;
     color: var(--text-muted);
     opacity: 0;
-    transition: opacity 0.2s ease, color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    transition: opacity 0.2s var(--ease-smooth), color 0.15s var(--ease-smooth), background 0.15s var(--ease-smooth);
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     --bs-btn-box-shadow: none;
     box-shadow: none;
 
     &::before {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
   }
 
@@ -762,20 +880,20 @@ body {
     border: none;
     border-radius: 0;
     background: transparent;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.25rem;
     font-family: var(--font-mono);
-    font-size: 0.82rem;
-    line-height: 1.7;
+    font-size: 0.8rem;
+    line-height: 1.65;
     overflow-x: auto;
-    // Custom scrollbar (Argo CD style)
+    // Thin scrollbar
     scrollbar-width: thin;
     scrollbar-color: var(--border-emphasis) transparent;
 
-    &::-webkit-scrollbar { height: 6px; }
+    &::-webkit-scrollbar { height: 4px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
       background: var(--border-emphasis);
-      border-radius: 3px;
+      border-radius: 0;
       &:hover { background: var(--accent); }
     }
 
@@ -787,7 +905,7 @@ body {
 
   // When language badge is present, add top padding to avoid overlap
   &:has(.code-lang-badge) pre {
-    padding-top: 2.25rem;
+    padding-top: 2rem;
   }
 }
 
@@ -810,23 +928,23 @@ body {
   }
 }
 
-// Fallback for any pre:not(.chroma) not yet wrapped by JS (brief flash before DOMContentLoaded)
+// Fallback for any pre:not(.chroma) not yet wrapped by JS
 .td-content > pre:not(.chroma) {
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--surface-2);
   border: 1px solid var(--border-subtle);
   color: var(--text-quaternary);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   line-height: 1.6;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--border-emphasis) transparent;
 }
 
 // =============================================================================
-// Tables — card-style with hover (inspired by Argo CD / mkdocs-material)
+// Tables — squared terminal aesthetic with thin borders
 // =============================================================================
 
 // Remove Docsy zebra stripes
@@ -841,20 +959,20 @@ body {
   overflow-x: auto;
   border-collapse: separate;
   border-spacing: 0;
-  margin: 1.75rem 0;
-  border-radius: 10px;
+  margin: 1.5rem 0;
+  border-radius: 0;
   border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-xs);
-  font-size: 0.855rem;
-  // Custom scrollbar
+  box-shadow: none;
+  font-size: 0.8rem;
+  // Thin scrollbar
   scrollbar-width: thin;
   scrollbar-color: var(--border-emphasis) transparent;
 
-  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar { height: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb {
     background: var(--border-emphasis);
-    border-radius: 3px;
+    border-radius: 0;
   }
 
   thead {
@@ -864,13 +982,14 @@ body {
     z-index: 1;
 
     th {
+      font-family: var(--font-sans);
       background: var(--surface-4);
       color: var(--text-secondary);
       font-weight: 600;
-      font-size: 0.75rem;
-      letter-spacing: 0.03em;
+      font-size: 0.7rem;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.875rem;
       border-bottom: 1px solid var(--border-emphasis);
       border-right: 1px solid var(--border-subtle);
       white-space: nowrap;
@@ -881,7 +1000,7 @@ body {
 
   tbody {
     td {
-      padding: 0.7rem 1rem;
+      padding: 0.6rem 0.875rem;
       color: var(--text-secondary);
       border-bottom: 1px solid var(--border-subtle);
       border-right: 1px solid var(--border-subtle);
@@ -892,7 +1011,7 @@ body {
     }
 
     tr {
-      transition: background 0.15s ease;
+      transition: background 0.1s var(--ease-smooth);
 
       &:hover {
         background: rgba(139, 92, 246, 0.03);
@@ -907,12 +1026,12 @@ body {
   // Inline code in table cells
   td code, th code {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     background: var(--code-bg);
     color: var(--code-color);
     border: 1px solid var(--code-border);
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    border-radius: 0;
     white-space: nowrap;
   }
 }
@@ -925,9 +1044,9 @@ body {
 .td-content > .row > [class*="col-"] {
   background: var(--surface-2);
   border: 1px solid var(--bs-border-color);
-  border-radius: 10px;
+  border-radius: 0;
   margin: 0.5rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   &:hover { border-color: var(--code-border); }
 }
 
@@ -948,7 +1067,9 @@ body {
   }
 
   .td-sidebar-link {
-    transition: color 0.15s ease;
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    transition: color 0.1s var(--ease-smooth);
     color: var(--text-tertiary);
 
     &:hover, &:focus { color: var(--accent-light); }
@@ -974,15 +1095,7 @@ body {
 // =============================================================================
 
 .td-footer {
-  background: var(--surface-0);
-  border-top: 1px solid var(--bs-border-color);
-  color: var(--text-muted);
-
-  a {
-    color: var(--text-quaternary);
-    transition: color 0.15s ease;
-    &:hover { color: var(--text-tertiary); }
-  }
+  display: none !important;
 }
 
 // =============================================================================
@@ -990,7 +1103,8 @@ body {
 // =============================================================================
 
 .td-breadcrumbs {
-  font-size: 0.78rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
   margin-bottom: 1rem;
 
   .breadcrumb { margin-bottom: 0; }
@@ -1010,9 +1124,10 @@ body {
 // =============================================================================
 
 .td-search__input {
-  border-radius: 8px;
-  font-size: 0.84rem;
-  padding: 0.45rem 0.75rem;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.65rem;
   background: var(--surface-2);
   border: 1px solid var(--bs-border-color);
   color: var(--text-secondary);
@@ -1021,7 +1136,7 @@ body {
 
   &:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-subtle);
+    box-shadow: 0 0 0 2px var(--accent-subtle);
     outline: none;
   }
 }
@@ -1031,17 +1146,20 @@ body {
 // =============================================================================
 
 .alert {
-  border-radius: 10px;
+  border-radius: 0;
   border-left-width: 3px;
-  font-size: 0.875rem;
-  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  padding: 0.875rem 1.125rem;
   background: var(--surface-2);
   border-color: var(--bs-border-color);
 
   .alert-heading {
+    font-family: var(--font-sans);
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   &.alert-warning { border-left-color: $warning; background: rgba(245, 158, 11, 0.04); }
@@ -1057,10 +1175,11 @@ body {
   border-left: none;
 
   .toc-heading {
-    font-size: 0.7rem;
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     color: var(--text-tertiary);
     margin-bottom: 0.75rem;
   }
@@ -1079,15 +1198,16 @@ body {
       padding: 0.15rem 0;
       color: var(--text-tertiary);
       text-decoration: none;
-      font-size: 0.8rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
       line-height: 1.5;
-      transition: color 0.15s ease;
+      transition: color 0.1s var(--ease-smooth);
       &:hover { color: var(--accent-light); }
     }
 
     ul ul a {
       color: var(--text-quaternary);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       &:hover { color: var(--accent-light); }
     }
   }

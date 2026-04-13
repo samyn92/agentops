@@ -25,7 +25,7 @@ AgentOps is composed of eight repositories, each with a focused responsibility. 
 
 **Purpose:** Kubernetes operator that manages the full lifecycle of AI agent workloads.
 
-- 5 CRDs: Agent, AgentRun, AgentTool, AgentResource, Channel
+- 6 CRDs: Agent, AgentRun, AgentTool, AgentResource, Channel, Provider
 - Reconciles Agent CRs into Deployments (daemon) or Job templates (task) with sidecars, storage, networking, and MCP tool injection
 - Handles delegation orchestration, concurrency control, and schedule-based runs
 - Built with kubebuilder

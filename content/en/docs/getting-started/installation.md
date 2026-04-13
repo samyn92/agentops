@@ -85,19 +85,44 @@ kubectl create secret generic llm-api-keys \
   --from-literal=OPENAI_API_KEY=sk-...
 ```
 
-Agents reference these secrets in their `spec.providers` block:
+Agents reference providers via Provider CRs. Create one per backend:
+
+```yaml
+# providers.yaml
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: anthropic
+  namespace: agents
+spec:
+  type: anthropic
+  apiKeySecret:
+    name: llm-api-keys
+    key: ANTHROPIC_API_KEY
+---
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: openai
+  namespace: agents
+spec:
+  type: openai
+  apiKeySecret:
+    name: llm-api-keys
+    key: OPENAI_API_KEY
+```
+
+```bash
+kubectl apply -f providers.yaml
+```
+
+Then reference them from agents via `spec.providerRefs`:
 
 ```yaml
 spec:
-  providers:
+  providerRefs:
     - name: anthropic
-      apiKeySecret:
-        name: llm-api-keys
-        key: ANTHROPIC_API_KEY
     - name: openai
-      apiKeySecret:
-        name: llm-api-keys
-        key: OPENAI_API_KEY
 ```
 
 ### Image pull secrets

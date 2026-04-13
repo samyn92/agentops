@@ -128,11 +128,8 @@ spec:
   # run_agents, run_agent, list_task_agents, get_agent_run are injected
   # automatically when running in-cluster
 
-  providers:
+  providerRefs:
     - name: anthropic
-      apiKeySecret:
-        name: llm-api-keys
-        key: ANTHROPIC_API_KEY
 
   systemPrompt: |
     You are an orchestrator agent. You coordinate work across specialist agents.

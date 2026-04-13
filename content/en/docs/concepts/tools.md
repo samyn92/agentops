@@ -352,11 +352,8 @@ metadata:
 spec:
   mode: daemon
   model: anthropic/claude-sonnet-4-20250514
-  providers:
+  providerRefs:
     - name: anthropic
-      apiKeySecret:
-        name: llm-keys
-        key: ANTHROPIC_API_KEY
   tools:
     - name: my-tool
 ```
