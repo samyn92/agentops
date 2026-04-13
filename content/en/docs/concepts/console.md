@@ -9,37 +9,7 @@ The AgentOps console is a progressive web app backed by a Go BFF (Backend-for-Fr
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Browser (SolidJS PWA)                │
-│  ┌──────────┐  ┌──────────────────┐  ┌───────────────────┐ │
-│  │ Sidebar  │  │   Center Stage   │  │   Right Panel     │ │
-│  │ Agent    │  │  Chat / Inspect  │  │  Runs + Memory    │ │
-│  │ List     │  │  Run / Trace     │  │                   │ │
-│  └──────────┘  └──────────────────┘  └───────────────────┘ │
-│                          │                                  │
-│                     SSE + REST                              │
-└──────────────────────────┼──────────────────────────────────┘
-                           │
-┌──────────────────────────┼──────────────────────────────────┐
-│                     Go BFF (:8080)                           │
-│                                                             │
-│  chi v5 router ─── controller-runtime informers             │
-│                                                             │
-│  ┌───────────┐  ┌──────────┐  ┌───────┐  ┌──────────────┐ │
-│  │SSE Mux    │  │Memory    │  │Tempo  │  │K8s Resource  │ │
-│  │(FEP fan-  │  │Proxy     │  │Proxy  │  │Browser       │ │
-│  │ out)      │  │          │  │       │  │(12 types)    │ │
-│  └─────┬─────┘  └────┬─────┘  └───┬───┘  └──────┬───────┘ │
-│        │             │            │              │         │
-└────────┼─────────────┼────────────┼──────────────┼─────────┘
-         │             │            │              │
-    ┌────┴────┐  ┌─────┴─────┐  ┌──┴───┐   ┌─────┴─────┐
-    │ Agent   │  │ agentops- │  │Tempo │   │ K8s API   │
-    │ Pods    │  │ memory    │  │      │   │           │
-    │ :4096   │  │ :7437     │  │:3200 │   │           │
-    └─────────┘  └───────────┘  └──────┘   └───────────┘
-```
+{{< img src="images/console-architecture.svg" alt="Console Architecture" >}}
 
 ### Tech stack
 
@@ -129,31 +99,7 @@ The BFF exposes 60+ endpoints under `/api/v1`, organized by domain:
 
 The frontend uses a responsive three-panel layout:
 
-```
-┌────────────┬─────────────────────────────┬───────────────┐
-│            │                             │               │
-│  Left      │     Center Stage            │  Right Panel  │
-│  Sidebar   │                             │               │
-│            │  ┌───────────────────────┐  │  ┌─────────┐  │
-│  Agent     │  │ Chat view             │  │  │ Runs    │  │
-│  list      │  │  - Message bubbles    │  │  │         │  │
-│  with      │  │  - Tool cards         │  │  │ Agent   │  │
-│  status    │  │  - Permission gates   │  │  │ runs    │  │
-│  badges    │  │  - Interactive Q&A    │  │  │ with    │  │
-│            │  │  - Delegation cards   │  │  │ status  │  │
-│            │  └───────────────────────┘  │  ├─────────┤  │
-│            │                             │  │ Memory  │  │
-│            │  OR: Inspector / Run /      │  │         │  │
-│            │       Trace detail          │  │ Browse  │  │
-│            │                             │  │ search  │  │
-│            │  ┌───────────────────────┐  │  │ create  │  │
-│            │  │ Composer              │  │  │ edit    │  │
-│            │  │  [resource chips]     │  │  │ delete  │  │
-│            │  │  [prompt input]       │  │  │         │  │
-│            │  │  [context usage bar]  │  │  └─────────┘  │
-│            │  └───────────────────────┘  │               │
-└────────────┴─────────────────────────────┴───────────────┘
-```
+{{< img src="images/console-layout.svg" alt="Console Three-Panel Layout" >}}
 
 The center stage switches between:
 

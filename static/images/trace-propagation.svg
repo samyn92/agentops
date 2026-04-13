@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 320" font-family="'Geist', 'Inter', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#f59e0b" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="320" fill="url(#bgGrad)" rx="12"/>
+  <rect width="780" height="320" fill="url(#grid)"/>
+
+  <!-- Parent trace -->
+  <g filter="url(#glow-amber)">
+    <rect x="40" y="50" rx="6" ry="6" width="300" height="190" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <rect x="40" y="50" rx="6" ry="6" width="300" height="4" fill="url(#amberGrad)"/>
+  <text x="190" y="78" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">Parent trace</text>
+  <text x="190" y="96" text-anchor="middle" fill="#64748b" font-size="9">trace-id: aaa...</text>
+
+  <!-- Parent spans -->
+  <rect x="60" y="110" rx="4" ry="4" width="260" height="28" fill="#111827" stroke="#f59e0b" stroke-width="0.5"/>
+  <text x="80" y="129" fill="#fbbf24" font-size="10" font-weight="600">invoke_agent</text>
+
+  <rect x="80" y="145" rx="4" ry="4" width="240" height="28" fill="#111827" stroke="#475569" stroke-width="0.5"/>
+  <text x="100" y="164" fill="#94a3b8" font-size="10">run_agents</text>
+
+  <rect x="100" y="180" rx="3" ry="3" width="100" height="20" fill="#1e293b" stroke="#475569" stroke-width="0.5"/>
+  <text x="150" y="194" text-anchor="middle" fill="#475569" font-size="8">delegation.group</text>
+  <rect x="208" y="180" rx="3" ry="3" width="100" height="20" fill="#1e293b" stroke="#475569" stroke-width="0.5"/>
+  <text x="258" y="194" text-anchor="middle" fill="#475569" font-size="8">delegation.count</text>
+
+  <!-- Tree lines -->
+  <line x1="72" y1="138" x2="72" y2="180" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="72" y1="159" x2="80" y2="159" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="92" y1="173" x2="92" y2="190" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="92" y1="190" x2="100" y2="190" stroke="#475569" stroke-width="1" opacity="0.4"/>
+
+  <!-- Span link arrow -->
+  <path d="M 340 160 L 440 160" stroke="#fbbf24" stroke-width="2.5" fill="none" marker-end="url(#arrow-amber)"/>
+  <rect x="354" y="145" rx="3" ry="3" width="70" height="16" fill="#0f172a" stroke="#f59e0b" stroke-width="0.5"/>
+  <text x="389" y="157" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">span link</text>
+
+  <!-- Child trace -->
+  <g filter="url(#glow-amber)">
+    <rect x="440" y="50" rx="6" ry="6" width="300" height="190" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <rect x="440" y="50" rx="6" ry="6" width="300" height="4" fill="url(#amberGrad)"/>
+  <text x="590" y="78" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">Child trace</text>
+  <text x="590" y="96" text-anchor="middle" fill="#64748b" font-size="9">trace-id: bbb...</text>
+
+  <!-- Child spans -->
+  <rect x="460" y="110" rx="4" ry="4" width="260" height="28" fill="#111827" stroke="#f59e0b" stroke-width="0.5"/>
+  <text x="480" y="129" fill="#fbbf24" font-size="10" font-weight="600">invoke_agent</text>
+  <text x="588" y="129" fill="#64748b" font-size="9">(delegation attrs)</text>
+
+  <rect x="480" y="145" rx="4" ry="4" width="220" height="28" fill="#111827" stroke="#475569" stroke-width="0.5"/>
+  <text x="500" y="164" fill="#94a3b8" font-size="10">gen_ai.generate</text>
+
+  <rect x="500" y="180" rx="4" ry="4" width="180" height="28" fill="#111827" stroke="#475569" stroke-width="0.5"/>
+  <text x="520" y="199" fill="#94a3b8" font-size="10">tool.call ...</text>
+
+  <!-- Tree lines -->
+  <line x1="472" y1="138" x2="472" y2="194" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="472" y1="159" x2="480" y2="159" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="492" y1="173" x2="492" y2="194" stroke="#475569" stroke-width="1" opacity="0.4"/>
+  <line x1="492" y1="194" x2="500" y2="194" stroke="#475569" stroke-width="1" opacity="0.4"/>
+
+  <!-- Watermark -->
+  <text x="390" y="308" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="2" font-weight="500">CROSS-AGENT TRACE PROPAGATION</text>
+</svg>

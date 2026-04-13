@@ -1,294 +1,272 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 720" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 780" font-family="'Geist', 'Inter', system-ui, -apple-system, sans-serif">
   <defs>
-    <!-- Gradient definitions -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#0a0e1a;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    <!-- Background gradient -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#111827"/>
     </linearGradient>
-    <linearGradient id="platformGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#6366f1" />
-      <stop offset="100%" style="stop-color:#8b5cf6" />
+
+    <!-- Grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+
+    <!-- Component gradients (accent bars) -->
+    <linearGradient id="platformGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
     </linearGradient>
-    <linearGradient id="operatorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6" />
-      <stop offset="100%" style="stop-color:#2563eb" />
+    <linearGradient id="operatorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
-    <linearGradient id="consoleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981" />
-      <stop offset="100%" style="stop-color:#059669" />
+    <linearGradient id="consoleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
-    <linearGradient id="tempoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#f59e0b" />
-      <stop offset="100%" style="stop-color:#d97706" />
+    <linearGradient id="tempoGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
     </linearGradient>
-    <linearGradient id="runtimeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#ec4899" />
-      <stop offset="100%" style="stop-color:#db2777" />
+    <linearGradient id="runtimeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#db2777"/>
     </linearGradient>
-    <linearGradient id="memoryGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#8b5cf6" />
-      <stop offset="100%" style="stop-color:#7c3aed" />
+    <linearGradient id="memoryGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
-    <linearGradient id="toolsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#06b6d4" />
-      <stop offset="100%" style="stop-color:#0891b2" />
+    <linearGradient id="toolsGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
     </linearGradient>
 
     <!-- Glow filters -->
-    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feFlood flood-color="#3b82f6" flood-opacity="0.3" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-operator" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#3b82f6" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feFlood flood-color="#10b981" flood-opacity="0.3" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-console" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#10b981" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glowPurple" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur" />
-      <feFlood flood-color="#8b5cf6" flood-opacity="0.25" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-tempo" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#f59e0b" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glowPink" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feFlood flood-color="#ec4899" flood-opacity="0.3" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-runtime" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#ec4899" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feFlood flood-color="#06b6d4" flood-opacity="0.3" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-memory" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#8b5cf6" flood-opacity="0.25"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    <filter id="glowAmber" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="4" result="blur" />
-      <feFlood flood-color="#f59e0b" flood-opacity="0.3" />
-      <feComposite in2="blur" operator="in" />
-      <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+    <filter id="glow-tools" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#06b6d4" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-platform" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#8b5cf6" flood-opacity="0.25"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
 
-    <!-- Arrow marker -->
-    <marker id="arrowWhite" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8" />
+    <!-- Arrow markers -->
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#60a5fa"/>
     </marker>
-    <marker id="arrowPink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#f472b6" />
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#34d399"/>
     </marker>
-    <marker id="arrowCyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#22d3ee" />
+    <marker id="arrow-violet" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#a78bfa"/>
     </marker>
-    <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#34d399" />
+    <marker id="arrow-cyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#22d3ee"/>
     </marker>
-    <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#a78bfa" />
+    <marker id="arrow-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#fbbf24"/>
     </marker>
-    <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#60a5fa" />
+    <marker id="arrow-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
     </marker>
   </defs>
 
-  <!-- Background -->
-  <rect width="900" height="720" fill="url(#bgGrad)" rx="12" />
+  <!-- ═══════════════════ BACKGROUND ═══════════════════ -->
+  <rect width="960" height="780" fill="url(#bgGrad)" rx="12"/>
+  <rect width="960" height="780" fill="url(#grid)"/>
 
-  <!-- Subtle grid pattern -->
-  <g opacity="0.04">
-    <line x1="0" y1="0" x2="0" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="50" y1="0" x2="50" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="100" y1="0" x2="100" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="150" y1="0" x2="150" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="200" y1="0" x2="200" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="250" y1="0" x2="250" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="300" y1="0" x2="300" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="350" y1="0" x2="350" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="400" y1="0" x2="400" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="450" y1="0" x2="450" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="500" y1="0" x2="500" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="550" y1="0" x2="550" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="600" y1="0" x2="600" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="650" y1="0" x2="650" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="700" y1="0" x2="700" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="750" y1="0" x2="750" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="800" y1="0" x2="800" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="850" y1="0" x2="850" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="900" y1="0" x2="900" y2="720" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="50" x2="900" y2="50" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="100" x2="900" y2="100" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="150" x2="900" y2="150" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="200" x2="900" y2="200" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="250" x2="900" y2="250" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="300" x2="900" y2="300" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="350" x2="900" y2="350" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="400" x2="900" y2="400" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="450" x2="900" y2="450" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="500" x2="900" y2="500" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="550" x2="900" y2="550" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="600" x2="900" y2="600" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="650" x2="900" y2="650" stroke="#fff" stroke-width="0.5" />
-    <line x1="0" y1="700" x2="900" y2="700" stroke="#fff" stroke-width="0.5" />
+  <!-- ═══════════════════ CONNECTIONS (Layer 2 — behind cards) ═══════════════════ -->
+
+  <!-- Platform umbrella to components (dashed, subtle) -->
+  <path d="M 290 95 L 190 150" stroke="#60a5fa" stroke-width="1.5" fill="none" stroke-dasharray="6,4" opacity="0.35" marker-end="url(#arrow-blue)"/>
+  <path d="M 480 95 L 480 150" stroke="#34d399" stroke-width="1.5" fill="none" stroke-dasharray="6,4" opacity="0.35" marker-end="url(#arrow-green)"/>
+  <path d="M 670 95 L 770 150" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="6,4" opacity="0.35" marker-end="url(#arrow-amber)"/>
+
+  <!-- Operator → Agent Pods (Reconciles) -->
+  <path d="M 190 280 L 190 390" stroke="#60a5fa" stroke-width="2.5" fill="none" marker-end="url(#arrow-blue)"/>
+  <text x="128" y="345" fill="#60a5fa" font-size="11" font-weight="500" opacity="0.8">Reconciles</text>
+
+  <!-- Console → Agent Pods (FEP/SSE) -->
+  <path d="M 480 280 L 350 390" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arrow-green)"/>
+  <text x="385" y="325" fill="#34d399" font-size="11" font-weight="500" opacity="0.8" transform="rotate(-25, 415, 325)">FEP / SSE</text>
+
+  <!-- Console → Memory (proxy, secondary) -->
+  <path d="M 580 280 L 640 390" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="6,3" opacity="0.35" marker-end="url(#arrow-gray)"/>
+  <text x="594" y="330" fill="#94a3b8" font-size="10" opacity="0.5" transform="rotate(20, 614, 330)">Proxy</text>
+
+  <!-- Agent Pods → Memory (Context — bidirectional) -->
+  <path d="M 340 450 L 530 450" stroke="#a78bfa" stroke-width="2.5" fill="none" marker-end="url(#arrow-violet)"/>
+  <path d="M 530 470 L 340 470" stroke="#a78bfa" stroke-width="2.5" fill="none" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrow-violet)"/>
+  <text x="400" y="440" fill="#a78bfa" font-size="11" font-weight="500" opacity="0.8">Context injection</text>
+
+  <!-- Agent Pods → Tools (MCP stdio) -->
+  <path d="M 190 510 L 190 590" stroke="#22d3ee" stroke-width="2.5" fill="none" marker-end="url(#arrow-cyan)"/>
+  <text x="124" y="558" fill="#22d3ee" font-size="11" font-weight="500" opacity="0.8">MCP stdio</text>
+
+  <!-- OTLP trace lines (tertiary, background) -->
+  <path d="M 810 280 L 810 355 L 350 355 L 350 390" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="3,3" opacity="0.25"/>
+  <path d="M 810 280 L 810 355 L 680 355 L 680 390" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-dasharray="3,3" opacity="0.25"/>
+  <text x="580" y="368" fill="#fbbf24" font-size="9" opacity="0.4">OTLP traces</text>
+
+  <!-- ═══════════════════ PLATFORM UMBRELLA (Layer 3) ═══════════════════ -->
+  <g filter="url(#glow-platform)">
+    <rect x="150" y="35" rx="10" ry="10" width="660" height="55" fill="#1e293b" opacity="0.15" stroke="url(#platformGrad)" stroke-width="1.5"/>
+  </g>
+  <text x="480" y="60" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="700" letter-spacing="1.5">AGENTOPS-PLATFORM</text>
+  <text x="480" y="78" text-anchor="middle" fill="#6366f1" font-size="10" opacity="0.6">Umbrella Helm Chart</text>
+
+  <!-- ═══════════════════ NAMESPACE: agent-system (Layer 3) ═══════════════════ -->
+  <rect x="50" y="125" rx="8" ry="8" width="860" height="180" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/>
+  <text x="70" y="147" fill="#64748b" font-size="10" font-weight="600" letter-spacing="1">NAMESPACE: agent-system</text>
+
+  <!-- Operator card -->
+  <g filter="url(#glow-operator)">
+    <rect x="70" y="162" rx="8" ry="8" width="220" height="115" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+  </g>
+  <rect x="70" y="162" rx="8" ry="8" width="220" height="4" fill="url(#operatorGrad)"/>
+  <text x="180" y="196" text-anchor="middle" fill="#93c5fd" font-size="15" font-weight="700">agentops-core</text>
+  <text x="180" y="216" text-anchor="middle" fill="#64748b" font-size="11">Kubernetes Operator</text>
+  <text x="180" y="238" text-anchor="middle" fill="#475569" font-size="10">5 CRDs  |  RBAC  |  NetworkPolicy</text>
+  <text x="180" y="256" text-anchor="middle" fill="#475569" font-size="10">MCP Gateway  |  Concurrency</text>
+
+  <!-- Console card -->
+  <g filter="url(#glow-console)">
+    <rect x="350" y="162" rx="8" ry="8" width="240" height="115" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+  </g>
+  <rect x="350" y="162" rx="8" ry="8" width="240" height="4" fill="url(#consoleGrad)"/>
+  <text x="470" y="196" text-anchor="middle" fill="#6ee7b7" font-size="15" font-weight="700">agentops-console</text>
+  <text x="470" y="216" text-anchor="middle" fill="#64748b" font-size="11">Go BFF + SolidJS PWA</text>
+  <text x="470" y="238" text-anchor="middle" fill="#475569" font-size="10">60+ APIs  |  SSE Multiplexer</text>
+  <text x="470" y="256" text-anchor="middle" fill="#475569" font-size="10">Memory Panel  |  Trace Viewer</text>
+
+  <!-- Tempo card -->
+  <g filter="url(#glow-tempo)">
+    <rect x="650" y="162" rx="8" ry="8" width="220" height="115" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  <rect x="650" y="162" rx="8" ry="8" width="220" height="4" fill="url(#tempoGrad)"/>
+  <text x="760" y="196" text-anchor="middle" fill="#fcd34d" font-size="15" font-weight="700">Tempo</text>
+  <text x="760" y="216" text-anchor="middle" fill="#64748b" font-size="11">Distributed Tracing</text>
+  <text x="760" y="238" text-anchor="middle" fill="#475569" font-size="10">OTLP gRPC :4317  |  HTTP :4318</text>
+  <text x="760" y="256" text-anchor="middle" fill="#475569" font-size="10">GenAI Semantic Conventions</text>
+
+  <!-- ═══════════════════ NAMESPACE: agents (Layer 3) ═══════════════════ -->
+  <rect x="50" y="365" rx="8" ry="8" width="860" height="170" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="8,4" opacity="0.4"/>
+  <text x="70" y="387" fill="#64748b" font-size="10" font-weight="600" letter-spacing="1">NAMESPACE: agents</text>
+
+  <!-- Agent Pods / Runtime card -->
+  <g filter="url(#glow-runtime)">
+    <rect x="70" y="400" rx="8" ry="8" width="270" height="115" fill="#1e293b" stroke="#ec4899" stroke-width="1.5"/>
+  </g>
+  <rect x="70" y="400" rx="8" ry="8" width="270" height="4" fill="url(#runtimeGrad)"/>
+  <text x="205" y="434" text-anchor="middle" fill="#f9a8d4" font-size="15" font-weight="700">Agent Pods</text>
+  <text x="205" y="454" text-anchor="middle" fill="#64748b" font-size="11">Fantasy SDK Runtime (Go)</text>
+  <text x="205" y="476" text-anchor="middle" fill="#475569" font-size="10">Three-Layer Memory  |  Delegation</text>
+  <text x="205" y="494" text-anchor="middle" fill="#475569" font-size="10">FEP Streaming  |  MCP Clients</text>
+
+  <!-- Memory Service card -->
+  <g filter="url(#glow-memory)">
+    <rect x="530" y="400" rx="8" ry="8" width="270" height="115" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+  </g>
+  <rect x="530" y="400" rx="8" ry="8" width="270" height="4" fill="url(#memoryGrad)"/>
+  <text x="665" y="434" text-anchor="middle" fill="#c4b5fd" font-size="15" font-weight="700">agentops-memory</text>
+  <text x="665" y="454" text-anchor="middle" fill="#64748b" font-size="11">SQLite + FTS5 BM25</text>
+  <text x="665" y="476" text-anchor="middle" fill="#475569" font-size="10">Three-Tier Write Dedup  |  :7437</text>
+  <text x="665" y="494" text-anchor="middle" fill="#475569" font-size="10">Relevance-Ranked Context Injection</text>
+
+  <!-- ═══════════════════ TOOLS (below namespaces) ═══════════════════ -->
+  <g filter="url(#glow-tools)">
+    <rect x="70" y="590" rx="8" ry="8" width="380" height="120" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+  </g>
+  <rect x="70" y="590" rx="8" ry="8" width="380" height="4" fill="url(#toolsGrad)"/>
+  <text x="260" y="624" text-anchor="middle" fill="#67e8f9" font-size="15" font-weight="700">agent-tools</text>
+  <text x="260" y="644" text-anchor="middle" fill="#64748b" font-size="11">OCI-Packaged MCP Tool Servers</text>
+
+  <!-- Tool pills -->
+  <g transform="translate(92, 660)">
+    <rect rx="4" ry="4" width="68" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="34" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">kubectl</text>
+  </g>
+  <g transform="translate(166, 660)">
+    <rect rx="4" ry="4" width="88" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="44" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">kube-explore</text>
+  </g>
+  <g transform="translate(260, 660)">
+    <rect rx="4" ry="4" width="40" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="20" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">git</text>
+  </g>
+  <g transform="translate(306, 660)">
+    <rect rx="4" ry="4" width="56" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="28" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">github</text>
+  </g>
+  <g transform="translate(368, 660)">
+    <rect rx="4" ry="4" width="52" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="26" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">gitlab</text>
+  </g>
+  <g transform="translate(92, 688)">
+    <rect rx="4" ry="4" width="42" height="22" fill="#164e63" stroke="#0e7490" stroke-width="0.75"/>
+    <text x="21" y="15" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">flux</text>
+  </g>
+  <g transform="translate(140, 688)">
+    <rect rx="4" ry="4" width="90" height="22" fill="#0f172a" stroke="#334155" stroke-width="0.75" stroke-dasharray="3,2"/>
+    <text x="45" y="15" text-anchor="middle" fill="#64748b" font-size="9">+ custom OCI</text>
   </g>
 
-  <!-- ═══════════════════ CONNECTIONS (drawn first, behind boxes) ═══════════════════ -->
+  <!-- ═══════════════════ LEGEND (Layer 6) ═══════════════════ -->
+  <g transform="translate(560, 585)">
+    <rect rx="8" ry="8" width="340" height="128" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+    <text x="170" y="22" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="0.5">PROTOCOL LEGEND</text>
 
-  <!-- Platform to Operator -->
-  <path d="M 280 90 L 180 160" stroke="#60a5fa" stroke-width="2" fill="none" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrowBlue)" />
-  <!-- Platform to Console -->
-  <path d="M 450 90 L 450 160" stroke="#34d399" stroke-width="2" fill="none" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrowGreen)" />
-  <!-- Platform to Tempo -->
-  <path d="M 620 90 L 720 160" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="6,4" opacity="0.5" marker-end="url(#arrowWhite)" />
+    <line x1="20" y1="42" x2="60" y2="42" stroke="#60a5fa" stroke-width="2.5"/>
+    <text x="70" y="46" fill="#94a3b8" font-size="10">Reconciliation (K8s watch)</text>
 
-  <!-- Operator to Agent Pods (Reconciles) -->
-  <path d="M 180 270 L 180 370" stroke="#60a5fa" stroke-width="2.5" fill="none" marker-end="url(#arrowBlue)" />
-  <text x="122" y="332" fill="#60a5fa" font-size="11" font-weight="500" opacity="0.8">Reconciles</text>
+    <line x1="20" y1="60" x2="60" y2="60" stroke="#34d399" stroke-width="2.5"/>
+    <text x="70" y="64" fill="#94a3b8" font-size="10">FEP / SSE (real-time streaming)</text>
 
-  <!-- Console to Agent Pods (FEP/SSE) -->
-  <path d="M 450 270 L 340 370" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#arrowGreen)" />
-  <text x="365" y="310" fill="#34d399" font-size="11" font-weight="500" opacity="0.8" transform="rotate(-25, 395, 310)">FEP / SSE</text>
+    <line x1="20" y1="78" x2="60" y2="78" stroke="#a78bfa" stroke-width="2.5"/>
+    <text x="70" y="82" fill="#94a3b8" font-size="10">Memory context injection (REST)</text>
 
-  <!-- Agent Pods to Memory (bidirectional) -->
-  <path d="M 310 430 L 490 430" stroke="#a78bfa" stroke-width="2.5" fill="none" marker-end="url(#arrowPurple)" />
-  <path d="M 490 450 L 310 450" stroke="#a78bfa" stroke-width="2.5" fill="none" stroke-dasharray="4,3" opacity="0.5" marker-end="url(#arrowPurple)" />
-  <text x="365" y="420" fill="#a78bfa" font-size="11" font-weight="500" opacity="0.8">Context</text>
+    <line x1="20" y1="96" x2="60" y2="96" stroke="#22d3ee" stroke-width="2.5"/>
+    <text x="70" y="100" fill="#94a3b8" font-size="10">MCP stdio (tool execution)</text>
 
-  <!-- Agent Pods to Tools (MCP stdio) -->
-  <path d="M 180 480 L 180 560" stroke="#22d3ee" stroke-width="2.5" fill="none" marker-end="url(#arrowCyan)" />
-  <text x="118" y="530" fill="#22d3ee" font-size="11" font-weight="500" opacity="0.8">MCP stdio</text>
-
-  <!-- Console to Memory (proxy) -->
-  <path d="M 560 270 L 620 370" stroke="#94a3b8" stroke-width="1.5" fill="none" stroke-dasharray="4,3" opacity="0.35" marker-end="url(#arrowWhite)" />
-  <text x="570" y="310" fill="#94a3b8" font-size="10" opacity="0.5" transform="rotate(20, 590, 310)">Proxy</text>
-
-  <!-- All to Tempo (OTLP traces) -->
-  <path d="M 770 270 L 770 335 L 340 335 L 340 370" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-dasharray="3,3" opacity="0.25" />
-  <path d="M 770 270 L 770 335 L 650 335 L 650 370" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-dasharray="3,3" opacity="0.25" />
-  <text x="546" y="349" fill="#fbbf24" font-size="9" opacity="0.4">OTLP traces</text>
-
-  <!-- ═══════════════════ PLATFORM UMBRELLA ═══════════════════ -->
-  <g filter="url(#glowPurple)">
-    <rect x="140" y="30" rx="10" ry="10" width="620" height="60" fill="url(#platformGrad)" opacity="0.15" stroke="url(#platformGrad)" stroke-width="1.5" />
-  </g>
-  <text x="450" y="58" text-anchor="middle" fill="#c4b5fd" font-size="14" font-weight="700" letter-spacing="1.5">AGENTOPS-PLATFORM</text>
-  <text x="450" y="76" text-anchor="middle" fill="#a78bfa" font-size="11" opacity="0.6">Umbrella Helm Chart</text>
-
-  <!-- ═══════════════════ NAMESPACE: agent-system ═══════════════════ -->
-  <rect x="50" y="130" rx="8" ry="8" width="800" height="165" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="8,4" opacity="0.4" />
-  <text x="70" y="152" fill="#64748b" font-size="10" font-weight="600" letter-spacing="1">NAMESPACE: agent-system</text>
-
-  <!-- Operator -->
-  <g filter="url(#glowBlue)">
-    <rect x="80" y="165" rx="8" ry="8" width="200" height="105" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" />
-  </g>
-  <rect x="80" y="165" rx="8" ry="8" width="200" height="4" fill="url(#operatorGrad)" />
-  <text x="180" y="197" text-anchor="middle" fill="#93c5fd" font-size="15" font-weight="700">agentops-core</text>
-  <text x="180" y="217" text-anchor="middle" fill="#64748b" font-size="11">Kubernetes Operator</text>
-  <text x="180" y="237" text-anchor="middle" fill="#475569" font-size="10">5 CRDs  |  RBAC  |  MCP GW</text>
-  <text x="180" y="255" text-anchor="middle" fill="#475569" font-size="10">Concurrency  |  NetworkPolicy</text>
-
-  <!-- Console -->
-  <g filter="url(#glowGreen)">
-    <rect x="340" y="165" rx="8" ry="8" width="220" height="105" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
-  </g>
-  <rect x="340" y="165" rx="8" ry="8" width="220" height="4" fill="url(#consoleGrad)" />
-  <text x="450" y="197" text-anchor="middle" fill="#6ee7b7" font-size="15" font-weight="700">agentops-console</text>
-  <text x="450" y="217" text-anchor="middle" fill="#64748b" font-size="11">Go BFF + SolidJS PWA</text>
-  <text x="450" y="237" text-anchor="middle" fill="#475569" font-size="10">60+ APIs  |  SSE Mux  |  Traces</text>
-  <text x="450" y="255" text-anchor="middle" fill="#475569" font-size="10">12 Tool Cards  |  Memory Panel</text>
-
-  <!-- Tempo -->
-  <g filter="url(#glowAmber)">
-    <rect x="620" y="165" rx="8" ry="8" width="200" height="105" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" />
-  </g>
-  <rect x="620" y="165" rx="8" ry="8" width="200" height="4" fill="url(#tempoGrad)" />
-  <text x="720" y="197" text-anchor="middle" fill="#fcd34d" font-size="15" font-weight="700">Tempo</text>
-  <text x="720" y="217" text-anchor="middle" fill="#64748b" font-size="11">Distributed Tracing</text>
-  <text x="720" y="237" text-anchor="middle" fill="#475569" font-size="10">OTLP gRPC + HTTP</text>
-  <text x="720" y="255" text-anchor="middle" fill="#475569" font-size="10">GenAI Semantic Conventions</text>
-
-  <!-- ═══════════════════ NAMESPACE: agents ═══════════════════ -->
-  <rect x="50" y="340" rx="8" ry="8" width="800" height="160" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="8,4" opacity="0.4" />
-  <text x="70" y="362" fill="#64748b" font-size="10" font-weight="600" letter-spacing="1">NAMESPACE: agents</text>
-
-  <!-- Agent Pods (Runtime) -->
-  <g filter="url(#glowPink)">
-    <rect x="80" y="375" rx="8" ry="8" width="250" height="105" fill="#1e293b" stroke="#ec4899" stroke-width="1.5" />
-  </g>
-  <rect x="80" y="375" rx="8" ry="8" width="250" height="4" fill="url(#runtimeGrad)" />
-  <text x="205" y="407" text-anchor="middle" fill="#f9a8d4" font-size="15" font-weight="700">Agent Pods</text>
-  <text x="205" y="427" text-anchor="middle" fill="#64748b" font-size="11">Fantasy SDK Runtime</text>
-  <text x="205" y="447" text-anchor="middle" fill="#475569" font-size="10">Three-Layer Memory  |  Delegation</text>
-  <text x="205" y="465" text-anchor="middle" fill="#475569" font-size="10">FEP Streaming  |  MCP Gateway</text>
-
-  <!-- Memory Service -->
-  <g filter="url(#glowPurple)">
-    <rect x="490" y="375" rx="8" ry="8" width="250" height="105" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5" />
-  </g>
-  <rect x="490" y="375" rx="8" ry="8" width="250" height="4" fill="url(#memoryGrad)" />
-  <text x="615" y="407" text-anchor="middle" fill="#c4b5fd" font-size="15" font-weight="700">agentops-memory</text>
-  <text x="615" y="427" text-anchor="middle" fill="#64748b" font-size="11">SQLite + FTS5 BM25</text>
-  <text x="615" y="447" text-anchor="middle" fill="#475569" font-size="10">Three-Tier Write Dedup</text>
-  <text x="615" y="465" text-anchor="middle" fill="#475569" font-size="10">Relevance-Ranked Injection</text>
-
-  <!-- ═══════════════════ TOOLS (outside namespaces) ═══════════════════ -->
-  <g filter="url(#glowCyan)">
-    <rect x="80" y="560" rx="8" ry="8" width="360" height="110" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5" />
-  </g>
-  <rect x="80" y="560" rx="8" ry="8" width="360" height="4" fill="url(#toolsGrad)" />
-  <text x="260" y="592" text-anchor="middle" fill="#67e8f9" font-size="15" font-weight="700">agent-tools</text>
-  <text x="260" y="612" text-anchor="middle" fill="#64748b" font-size="11">OCI-Packaged MCP Tool Servers</text>
-
-  <!-- Tool chips -->
-  <g transform="translate(100, 625)">
-    <rect rx="4" ry="4" width="70" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="35" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">kubectl</text>
-  </g>
-  <g transform="translate(180, 625)">
-    <rect rx="4" ry="4" width="90" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="45" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">kube-explore</text>
-  </g>
-  <g transform="translate(280, 625)">
-    <rect rx="4" ry="4" width="42" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="21" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">git</text>
-  </g>
-  <g transform="translate(332, 625)">
-    <rect rx="4" ry="4" width="52" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="26" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">github</text>
-  </g>
-  <g transform="translate(100, 655)">
-    <rect rx="4" ry="4" width="52" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="26" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">gitlab</text>
-  </g>
-  <g transform="translate(162, 655)">
-    <rect rx="4" ry="4" width="42" height="24" fill="#164e63" stroke="#0e7490" stroke-width="0.75" />
-    <text x="21" y="16" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">flux</text>
-  </g>
-  <g transform="translate(214, 655)">
-    <rect rx="4" ry="4" width="95" height="24" fill="#0f172a" stroke="#334155" stroke-width="0.75" stroke-dasharray="3,2" />
-    <text x="47" y="16" text-anchor="middle" fill="#64748b" font-size="10">+ custom OCI</text>
+    <line x1="20" y1="114" x2="60" y2="114" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3,3"/>
+    <text x="70" y="118" fill="#94a3b8" font-size="10">OTLP traces (observability)</text>
   </g>
 
-  <!-- ═══════════════════ LEGEND ═══════════════════ -->
-  <g transform="translate(520, 560)">
-    <rect rx="8" ry="8" width="320" height="110" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
-    <text x="160" y="22" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600" letter-spacing="0.5">PROTOCOL LEGEND</text>
-
-    <line x1="20" y1="40" x2="60" y2="40" stroke="#60a5fa" stroke-width="2" />
-    <text x="70" y="44" fill="#94a3b8" font-size="10">Reconciliation (K8s Watch)</text>
-
-    <line x1="20" y1="58" x2="60" y2="58" stroke="#34d399" stroke-width="2" />
-    <text x="70" y="62" fill="#94a3b8" font-size="10">FEP / SSE (real-time streaming)</text>
-
-    <line x1="20" y1="76" x2="60" y2="76" stroke="#a78bfa" stroke-width="2" />
-    <text x="70" y="80" fill="#94a3b8" font-size="10">Memory context injection (REST)</text>
-
-    <line x1="20" y1="94" x2="60" y2="94" stroke="#22d3ee" stroke-width="2" />
-    <text x="70" y="98" fill="#94a3b8" font-size="10">MCP stdio (tool execution)</text>
-  </g>
-
-  <!-- Title watermark -->
-  <text x="450" y="710" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="2" font-weight="500">AGENTOPS PLATFORM ARCHITECTURE</text>
+  <!-- ═══════════════════ WATERMARK (Layer 7) ═══════════════════ -->
+  <text x="480" y="768" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="2" font-weight="500">AGENTOPS PLATFORM ARCHITECTURE</text>
 </svg>

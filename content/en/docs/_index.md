@@ -2,9 +2,6 @@
 title: "Documentation"
 linkTitle: "Documentation"
 weight: 20
-menu:
-  main:
-    weight: 20
 ---
 
 AgentOps is a Kubernetes-native platform for deploying and operating AI agents as first-class workloads. These docs cover everything from installing the operator to writing custom tool servers.

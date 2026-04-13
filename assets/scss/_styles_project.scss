@@ -1,130 +1,80 @@
 // =============================================================================
-// AgentOps — Premium Visual System
+// AgentOps — Custom Styles
 // =============================================================================
-// The visual language of a $10B dev tools company.
-// Every shadow, every transition, every gradient — intentional.
-// Linear's density. Stripe's elegance. Vercel's boldness. Raycast's polish.
+// Dark-mode only site. No [data-bs-theme="dark"] wrappers needed — they're
+// always true. Minimal overrides on Docsy/Bootstrap. Hero/landing has its own
+// unique design (DO NOT SIMPLIFY hero sections).
 // =============================================================================
 
 @import "td/code-dark";
 
 // =============================================================================
-// CSS Custom Properties — the foundation of everything
+// CSS Custom Properties
 // =============================================================================
 
 :root {
-  // Easing curves
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  // Elevation shadows (dark mode defaults)
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.6), 0 8px 20px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
-  --shadow-glow-intense: 0 0 60px rgba(139, 92, 246, 0.25), 0 0 120px rgba(139, 92, 246, 0.1);
-
-  // Grid pattern
-  --grid-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-
-  // Mono font stack
   --font-mono: "SF Mono", "Fira Code", "JetBrains Mono", "Cascadia Code", monospace;
+  --grid-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
-
-// =============================================================================
-// Dark mode — the default, the star
-// =============================================================================
 
 [data-bs-theme="dark"] {
   --bs-body-bg: #09090b;
   --bs-body-bg-rgb: 9, 9, 11;
-  --bs-body-color: #a1a1aa;
-  --bs-body-color-rgb: 161, 161, 170;
+  --bs-body-color: #d4d4d8;
+  --bs-body-color-rgb: 212, 212, 216;
   --bs-tertiary-bg: #18181b;
   --bs-secondary-bg: #0f0f12;
   --bs-border-color: #1e1e24;
   --bs-emphasis-color: #fafafa;
   --td-pre-bg: #0c0c0f;
 
-  // Custom surface tokens — 6-tier depth system
+  // Surface depth tokens (used by hero/landing/feature cards)
   --surface-0: #050507;
   --surface-1: #09090b;
   --surface-2: #0c0c10;
   --surface-3: #111115;
   --surface-4: #16161b;
-  --surface-5: #1c1c22;
 
-  // Border tokens — 4-tier visibility system
+  // Border tokens
   --border-subtle: rgba(255, 255, 255, 0.04);
   --border-default: rgba(255, 255, 255, 0.06);
   --border-emphasis: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.15);
 
-  // Text tokens — 4-tier hierarchy
+  // Text hierarchy
   --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-tertiary: #71717a;
-  --text-quaternary: #52525b;
+  --text-secondary: #d4d4d8;
+  --text-tertiary: #a1a1aa;
+  --text-quaternary: #71717a;
+  --text-muted: #52525b;
 
-  // Accent tokens — violet
+  // Accent — violet
   --accent: #8b5cf6;
   --accent-light: #a78bfa;
   --accent-lighter: #c4b5fd;
   --accent-subtle: rgba(139, 92, 246, 0.08);
   --accent-muted: rgba(139, 92, 246, 0.15);
 
-  // Complementary accent — sky
+  // Complementary — sky
   --accent-2: #38bdf8;
   --accent-2-subtle: rgba(56, 189, 248, 0.08);
-}
 
-[data-bs-theme="light"] {
-  --bs-body-bg: #fafafa;
-  --bs-body-color: #3f3f46;
-  --bs-tertiary-bg: #f4f4f5;
-  --bs-secondary-bg: #ffffff;
-  --bs-border-color: #e4e4e7;
-  --td-pre-bg: #f4f4f5;
+  // Code surfaces
+  --code-bg: #18181b;
+  --code-color: #e4e4e7;
+  --code-border: #27272a;
 
-  --surface-0: #ffffff;
-  --surface-1: #fafafa;
-  --surface-2: #f4f4f5;
-  --surface-3: #e4e4e7;
-  --surface-4: #d4d4d8;
-  --surface-5: #a1a1aa;
-
-  --border-subtle: rgba(0, 0, 0, 0.04);
-  --border-default: rgba(0, 0, 0, 0.08);
-  --border-emphasis: rgba(0, 0, 0, 0.12);
-  --border-strong: rgba(0, 0, 0, 0.2);
-
-  --text-primary: #09090b;
-  --text-secondary: #3f3f46;
-  --text-tertiary: #71717a;
-  --text-quaternary: #a1a1aa;
-
-  --accent: #7c3aed;
-  --accent-light: #8b5cf6;
-  --accent-lighter: #a78bfa;
-  --accent-subtle: rgba(124, 58, 237, 0.06);
-  --accent-muted: rgba(124, 58, 237, 0.12);
-
-  --accent-2: #0284c7;
-  --accent-2-subtle: rgba(2, 132, 199, 0.06);
-
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
-  --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.16), 0 8px 20px rgba(0, 0, 0, 0.06);
-  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.08), 0 0 80px rgba(124, 58, 237, 0.03);
+  // Shadows
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.15), 0 0 80px rgba(139, 92, 246, 0.05);
 }
 
 // =============================================================================
-// Global resets and enhancements
+// Global
 // =============================================================================
 
 ::selection {
@@ -136,7 +86,6 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -144,108 +93,79 @@ body {
 }
 
 // =============================================================================
-// Navbar — the thin glass ribbon
+// Layout
 // =============================================================================
 
-// Hide navbar brand (logo + name) on homepage when cover is visible
+.td-sidebar {
+  background-color: rgba(139, 92, 246, 0.02);
+  border-right-color: var(--bs-border-color);
+}
+
+.td-main main {
+  padding-top: 6rem;
+  padding-bottom: 4rem;
+}
+
+.td-sidebar-toc {
+  padding-top: 6rem;
+}
+
+// =============================================================================
+// Navbar
+// =============================================================================
+
 .td-navbar-cover .navbar-brand {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
 
+// The glass-morphism background genuinely needs !important to override
+// Docsy's inline `background: $primary` on .td-navbar.
 .td-navbar {
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  transition: all 0.3s var(--ease-out-expo);
   z-index: 1030;
-
-  [data-bs-theme="dark"] & {
-    background: rgba(9, 9, 11, 0.8) !important;
-    border-bottom: 1px solid var(--border-subtle);
-    box-shadow: 0 1px 0 var(--border-subtle),
-                inset 0 -1px 0 var(--border-subtle);
-  }
-
-  [data-bs-theme="light"] & {
-    background: rgba(250, 250, 250, 0.85) !important;
-    border-bottom: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
-  }
+  background: rgba(9, 9, 11, 0.85) !important;
+  border-bottom: 1px solid var(--bs-border-color);
+  box-shadow: var(--shadow-xs);
 }
 
 .td-navbar .navbar-brand {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  transition: opacity 0.2s ease;
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
 
 .td-navbar .navbar-brand__name {
   font-weight: 700;
   letter-spacing: -0.04em;
   font-size: 1.1rem;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--text-primary);
 }
 
 .td-navbar .nav-link {
   font-weight: 500;
   font-size: 0.815rem;
   letter-spacing: -0.01em;
-  padding: 0.35rem 0.75rem !important;
+  padding: 0.35rem 0.75rem;
   border-radius: 6px;
-  transition: all 0.15s ease;
-  position: relative;
-
-  [data-bs-theme="dark"] & {
-    color: var(--text-tertiary);
-  }
+  transition: color 0.15s ease, background 0.15s ease;
+  color: var(--text-tertiary);
 
   &:hover {
-    [data-bs-theme="dark"] & {
-      color: var(--text-primary);
-      background: var(--border-subtle);
-    }
-    [data-bs-theme="light"] & {
-      color: var(--text-primary);
-      background: var(--border-subtle);
-    }
+    color: var(--text-primary);
+    background: var(--border-subtle);
   }
 
   &.active {
-    [data-bs-theme="dark"] & {
-      color: var(--text-primary);
-      background: var(--border-default);
-    }
-    [data-bs-theme="light"] & {
-      color: var(--text-primary);
-      background: var(--border-default);
-    }
-
-    &::after {
-      content: "";
-      position: absolute;
-      bottom: 2px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-    }
+    color: var(--text-primary);
+    background: var(--border-default);
   }
 }
 
 // =============================================================================
-// Hero Section — the main event
+// Hero Section — unique landing page design (DO NOT SIMPLIFY)
 // =============================================================================
 
 .td-cover-block {
@@ -258,10 +178,6 @@ body {
   align-items: center;
 
   [data-bs-theme="dark"] & {
-    background: var(--surface-0) !important;
-  }
-
-  [data-bs-theme="light"] & {
     background: var(--surface-0) !important;
   }
 
@@ -349,15 +265,8 @@ body {
   margin-top: 0 !important;
   padding-bottom: 0 !important;
   animation: heroFadeUp 0.9s var(--ease-out-expo) 0.2s both;
-
-  [data-bs-theme="dark"] & {
-    color: #fafafa;
-    text-shadow: 0 0 100px rgba(139, 92, 246, 0.1);
-  }
-
-  [data-bs-theme="light"] & {
-    color: #09090b;
-  }
+  color: var(--text-primary);
+  text-shadow: 0 0 100px rgba(139, 92, 246, 0.1);
 }
 
 .td-cover-block .display-2 {
@@ -367,20 +276,10 @@ body {
   margin-bottom: 1.75rem;
   text-transform: none !important;
   animation: heroFadeUp 0.9s var(--ease-out-expo) 0.3s both;
-
-  [data-bs-theme="dark"] & {
-    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #38bdf8 70%, #7dd3fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  [data-bs-theme="light"] & {
-    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 40%, #0284c7 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #38bdf8 70%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .agentops-hero-desc {
@@ -431,7 +330,7 @@ body {
 }
 
 // =============================================================================
-// Buttons — precise, elevated, premium
+// Buttons
 // =============================================================================
 
 .btn {
@@ -441,8 +340,6 @@ body {
   padding: 0.7rem 1.5rem;
   transition: all 0.2s var(--ease-out-expo);
   border: none;
-  position: relative;
-  isolation: isolate;
   letter-spacing: -0.01em;
 
   &.btn-primary {
@@ -462,46 +359,22 @@ body {
       color: #fff;
     }
 
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2),
-                  0 0 0 1px rgba(139, 92, 246, 0.3),
-                  inset 0 1px 3px rgba(0, 0, 0, 0.15);
-    }
+    &:active { transform: translateY(0); }
   }
 
   &.btn-secondary {
-    background: var(--surface-3);
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-emphasis);
     color: var(--text-secondary);
 
-    [data-bs-theme="dark"] & {
-      background: rgba(255, 255, 255, 0.04);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03),
-                  0 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
     &:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--border-strong);
       color: var(--text-primary);
       transform: translateY(-1px);
-
-      [data-bs-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.07);
-        border-color: var(--border-strong);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      }
-
-      [data-bs-theme="light"] & {
-        background: var(--surface-2);
-        border-color: var(--border-strong);
-        box-shadow: var(--shadow-md);
-      }
     }
 
-    &:active {
-      transform: translateY(0);
-    }
+    &:active { transform: translateY(0); }
   }
 }
 
@@ -512,7 +385,7 @@ body {
 }
 
 // =============================================================================
-// Landing page sections
+// Landing page sections (DO NOT SIMPLIFY)
 // =============================================================================
 
 .agentops-section {
@@ -521,54 +394,37 @@ body {
 }
 
 .agentops-section--intro {
-  [data-bs-theme="dark"] & {
-    background: var(--surface-2);
-    border-top: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
 
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
-    }
-  }
-
-  [data-bs-theme="light"] & {
-    background: var(--surface-0);
-    border-top: 1px solid var(--border-default);
-    border-bottom: 1px solid var(--border-default);
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
   }
 }
 
 .agentops-section--features {
-  [data-bs-theme="dark"] & { background: var(--surface-1); }
-  [data-bs-theme="light"] & { background: var(--surface-1); }
+  background: var(--surface-1);
 }
 
 .agentops-section--code {
-  [data-bs-theme="dark"] & {
-    background: var(--surface-2);
-    border-top: 1px solid var(--border-subtle);
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  [data-bs-theme="light"] & {
-    background: var(--surface-0);
-    border-top: 1px solid var(--border-default);
-    border-bottom: 1px solid var(--border-default);
-  }
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .agentops-section--cta {
   padding: 6rem 0 8rem;
   position: relative;
   overflow: hidden;
-
-  [data-bs-theme="dark"] & { background: var(--surface-1); }
+  background: var(--surface-1);
 
   &::before {
     content: "";
@@ -590,7 +446,6 @@ body {
   letter-spacing: -0.04em;
   margin-bottom: 1rem;
   color: var(--text-primary);
-  position: relative;
 
   &.has-accent::after {
     content: "";
@@ -622,12 +477,7 @@ body {
     color: var(--accent-light);
     text-decoration: none;
     transition: color 0.15s ease;
-    border-bottom: 1px solid transparent;
-
-    &:hover {
-      color: var(--accent-lighter);
-      border-bottom-color: var(--accent-lighter);
-    }
+    &:hover { color: var(--accent-lighter); }
   }
 
   code {
@@ -641,7 +491,7 @@ body {
 }
 
 // =============================================================================
-// Feature cards
+// Feature cards (DO NOT SIMPLIFY)
 // =============================================================================
 
 .agentops-features-grid {
@@ -656,50 +506,25 @@ body {
   transition: all 0.25s var(--ease-out-expo);
   position: relative;
   overflow: hidden;
+  background: var(--surface-3);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-xs);
 
-  [data-bs-theme="dark"] & {
-    background: var(--surface-3);
-    border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 30%, rgba(255, 255, 255, 0.06) 70%, transparent);
-    }
-
-    &:hover {
-      border-color: var(--border-emphasis);
-      background: var(--surface-4);
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg), var(--shadow-glow);
-
-      &::after {
-        content: "";
-        position: absolute;
-        top: -1px; left: -1px; right: -1px; bottom: -1px;
-        border-radius: 15px;
-        background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, transparent 40%, transparent 60%, rgba(56, 189, 248, 0.08) 100%);
-        z-index: -1;
-        pointer-events: none;
-      }
-    }
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06) 30%, rgba(255, 255, 255, 0.06) 70%, transparent);
   }
 
-  [data-bs-theme="light"] & {
-    background: var(--surface-0);
-    border: 1px solid var(--border-default);
-    box-shadow: var(--shadow-xs);
-
-    &:hover {
-      border-color: var(--border-emphasis);
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-lg);
-    }
+  &:hover {
+    border-color: var(--border-emphasis);
+    background: var(--surface-4);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
   }
 
   h3 {
@@ -728,23 +553,13 @@ body {
   justify-content: center;
   border-radius: 10px;
   transition: all 0.2s ease;
-
-  [data-bs-theme="dark"] & {
-    color: var(--accent-light);
-    background: var(--accent-subtle);
-    border: 1px solid rgba(139, 92, 246, 0.1);
-  }
-
-  [data-bs-theme="light"] & {
-    color: var(--accent);
-    background: var(--accent-subtle);
-    border: 1px solid rgba(124, 58, 237, 0.08);
-  }
+  color: var(--accent-light);
+  background: var(--accent-subtle);
+  border: 1px solid rgba(139, 92, 246, 0.1);
 
   .agentops-feature-card:hover & {
     background: var(--accent-muted);
     transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
   }
 }
 
@@ -765,7 +580,7 @@ body {
 }
 
 // =============================================================================
-// Principles grid
+// Principles grid (DO NOT SIMPLIFY)
 // =============================================================================
 
 .agentops-principles {
@@ -813,161 +628,344 @@ body {
 }
 
 // =============================================================================
-// Docsy box overrides
-// =============================================================================
-
-.td-box {
-  &.-bg-dark {
-    [data-bs-theme="dark"] & { background: var(--surface-2) !important; }
-  }
-  &.-bg-primary {
-    [data-bs-theme="dark"] & { background: var(--surface-1) !important; }
-  }
-  &.-bg-white {
-    [data-bs-theme="dark"] & { background: var(--surface-3) !important; }
-  }
-}
-
-// =============================================================================
-// Content
+// Documentation content — only override what Docsy doesn't handle
 // =============================================================================
 
 .td-content {
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    letter-spacing: -0.02em;
+  .article-meta {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--bs-border-color);
   }
 
-  h1 { font-size: 2rem; }
-  h2 {
-    font-size: 1.5rem;
-    margin-top: 2.5rem;
-    padding-bottom: 0.5rem;
-
-    [data-bs-theme="dark"] & {
-      border-bottom: 1px solid #1c1c20;
-    }
+  .reading-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
 
+  // Links — violet accent
   a:not(.btn):not(.nav-link) {
+    color: var(--accent-light);
     text-decoration: none;
-    transition: color 0.15s ease;
-
-    [data-bs-theme="dark"] & {
-      color: #a78bfa;
-
-      &:hover {
-        color: #c4b5fd;
-      }
-    }
-
-    [data-bs-theme="light"] & {
-      color: #7c3aed;
-      &:hover { color: #6d28d9; }
-    }
+    &:hover { color: var(--accent-lighter); }
   }
 
-  // Inline code — quiet
+  // Inline code — add border + padding Docsy doesn't
   code:not([class*="language-"]) {
-    font-size: 0.85em;
-    padding: 0.12em 0.35em;
-    border-radius: 4px;
-    font-family: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
-
-    [data-bs-theme="dark"] & {
-      background: #18181b;
-      color: #d4d4d8;
-    }
-
-    [data-bs-theme="light"] & {
-      background: #f4f4f5;
-      color: #3f3f46;
-    }
+    font-family: var(--font-mono);
+    font-size: 0.84em;
+    background: var(--code-bg);
+    color: var(--code-color);
+    border: 1px solid var(--code-border);
+    padding: 0.15em 0.4em;
+    border-radius: 5px;
   }
 }
 
 // =============================================================================
-// Code blocks — simple, dark
+// Code blocks — CNCF-grade (Helm language labels + Argo CD progressive reveal)
 // =============================================================================
 
-.td-content pre,
-.agentops-section pre {
-  border-radius: 8px;
-  font-size: 0.84rem;
-  line-height: 1.65;
-  font-family: "SF Mono", "Fira Code", "JetBrains Mono", monospace;
+// The .highlight container wraps all Chroma code blocks.
+// We make it the positioning context for the language badge and copy button.
+.td-content .highlight {
+  position: relative;
+  margin: 1.75rem 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-3);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-  [data-bs-theme="dark"] & {
-    background: #0a0a0d !important;
-    border: 1px solid #1c1c20;
+  &:hover {
+    border-color: var(--border-emphasis);
+    box-shadow: var(--shadow-sm);
   }
 
-  [data-bs-theme="light"] & {
-    background: #f4f4f5 !important;
-    border: 1px solid #e4e4e7;
-  }
-}
-
-// =============================================================================
-// Tables — clean zinc borders
-// =============================================================================
-
-.td-content table {
-  font-size: 0.875rem;
-
-  thead th {
+  // Language badge — top-left label (inspired by Helm/Docusaurus)
+  .code-lang-badge {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
     font-weight: 600;
-    font-size: 0.75rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    color: var(--text-quaternary);
+    background: var(--surface-4);
+    border-bottom: 1px solid var(--border-default);
+    border-right: 1px solid var(--border-default);
+    border-radius: 0 0 6px 0;
+    user-select: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    line-height: 1;
+  }
 
-    [data-bs-theme="dark"] & {
-      background: #0f0f12;
-      color: #71717a;
-      border-color: #27272a;
+  // Copy button — progressive reveal (inspired by Argo CD)
+  .click-to-copy {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+  }
+
+  pre button.td-click-to-copy {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+    font-size: 0.75rem;
+    --bs-btn-box-shadow: none;
+    box-shadow: none;
+
+    &::before {
+      font-size: 0.8rem;
     }
   }
 
-  tbody td {
-    [data-bs-theme="dark"] & {
-      border-color: #1c1c20;
+  &:hover pre button.td-click-to-copy {
+    opacity: 0.5;
+  }
+
+  pre button.td-click-to-copy:hover {
+    opacity: 1;
+    color: var(--accent-light);
+    background: var(--accent-subtle);
+    border-color: var(--accent-muted);
+  }
+
+  pre button.td-click-to-copy:active {
+    transform: scale(0.92);
+    background: var(--accent-muted);
+  }
+
+  // Pre inside .highlight
+  pre {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 1.25rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    // Custom scrollbar (Argo CD style)
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-emphasis) transparent;
+
+    &::-webkit-scrollbar { height: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb {
+      background: var(--border-emphasis);
+      border-radius: 3px;
+      &:hover { background: var(--accent); }
+    }
+
+    code {
+      color: var(--code-color);
+      font-size: inherit;
     }
   }
 
-  tbody tr:hover {
-    [data-bs-theme="dark"] & {
-      background: rgba(255, 255, 255, 0.02);
+  // When language badge is present, add top padding to avoid overlap
+  &:has(.code-lang-badge) pre {
+    padding-top: 2.25rem;
+  }
+}
+
+// Output blocks — wrapped by JS into .highlight.highlight-output
+// Slightly dimmer than syntax-highlighted code to visually distinguish input vs output
+.td-content .highlight.highlight-output {
+  background: var(--surface-2);
+  border-color: var(--border-subtle);
+
+  pre {
+    color: var(--text-quaternary);
+    font-size: 0.8rem;
+    line-height: 1.6;
+
+    code { color: var(--text-quaternary); }
+  }
+
+  .code-lang-badge {
+    color: var(--text-muted);
+  }
+}
+
+// Fallback for any pre:not(.chroma) not yet wrapped by JS (brief flash before DOMContentLoaded)
+.td-content > pre:not(.chroma) {
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-quaternary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-emphasis) transparent;
+}
+
+// =============================================================================
+// Tables — card-style with hover (inspired by Argo CD / mkdocs-material)
+// =============================================================================
+
+// Remove Docsy zebra stripes
+.td-content table:not(.td-initial) > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-bg-type: transparent;
+}
+
+.td-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.75rem 0;
+  border-radius: 10px;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-xs);
+  font-size: 0.855rem;
+  // Custom scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-emphasis) transparent;
+
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-emphasis);
+    border-radius: 3px;
+  }
+
+  thead {
+    // Sticky header for scrollable tables
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    th {
+      background: var(--surface-4);
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-emphasis);
+      border-right: 1px solid var(--border-subtle);
+      white-space: nowrap;
+
+      &:last-child { border-right: none; }
     }
+  }
+
+  tbody {
+    td {
+      padding: 0.7rem 1rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      vertical-align: top;
+      line-height: 1.55;
+
+      &:last-child { border-right: none; }
+    }
+
+    tr {
+      transition: background 0.15s ease;
+
+      &:hover {
+        background: rgba(139, 92, 246, 0.03);
+
+        td { color: var(--text-primary); }
+      }
+
+      &:last-child td { border-bottom: none; }
+    }
+  }
+
+  // Inline code in table cells
+  td code, th code {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: var(--code-bg);
+    color: var(--code-color);
+    border: 1px solid var(--code-border);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    white-space: nowrap;
   }
 }
 
 // =============================================================================
-// Sidebar — minimal
+// Section index pages — minimal overrides
+// =============================================================================
+
+// Row cards in markdown (Getting Started page)
+.td-content > .row > [class*="col-"] {
+  background: var(--surface-2);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  margin: 0.5rem;
+  padding: 1.5rem;
+  &:hover { border-color: var(--code-border); }
+}
+
+// Docsy section-index child listing
+.section-index .entry a {
+  color: var(--text-secondary);
+  &:hover { color: var(--accent-light); }
+}
+
+// =============================================================================
+// Sidebar nav
 // =============================================================================
 
 .td-sidebar-nav {
-  font-size: 0.84rem;
+  // Hide the redundant "Documentation" root link
+  .td-sidebar-link.tree-root {
+    display: none;
+  }
 
   .td-sidebar-link {
-    padding: 0.25rem 0.65rem;
-    border-radius: 5px;
-    transition: all 0.1s ease;
-    font-weight: 400;
+    transition: color 0.15s ease;
+    color: var(--text-tertiary);
 
-    &:hover {
-      [data-bs-theme="dark"] & {
-        background: rgba(255, 255, 255, 0.03);
-      }
-    }
+    &:hover, &:focus { color: var(--accent-light); }
+    &.active { font-weight: 700; color: var(--text-primary); }
+  }
 
-    &.active {
-      font-weight: 600;
+  .td-sidebar-link__section {
+    color: var(--text-secondary);
+  }
 
-      [data-bs-theme="dark"] & {
-        color: #fafafa;
-        background: rgba(255, 255, 255, 0.05);
-      }
-    }
+  .td-sidebar-link__page {
+    color: var(--text-tertiary);
+    font-weight: unset;
+  }
+
+  .td-sidebar-nav-active-item {
+    color: var(--text-primary);
   }
 }
 
@@ -976,9 +974,14 @@ body {
 // =============================================================================
 
 .td-footer {
-  [data-bs-theme="dark"] & {
-    background: #050507;
-    border-top: 1px solid #1c1c20;
+  background: var(--surface-0);
+  border-top: 1px solid var(--bs-border-color);
+  color: var(--text-muted);
+
+  a {
+    color: var(--text-quaternary);
+    transition: color 0.15s ease;
+    &:hover { color: var(--text-tertiary); }
   }
 }
 
@@ -988,12 +991,18 @@ body {
 
 .td-breadcrumbs {
   font-size: 0.78rem;
-  opacity: 0.5;
+  margin-bottom: 1rem;
+
+  .breadcrumb { margin-bottom: 0; }
 
   a {
     text-decoration: none;
-    [data-bs-theme="dark"] & { color: #a1a1aa; }
+    color: var(--text-quaternary);
+    &:hover { color: var(--text-tertiary); }
   }
+
+  .breadcrumb-item.active { color: var(--text-tertiary); }
+  .breadcrumb-item + .breadcrumb-item::before { color: #3f3f46; }
 }
 
 // =============================================================================
@@ -1001,20 +1010,19 @@ body {
 // =============================================================================
 
 .td-search__input {
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.84rem;
+  padding: 0.45rem 0.75rem;
+  background: var(--surface-2);
+  border: 1px solid var(--bs-border-color);
+  color: var(--text-secondary);
 
-  [data-bs-theme="dark"] & {
-    background: #18181b;
-    border: 1px solid #27272a;
-    color: #d4d4d8;
+  &::placeholder { color: var(--text-muted); }
 
-    &::placeholder { color: #52525b; }
-
-    &:focus {
-      border-color: #8b5cf6;
-      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
-    }
+  &:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-subtle);
+    outline: none;
   }
 }
 
@@ -1023,40 +1031,70 @@ body {
 // =============================================================================
 
 .alert {
-  border-radius: 6px;
+  border-radius: 10px;
   border-left-width: 3px;
   font-size: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: var(--surface-2);
+  border-color: var(--bs-border-color);
 
-  [data-bs-theme="dark"] & {
-    background: #0f0f12;
+  .alert-heading {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  &.alert-warning { border-left-color: $warning; background: rgba(245, 158, 11, 0.04); }
+  &.alert-info    { border-left-color: $info;    background: rgba(59, 130, 246, 0.04); }
+  &.alert-danger  { border-left-color: $danger;  background: rgba(239, 68, 68, 0.04); }
+}
+
+// =============================================================================
+// Right sidebar — clean TOC (rendered by toc-clean.html partial)
+// =============================================================================
+
+.td-sidebar-toc {
+  border-left: none;
+
+  .toc-heading {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-bottom: 0.75rem;
+  }
+
+  #TableOfContents {
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    ul ul { padding-left: 0.75rem; }
+
+    a {
+      display: block;
+      padding: 0.15rem 0;
+      color: var(--text-tertiary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      transition: color 0.15s ease;
+      &:hover { color: var(--accent-light); }
+    }
+
+    ul ul a {
+      color: var(--text-quaternary);
+      font-size: 0.75rem;
+      &:hover { color: var(--accent-light); }
+    }
   }
 }
 
 // =============================================================================
-// Page meta
-// =============================================================================
-
-.td-page-meta {
-  [data-bs-theme="dark"] & {
-    border-color: #27272a;
-  }
-}
-
-// =============================================================================
-// Content fade-in — very subtle
-// =============================================================================
-
-.td-content {
-  animation: fadeIn 0.25s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-// =============================================================================
-// Responsive — landing page only
+// Responsive — landing page (DO NOT SIMPLIFY)
 // =============================================================================
 
 @media (max-width: 768px) {

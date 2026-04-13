@@ -17,7 +17,7 @@ $enable-dark-mode: true;
 
 // -- Palette: considered, layered --
 $primary:   #8b5cf6;   // Violet 500 — signature
-$secondary: #a1a1aa;   // Zinc 400
+$secondary: #a1a1aa;   // Zinc 400 (muted accents)
 
 $dark:    #09090b;      // Zinc 950
 $light:   #fafafa;      // Zinc 50
@@ -35,7 +35,7 @@ $font-size-base: 1rem;
 
 // -- Body --
 $body-bg:    #09090b;
-$body-color: #a1a1aa;
+$body-color: #d4d4d8;
 
 // -- Navbar --
 $td-navbar-bg-color: rgba(9, 9, 11, 0.7);

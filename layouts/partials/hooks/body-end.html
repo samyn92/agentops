@@ -1,0 +1,49 @@
+<script>
+// Code block enhancements: language labels + output block wrapping
+document.addEventListener('DOMContentLoaded', function () {
+  var langMap = {
+    bash: 'Bash', sh: 'Shell', shell: 'Shell', console: 'Console',
+    yaml: 'YAML', yml: 'YAML', json: 'JSON', go: 'Go', golang: 'Go',
+    python: 'Python', py: 'Python', js: 'JavaScript', javascript: 'JavaScript',
+    ts: 'TypeScript', typescript: 'TypeScript', dockerfile: 'Dockerfile',
+    toml: 'TOML', hcl: 'HCL', terraform: 'Terraform', sql: 'SQL',
+    html: 'HTML', css: 'CSS', scss: 'SCSS', xml: 'XML',
+    makefile: 'Makefile', plaintext: 'Text', text: 'Text',
+    diff: 'Diff', ini: 'INI', conf: 'Config', nginx: 'Nginx',
+    rust: 'Rust', java: 'Java', ruby: 'Ruby', php: 'PHP',
+    csharp: 'C#', c: 'C', cpp: 'C++',
+  };
+
+  // 1. Add language badges to syntax-highlighted code blocks
+  document.querySelectorAll('.highlight').forEach(function (block) {
+    var code = block.querySelector('code[data-lang]');
+    if (!code) return;
+
+    var lang = code.getAttribute('data-lang');
+    var label = langMap[lang] || lang.toUpperCase();
+
+    var badge = document.createElement('div');
+    badge.className = 'code-lang-badge';
+    badge.textContent = label;
+    block.insertBefore(badge, block.firstChild);
+  });
+
+  // 2. Wrap plain pre blocks (CLI output) in a styled container with "Output" badge
+  //    These are pre elements inside .td-content that are NOT inside a .highlight wrapper.
+  document.querySelectorAll('.td-content > pre:not(.chroma)').forEach(function (pre) {
+    // Skip if already wrapped
+    if (pre.parentNode.classList.contains('highlight-output')) return;
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'highlight highlight-output';
+
+    var badge = document.createElement('div');
+    badge.className = 'code-lang-badge';
+    badge.textContent = 'Output';
+
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(badge);
+    wrapper.appendChild(pre);
+  });
+});
+</script>

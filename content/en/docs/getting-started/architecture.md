@@ -9,46 +9,7 @@ AgentOps separates the platform control plane from user agent workloads using a 
 
 ## Component overview
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        agent-system namespace                          │
-│                                                                        │
-│  ┌──────────────┐    ┌──────────────────────────┐    ┌──────────────┐  │
-│  │              │    │     Console               │    │              │  │
-│  │   Operator   │    │  ┌──────┐   ┌──────────┐ │    │    Tempo     │  │
-│  │              │    │  │ BFF  │──▶│ SolidJS  │ │    │              │  │
-│  │  Reconciles  │    │  │(Go)  │   │   PWA    │ │    │  OTLP:4317  │  │
-│  │  5 CRDs      │    │  └──┬───┘   └──────────┘ │    │  HTTP:3200  │  │
-│  │              │    │     │                      │    │              │  │
-│  └──────┬───────┘    └─────┼──────────────────────┘    └──────▲───────┘  │
-│         │                  │                                  │          │
-└─────────┼──────────────────┼──────────────────────────────────┼──────────┘
-          │                  │                                  │
-          │ creates/manages  │ FEP/SSE + REST                  │ OTLP traces
-          │                  │                                  │
-┌─────────┼──────────────────┼──────────────────────────────────┼──────────┐
-│         ▼                  ▼                                  │          │
-│  ┌──────────────────────────────┐                             │          │
-│  │        Agent Pod             │                             │          │
-│  │  ┌────────────────────────┐  │    ┌──────────────────┐     │          │
-│  │  │  Fantasy Runtime (Go)  │  │    │                  │     │          │
-│  │  │                        │──┼───▶│  Memory Service  │     │          │
-│  │  │  • LLM calls           │  │    │  (SQLite+FTS5)   │     │          │
-│  │  │  • Built-in tools      │  │    │  :7437           │     │          │
-│  │  │  • MCP tool clients    │──┼────┘                  │     │          │
-│  │  │  • OTLP exporter      ─┼──┼───────────────────────┼─────┘          │
-│  │  └────────────┬───────────┘  │    └──────────────────┘                │
-│  │               │              │                                        │
-│  │  ┌────────────▼───────────┐  │                                        │
-│  │  │   MCP Tool Servers     │  │                                        │
-│  │  │  (OCI init-container)  │  │                                        │
-│  │  │  git, github, kubectl  │  │                                        │
-│  │  └────────────────────────┘  │                                        │
-│  └──────────────────────────────┘                                        │
-│                                                                          │
-│                          agents namespace                                │
-└──────────────────────────────────────────────────────────────────────────┘
-```
+{{< img src="images/architecture.svg" alt="Platform Architecture" >}}
 
 ## Two-namespace model
 
@@ -79,12 +40,6 @@ AgentOps defines 5 CRDs in the `agents.agentops.io/v1alpha1` API group:
 
 ### User interaction
 
-```
-User ──▶ Console PWA ──▶ BFF (Go :8080) ──▶ Agent Pod (:4096)
-              ▲                                    │
-              └────────── FEP/SSE stream ──────────┘
-```
-
 1. The user opens the console (SolidJS PWA) and selects an agent
 2. The BFF proxies the request to the agent pod's Fantasy runtime over HTTP
 3. The runtime processes the prompt, calls the LLM, executes tools, and streams results back via the **Fantasy Event Protocol (FEP)** over Server-Sent Events
@@ -92,21 +47,7 @@ User ──▶ Console PWA ──▶ BFF (Go :8080) ──▶ Agent Pod (:4096)
 
 ### Memory flow
 
-```
-Agent Runtime ──▶ GET /context?query=... ──▶ Memory Service
-                                                   │
-                  ◀── ranked observations ──────────┘
-                  ◀── session summaries ────────────┘
-
-Agent Runtime ──▶ POST /observations ──────▶ Memory Service
-                                                   │
-                  Three-tier write dedup:           │
-                  1. topic_key upsert               │
-                  2. hash dedup (15min window)       │
-                  3. new insert                     │
-                                                   ▼
-                                            SQLite + FTS5
-```
+{{< img src="images/context-injection.svg" alt="Memory Context Injection Flow" >}}
 
 The memory system operates on three layers:
 
@@ -119,12 +60,6 @@ The memory system operates on three layers:
 Context injection is **relevance-ranked** using BM25 when a query is provided (`GET /context?query=...`). Falls back to recency ordering when no query is supplied.
 
 ### Trace flow
-
-```
-Agent Runtime ─┐
-Console BFF ───┼──▶ OTLP (gRPC :4317) ──▶ Tempo ──▶ Console Traces panel
-Memory Service ┘
-```
 
 All components export OpenTelemetry traces via OTLP to Tempo. The console BFF queries Tempo's HTTP API (`:3200`) to render the Traces panel, giving full visibility into LLM calls, tool executions, memory lookups, and request latency.
 
@@ -142,20 +77,7 @@ All components export OpenTelemetry traces via OTLP to Tempo. The console BFF qu
 
 ## Platform vs. user ecosystem
 
-```
-┌────────────────────────────────────────────────────────┐
-│  Platform (operator-managed, agentops-platform chart)  │
-│                                                        │
-│  Operator │ Console │ Memory │ Tempo │ CRDs            │
-└────────────────────────┬───────────────────────────────┘
-                         │ creates / manages
-┌────────────────────────▼───────────────────────────────┐
-│  User Ecosystem (declared via CRDs)                    │
-│                                                        │
-│  Agents │ AgentRuns │ AgentTools │ AgentResources       │
-│  Channels │ Secrets │ ConfigMaps │ PVCs                 │
-└────────────────────────────────────────────────────────┘
-```
+{{< img src="images/platform-ecosystem.svg" alt="Platform vs User Ecosystem" >}}
 
 - **Platform** is installed once via Helm and upgraded independently. It provides the control plane, web UI, memory backend, and tracing infrastructure.
 - **User ecosystem** is everything users create through CRDs. Agents, tools, resources, and channels are declarative — defined in YAML, version-controlled, and reconciled by the operator. The platform never dictates which models, tools, or resources you use.

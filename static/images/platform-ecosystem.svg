@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" font-family="'Geist', 'Inter', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+    <linearGradient id="platformGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <filter id="glow-platform" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#8b5cf6" flood-opacity="0.25"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow-user" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#10b981" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="380" fill="url(#bgGrad)" rx="12"/>
+  <rect width="700" height="380" fill="url(#grid)"/>
+
+  <!-- Connection: Platform → User -->
+  <path d="M 350 160 L 350 205" stroke="#94a3b8" stroke-width="2.5" fill="none" marker-end="url(#arrow-gray)"/>
+  <text x="364" y="188" fill="#94a3b8" font-size="10" font-weight="500">creates / manages</text>
+
+  <!-- ═══════════════════ PLATFORM TIER ═══════════════════ -->
+  <g filter="url(#glow-platform)">
+    <rect x="60" y="40" rx="8" ry="8" width="580" height="115" fill="#1e293b" stroke="#8b5cf6" stroke-width="1.5"/>
+  </g>
+  <rect x="60" y="40" rx="8" ry="8" width="580" height="4" fill="url(#platformGrad)"/>
+  <text x="350" y="72" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="700">Platform</text>
+  <text x="350" y="90" text-anchor="middle" fill="#64748b" font-size="10">Operator-managed  |  agentops-platform Helm chart</text>
+
+  <!-- Component pills -->
+  <rect x="90" y="105" rx="4" ry="4" width="80" height="24" fill="#111827" stroke="#3b82f6" stroke-width="0.75"/>
+  <text x="130" y="121" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Operator</text>
+
+  <rect x="180" y="105" rx="4" ry="4" width="80" height="24" fill="#111827" stroke="#10b981" stroke-width="0.75"/>
+  <text x="220" y="121" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Console</text>
+
+  <rect x="270" y="105" rx="4" ry="4" width="80" height="24" fill="#111827" stroke="#8b5cf6" stroke-width="0.75"/>
+  <text x="310" y="121" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="600">Memory</text>
+
+  <rect x="360" y="105" rx="4" ry="4" width="70" height="24" fill="#111827" stroke="#f59e0b" stroke-width="0.75"/>
+  <text x="395" y="121" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="600">Tempo</text>
+
+  <rect x="440" y="105" rx="4" ry="4" width="65" height="24" fill="#111827" stroke="#475569" stroke-width="0.75"/>
+  <text x="472" y="121" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">CRDs</text>
+
+  <text x="350" y="148" text-anchor="middle" fill="#475569" font-size="9">Installed once via Helm  |  Upgraded independently</text>
+
+  <!-- ═══════════════════ USER ECOSYSTEM TIER ═══════════════════ -->
+  <g filter="url(#glow-user)">
+    <rect x="60" y="210" rx="8" ry="8" width="580" height="115" fill="#1e293b" stroke="#10b981" stroke-width="1.5"/>
+  </g>
+  <rect x="60" y="210" rx="8" ry="8" width="580" height="4" fill="#10b981" opacity="0.6"/>
+  <text x="350" y="242" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="700">User Ecosystem</text>
+  <text x="350" y="260" text-anchor="middle" fill="#64748b" font-size="10">Declared via CRDs  |  Version-controlled  |  GitOps-reconciled</text>
+
+  <!-- Resource pills -->
+  <rect x="80" y="275" rx="4" ry="4" width="70" height="24" fill="#111827" stroke="#10b981" stroke-width="0.75"/>
+  <text x="115" y="291" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="600">Agents</text>
+
+  <rect x="158" y="275" rx="4" ry="4" width="85" height="24" fill="#111827" stroke="#10b981" stroke-width="0.75"/>
+  <text x="200" y="291" text-anchor="middle" fill="#6ee7b7" font-size="9" font-weight="600">AgentRuns</text>
+
+  <rect x="251" y="275" rx="4" ry="4" width="90" height="24" fill="#111827" stroke="#06b6d4" stroke-width="0.75"/>
+  <text x="296" y="291" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">AgentTools</text>
+
+  <rect x="349" y="275" rx="4" ry="4" width="110" height="24" fill="#111827" stroke="#06b6d4" stroke-width="0.75"/>
+  <text x="404" y="291" text-anchor="middle" fill="#67e8f9" font-size="9" font-weight="600">AgentResources</text>
+
+  <rect x="467" y="275" rx="4" ry="4" width="80" height="24" fill="#111827" stroke="#a855f7" stroke-width="0.75"/>
+  <text x="507" y="291" text-anchor="middle" fill="#c4b5fd" font-size="9" font-weight="600">Channels</text>
+
+  <rect x="555" y="275" rx="4" ry="4" width="65" height="24" fill="#111827" stroke="#475569" stroke-width="0.75"/>
+  <text x="587" y="291" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">Secrets</text>
+
+  <text x="350" y="318" text-anchor="middle" fill="#475569" font-size="9">Platform never dictates models, tools, or resources you use</text>
+
+  <!-- Watermark -->
+  <text x="350" y="368" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="2" font-weight="500">PLATFORM VS. USER ECOSYSTEM</text>
+</svg>

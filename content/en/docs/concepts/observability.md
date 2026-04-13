@@ -13,15 +13,7 @@ The agent runtime produces rich OTEL spans for every operation in the agent loop
 
 ### Span hierarchy
 
-```
-invoke_agent (root span)
-├── gen_ai.stream / gen_ai.generate (per LLM call)
-│   ├── tool.call events (recorded on the gen_ai span)
-│   └── content events (prompt, completion, tool I/O)
-├── memory.inject (context injection)
-├── memory.save (observation writes)
-└── pre_flight_budget (token estimation)
-```
+{{< img src="images/span-hierarchy.svg" alt="OTEL Span Hierarchy" >}}
 
 ### GenAI semantic convention attributes
 
@@ -54,31 +46,7 @@ This approach ensures that even if individual tool spans are dropped or not expo
 
 Before each LLM call, the runtime estimates token usage across five layers:
 
-```
-┌─────────────────────────────────────────────┐
-│          Context Window (200K)              │
-│                                             │
-│  ┌─────────┐  Estimated by chars/4          │
-│  │ System  │  heuristic (intentionally      │
-│  │ prompt  │  conservative)                 │
-│  ├─────────┤                                │
-│  │ Tool    │                                │
-│  │ schemas │                                │
-│  ├─────────┤                                │
-│  │ Memory  │  Session summaries +           │
-│  │ context │  relevant observations         │
-│  ├─────────┤                                │
-│  │ Conver- │  Working memory trimmed        │
-│  │ sation  │  to fit remaining budget       │
-│  ├─────────┤                                │
-│  │ User    │                                │
-│  │ prompt  │                                │
-│  ├─────────┤                                │
-│  │ Output  │  25% reserved for              │
-│  │ reserve │  generation headroom           │
-│  └─────────┘                                │
-└─────────────────────────────────────────────┘
-```
+{{< img src="images/context-budget.svg" alt="Context Window Budget" >}}
 
 The budget allocator produces a `pre_flight_budget` span and trims the working memory (oldest messages first) to fit the conversation budget. A reactive stop condition halts the agent loop if actual `InputTokens` from the API response exceeds the budget.
 
@@ -99,15 +67,7 @@ When an agent delegates via `run_agent` or `run_agents`, trace context flows thr
    - Creates a **span link** (not a parent-child relationship) back to the parent's span, preserving independent trace IDs
    - Sets attributes: `delegation.parent_trace_id`, `delegation.parent_span_id`, `delegation.parent_agent`, `delegation.run_name`
 
-```
-Parent trace (trace-id: aaa...)          Child trace (trace-id: bbb...)
-┌──────────────────────┐                 ┌──────────────────────┐
-│ invoke_agent         │                 │ invoke_agent         │
-│ └─ run_agents        │  span link ──── │ (delegation attrs)   │
-│    delegation.group  │                 │ └─ gen_ai.generate   │
-│    delegation.count  │                 │    └─ tool.call...   │
-└──────────────────────┘                 └──────────────────────┘
-```
+{{< img src="images/trace-propagation.svg" alt="Cross-Agent Trace Propagation" >}}
 
 The console uses these attributes and links to build a delegation tree, enabling parent-to-child trace navigation without requiring a shared trace ID.
 
@@ -179,19 +139,7 @@ Every event carries a `timestamp` (RFC3339 UTC) and relevant metadata. Tool resu
 
 The console BFF runs an SSE multiplexer that connects to all running daemon agents and fans out their FEP events to browser clients:
 
-```
-Agent pods                    Console BFF                  Browser
-┌──────────┐                 ┌──────────────┐            ┌─────────┐
-│ agent-1  │──SSE──┐         │              │            │         │
-│ :4096    │       │         │  Multiplexer │──SSE────── │ Client  │
-├──────────┤       ├────────▶│              │            │         │
-│ agent-2  │──SSE──┘    ┌───▶│  Fan-out to  │──SSE────── │ Client  │
-│ :4096    │            │    │  all browser │            │         │
-├──────────┤            │    │  clients     │            └─────────┘
-│ agent-3  │──SSE───────┘    │              │
-│ :4096    │                 └──────────────┘
-└──────────┘
-```
+{{< img src="images/sse-multiplexer.svg" alt="SSE Multiplexer" >}}
 
 - **Per-agent health polling** with exponential backoff (1s, 2s, 4s, 8s, 16s, 30s cap) for reconnection on disconnect.
 - Agent connections are managed by a K8s informer --- when an Agent CR is created, modified, or deleted, the multiplexer starts, updates, or tears down the SSE connection.
@@ -202,12 +150,4 @@ Agent pods                    Console BFF                  Browser
 
 The console composer displays a real-time breakdown of context window utilization based on the pre-flight token budget:
 
-```
-┌──────────────────────────────────────────────────┐
-│ Context: 67% of 200K                             │
-│ ██████████████████████████████░░░░░░░░░░░░░░░░░░ │
-│ System: 12K │ Tools: 8K │ Memory: 4K │ Conv: 40K │
-└──────────────────────────────────────────────────┘
-```
-
-The breakdown shows system prompt, tool schemas, injected memory context, conversation history, and remaining headroom. This helps users understand when an agent is approaching its context limit and why --- whether it's tool schemas consuming too much space, a large conversation history, or heavy memory injection.
+The console composer displays a real-time breakdown of context window utilization based on the pre-flight token budget. It shows system prompt, tool schemas, injected memory context, conversation history, and remaining headroom — helping users understand when an agent is approaching its context limit and why.

@@ -124,16 +124,11 @@ spec:
 
 MCP tool servers are packaged as OCI artifacts using the `agent-tools` CLI. The artifact structure:
 
-```
-OCI Manifest
-├── mediaType: application/vnd.oci.image.manifest.v1+json
-├── layers[0]:
-│   ├── mediaType: application/vnd.agents.io.mcp-tool.v1
-│   └── content: tar+gzip archive containing:
-│       ├── manifest.json       # tool metadata
-│       ├── mcp-kubectl         # compiled binary (or whatever the tool is named)
-│       └── kubectl             # co-bundled CLI binary (optional)
-```
+| Component | Value |
+|-----------|-------|
+| **Manifest mediaType** | `application/vnd.oci.image.manifest.v1+json` |
+| **Layer mediaType** | `application/vnd.agents.io.mcp-tool.v1` |
+| **Layer content** | tar+gzip archive containing `manifest.json`, compiled binary, optional co-bundled CLI |
 
 ### manifest.json
 
@@ -159,24 +154,7 @@ Every OCI tool artifact must include a `manifest.json` that describes how to run
 
 The operator builds the tool loading pipeline at reconcile time:
 
-```
-AgentTool CR (oci source)
-       │
-       ▼
-Operator adds init container to agent pod spec:
-  - image: gcr.io/go-containerregistry/crane
-  - command: crane export <oci-ref> | tar -xz -C /tools/<name>/
-       │
-       ▼
-Agent pod starts. Runtime reads /tools/<name>/manifest.json
-       │
-       ▼
-Runtime spawns: /tools/<name>/<command> (stdio)
-       │
-       ▼
-MCP client connects over stdin/stdout.
-Tool calls flow: Runtime → stdio → MCP server binary → stdio → Runtime
-```
+{{< img src="images/tool-loading.svg" alt="OCI Tool Loading Pipeline" >}}
 
 For `mcpServer` and `mcpEndpoint` sources, the flow is different — the agent connects via the MCP gateway sidecar over HTTP.
 

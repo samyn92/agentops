@@ -1,0 +1,8 @@
+{{- if not .Params.notoc -}}
+  {{- with .TableOfContents -}}
+    {{- if ne . `<nav id="TableOfContents"></nav>` -}}
+      <p class="toc-heading">On this page</p>
+      {{ . }}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

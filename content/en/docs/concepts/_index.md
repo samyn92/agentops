@@ -19,29 +19,7 @@ The operator reconciles these CRDs into standard Kubernetes primitives — Deplo
 
 ## Architecture overview
 
-```
-┌──────────────────────────────────────────────────┐
-│                  AgentOps Operator                │
-│   Watches: Agent, AgentRun, AgentTool, Channel,  │
-│            AgentResource                         │
-└────────────┬─────────────────────┬───────────────┘
-             │                     │
-     ┌───────▼────────┐   ┌───────▼────────┐
-     │ Daemon Agents   │   │  Task Agents    │
-     │ (Deployment +   │   │  (Job per       │
-     │  Service + PVC) │   │   AgentRun)     │
-     └───────┬────────┘   └───────┬────────┘
-             │                     │
-     ┌───────▼─────────────────────▼───────┐
-     │         Fantasy SDK Runtime (Go)     │
-     │  Working Memory │ OTEL │ MCP Client  │
-     └───────┬──────────────────┬──────────┘
-             │                  │
-     ┌───────▼────────┐  ┌─────▼──────────┐
-     │ agentops-memory │  │  MCP Tools     │
-     │ (SQLite + FTS5) │  │  (OCI / stdio) │
-     └────────────────┘  └────────────────┘
-```
+{{< img src="images/concepts-overview.svg" alt="AgentOps Concepts Overview" >}}
 
 ## Key design principles
 

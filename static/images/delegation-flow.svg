@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 700" font-family="'Geist', 'Inter', system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+    <linearGradient id="runtimeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+    <linearGradient id="operatorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <filter id="glow-runtime" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#ec4899" flood-opacity="0.3"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#94a3b8"/>
+    </marker>
+    <marker id="arrow-pink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#f9a8d4"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#60a5fa"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="660" height="700" fill="url(#bgGrad)" rx="12"/>
+  <rect width="660" height="700" fill="url(#grid)"/>
+
+  <!-- ═══════════════════ CONNECTIONS ═══════════════════ -->
+  <!-- Orchestrator → fan out -->
+  <path d="M 240 135 L 120 200" stroke="#94a3b8" stroke-width="2.5" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M 330 135 L 330 200" stroke="#94a3b8" stroke-width="2.5" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M 420 135 L 540 200" stroke="#94a3b8" stroke-width="2.5" fill="none" marker-end="url(#arrow-gray)"/>
+
+  <!-- AgentRun CRs → Reconciler -->
+  <path d="M 120 280 L 120 340" stroke="#60a5fa" stroke-width="2" fill="none" stroke-dasharray="6,3" marker-end="url(#arrow-blue)"/>
+  <path d="M 330 280 L 330 340" stroke="#60a5fa" stroke-width="2" fill="none" stroke-dasharray="6,3" marker-end="url(#arrow-blue)"/>
+  <path d="M 540 280 L 540 340" stroke="#60a5fa" stroke-width="2" fill="none" stroke-dasharray="6,3" marker-end="url(#arrow-blue)"/>
+
+  <!-- Running → Results -->
+  <path d="M 120 420 L 120 470" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M 330 420 L 330 470" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M 540 420 L 540 470" stroke="#94a3b8" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+
+  <!-- Results → Watcher -->
+  <path d="M 120 540 L 240 580" stroke="#f9a8d4" stroke-width="2" fill="none" marker-end="url(#arrow-pink)"/>
+  <path d="M 330 540 L 330 580" stroke="#f9a8d4" stroke-width="2" fill="none" marker-end="url(#arrow-pink)"/>
+  <path d="M 540 540 L 420 580" stroke="#f9a8d4" stroke-width="2" fill="none" marker-end="url(#arrow-pink)"/>
+
+  <!-- ═══════════════════ ORCHESTRATOR ═══════════════════ -->
+  <g filter="url(#glow-runtime)">
+    <rect x="180" y="40" rx="8" ry="8" width="300" height="90" fill="#1e293b" stroke="#ec4899" stroke-width="1.5"/>
+  </g>
+  <rect x="180" y="40" rx="8" ry="8" width="300" height="4" fill="url(#runtimeGrad)"/>
+  <text x="330" y="72" text-anchor="middle" fill="#f9a8d4" font-size="15" font-weight="700">Orchestrator Agent</text>
+  <text x="330" y="92" text-anchor="middle" fill="#64748b" font-size="11">calls run_agents</text>
+  <text x="330" y="110" text-anchor="middle" fill="#475569" font-size="10">delegation-group: abc123  |  3 delegations</text>
+
+  <!-- ═══════════════════ AGENTRUN CRs ═══════════════════ -->
+  <text x="330" y="190" text-anchor="middle" fill="#64748b" font-size="10" font-weight="500">AgentRun CRs created</text>
+
+  <rect x="50" y="205" rx="6" ry="6" width="140" height="70" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="120" y="230" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">coder</text>
+  <text x="120" y="248" text-anchor="middle" fill="#475569" font-size="9">mode: task</text>
+  <text x="120" y="264" text-anchor="middle" fill="#475569" font-size="9">prompt: "implement..."</text>
+
+  <rect x="260" y="205" rx="6" ry="6" width="140" height="70" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="330" y="230" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">flux</text>
+  <text x="330" y="248" text-anchor="middle" fill="#475569" font-size="9">mode: task</text>
+  <text x="330" y="264" text-anchor="middle" fill="#475569" font-size="9">prompt: "deploy..."</text>
+
+  <rect x="470" y="205" rx="6" ry="6" width="140" height="70" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="540" y="230" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">k8s</text>
+  <text x="540" y="248" text-anchor="middle" fill="#475569" font-size="9">mode: task</text>
+  <text x="540" y="264" text-anchor="middle" fill="#475569" font-size="9">prompt: "verify..."</text>
+
+  <!-- ═══════════════════ RECONCILIATION ═══════════════════ -->
+  <text x="330" y="335" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="500">Operator reconciles each run</text>
+
+  <!-- Running state -->
+  <rect x="60" y="345" rx="6" ry="6" width="120" height="70" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
+  <text x="120" y="370" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="600">Running</text>
+  <text x="120" y="390" text-anchor="middle" fill="#475569" font-size="9">Job executing</text>
+  <text x="120" y="404" text-anchor="middle" fill="#475569" font-size="9">LLM + tools</text>
+
+  <rect x="270" y="345" rx="6" ry="6" width="120" height="70" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
+  <text x="330" y="370" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="600">Running</text>
+  <text x="330" y="390" text-anchor="middle" fill="#475569" font-size="9">Job executing</text>
+  <text x="330" y="404" text-anchor="middle" fill="#475569" font-size="9">LLM + tools</text>
+
+  <rect x="480" y="345" rx="6" ry="6" width="120" height="70" fill="#111827" stroke="#f59e0b" stroke-width="1"/>
+  <text x="540" y="370" text-anchor="middle" fill="#fcd34d" font-size="11" font-weight="600">Running</text>
+  <text x="540" y="390" text-anchor="middle" fill="#475569" font-size="9">Job executing</text>
+  <text x="540" y="404" text-anchor="middle" fill="#475569" font-size="9">LLM + tools</text>
+
+  <!-- Results -->
+  <rect x="50" y="475" rx="6" ry="6" width="140" height="60" fill="#111827" stroke="#10b981" stroke-width="1.5"/>
+  <text x="120" y="500" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Succeeded</text>
+  <text x="120" y="518" text-anchor="middle" fill="#475569" font-size="9">result attached</text>
+
+  <rect x="260" y="475" rx="6" ry="6" width="140" height="60" fill="#111827" stroke="#10b981" stroke-width="1.5"/>
+  <text x="330" y="500" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Succeeded</text>
+  <text x="330" y="518" text-anchor="middle" fill="#475569" font-size="9">result attached</text>
+
+  <rect x="470" y="475" rx="6" ry="6" width="140" height="60" fill="#111827" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="540" y="500" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Failed</text>
+  <text x="540" y="518" text-anchor="middle" fill="#475569" font-size="9">error captured</text>
+
+  <!-- ═══════════════════ DELEGATION WATCHER ═══════════════════ -->
+  <text x="330" y="575" text-anchor="middle" fill="#f9a8d4" font-size="10" font-weight="500">DelegationWatcher collects results</text>
+
+  <g filter="url(#glow-runtime)">
+    <rect x="180" y="590" rx="8" ry="8" width="300" height="65" fill="#1e293b" stroke="#ec4899" stroke-width="1.5"/>
+  </g>
+  <rect x="180" y="590" rx="8" ry="8" width="300" height="4" fill="url(#runtimeGrad)"/>
+  <text x="330" y="618" text-anchor="middle" fill="#f9a8d4" font-size="14" font-weight="700">Callback to parent</text>
+  <text x="330" y="638" text-anchor="middle" fill="#475569" font-size="10">Automatic prompt injection with all results</text>
+
+  <!-- Watermark -->
+  <text x="330" y="688" text-anchor="middle" fill="#334155" font-size="11" letter-spacing="2" font-weight="500">DELEGATION FAN-OUT FLOW</text>
+</svg>

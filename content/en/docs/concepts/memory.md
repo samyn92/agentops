@@ -73,32 +73,7 @@ Each observation has:
 
 On every turn, the runtime injects memory context into the agent's prompt. Here is the exact flow:
 
-```
-User sends prompt
-       │
-       ▼
-Runtime calls: GET /context?project=<agent>&query=<user_prompt>&limit=<contextLimit>
-       │
-       ▼
-Memory service returns:
-  ├── recent_sessions:     always sorted by recency (most recent first)
-  └── recent_observations: BM25-ranked if query is provided
-                           recency fallback if query is empty
-                           backfill with recency if FTS returns fewer than limit
-       │
-       ▼
-Runtime formats as XML blocks and prepends to system context:
-  <memory:sessions>...</memory:sessions>
-  <memory:context>...</memory:context>
-       │
-       ▼
-Each injected observation produces an OTEL span event:
-  memory.context_item {
-    rank:           1,
-    method:         "fts5_bm25" | "recency" | "backfill",
-    observation_id: 42
-  }
-```
+{{< img src="images/context-injection.svg" alt="Memory Context Injection Flow" >}}
 
 ### Query truncation
 
@@ -139,20 +114,7 @@ This catches exact or near-exact duplicates when the agent calls `mem_save` mult
 
 If neither tier 1 nor tier 2 matches, perform a standard `INSERT`. The observation is new.
 
-```
-Incoming observation
-       │
-       ▼
-  Has topic_key? ──yes──▶ Match (topic_key, project, scope)? ──yes──▶ UPDATE (upsert)
-       │ no                       │ no
-       ▼                          ▼
-  SHA-256(normalize(content))     SHA-256(normalize(content))
-       │                          │
-  Match within 15min? ──yes──▶ Bump duplicate_count
-       │ no
-       ▼
-  INSERT (new observation)
-```
+{{< img src="images/write-dedup.svg" alt="Three-Tier Write Dedup" >}}
 
 ## MCP tools for agents
 

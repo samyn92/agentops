@@ -28,34 +28,7 @@ The runtime knows its own identity (`AGENT_NAME` env var) and uses it to filter 
 
 Constraints: max 10 delegations per fan-out, timeout range 1m--4h (default 30m).
 
-```
-  ┌──────────────────────┐
-  │   Orchestrator Agent  │
-  │                       │
-  │  calls run_agents     │
-  │  with 3 delegations   │
-  └──────────┬────────────┘
-             │
-    ┌────────┼────────┐
-    ▼        ▼        ▼
- ┌──────┐ ┌──────┐ ┌──────┐    AgentRun CRs created
- │coder │ │ flux │ │ k8s  │    (delegation-group: abc123)
- └──┬───┘ └──┬───┘ └──┬───┘
-    │        │        │
-    ▼        ▼        ▼
- Running  Running  Running     Operator reconciles each run
-    │        │        │
-    ▼        ▼        ▼
- Succeeded Succeeded Failed     DelegationWatcher collects
-    │        │        │
-    └────────┼────────┘
-             ▼
-  ┌──────────────────────┐
-  │ Callback to parent   │     Automatic prompt injection
-  │ with collected       │     with all results
-  │ results              │
-  └──────────────────────┘
-```
+{{< img src="images/delegation-flow.svg" alt="Delegation Fan-Out Flow" >}}
 
 ## DelegationWatcher
 
