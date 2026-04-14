@@ -63,7 +63,6 @@ spec:
     serverRef: agentops-memory         # service name or AgentTool CR
     project: platform-engineer
     contextLimit: 5                    # observations injected per turn
-    windowSize: 20                     # working memory sliding window
     autoSummarize: true
     autoSave: true
     autoSearch: true

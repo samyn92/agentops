@@ -54,7 +54,7 @@ The memory system operates on three layers:
 
 | Layer | Scope | Storage | Management |
 |-------|-------|---------|------------|
-| **Working memory** | Current session | In-process (Go runtime) | Automatic sliding window of last N turns. Checkpointed to PVC for crash recovery. |
+| **Working memory** | Current session | In-process (Go runtime) | Token-budget trimmed. Before each LLM call, oldest messages are trimmed to fit the conversation token budget. Checkpointed to PVC for crash recovery. |
 | **Short-term memory** | Session summaries | agentops-memory (SQLite) | Deterministic extraction at session end (no LLM call). Injected on each turn. |
 | **Long-term memory** | Decisions, discoveries, lessons | agentops-memory (SQLite + FTS5) | User-managed via console Memory panel. Agent can save/search via `mem_save`, `mem_search` MCP tools. |
 

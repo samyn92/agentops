@@ -161,7 +161,6 @@ memory:
   serverRef: agentops-memory       # Service name or AgentTool CR name
   project: my-agent                # Scopes all memories; defaults to agent name
   contextLimit: 5                  # Observations injected per turn (0-50)
-  windowSize: 20                   # Working memory sliding window (2-200)
   autoSummarize: true              # Session summaries on end
   autoSave: true                   # Agent can call mem_save autonomously
   autoSearch: true                 # Agent can call mem_search autonomously
@@ -172,7 +171,6 @@ memory:
 | `serverRef` | required | Memory service reference. Resolved to `http://<name>.<namespace>.svc.cluster.local:7437`. |
 | `project` | agent name | Scopes all sessions and observations. Multiple agents can share a project. |
 | `contextLimit` | `5` | Max observations returned by `/context`. Higher = more context, more tokens. |
-| `windowSize` | `20` | Soft target for working memory messages. Actual trimming is token-budget based. |
 | `autoSummarize` | `true` | Generate session summary on session end. |
 | `autoSave` | `true` | Register `mem_save` tool. Set `false` to restrict memory creation to console-only. |
 | `autoSearch` | `true` | Register `mem_search` tool. Set `false` to prevent autonomous memory search. |

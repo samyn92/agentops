@@ -87,7 +87,6 @@ metadata:
 | `serverRef` | string | Yes | -- | Reference to the memory server (AgentTool CR name or service name). |
 | `project` | string | No | Agent CR name | Project name for scoping memories. |
 | `contextLimit` | int | No | `5` | Number of recent context entries injected per turn (0-50). |
-| `windowSize` | int | No | `20` | Sliding window size for working memory (2-200). |
 | `autoSummarize` | bool | No | `true` | Enable auto-summarization at session end. |
 | `autoSave` | bool | No | `true` | Allow the agent to save memories via `mem_save`. |
 | `autoSearch` | bool | No | `true` | Allow the agent to search memories via `mem_search`. |

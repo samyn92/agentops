@@ -65,7 +65,7 @@ Every component designed for production. Every integration first-party.
 <div class="agentops-feature-card">
 <div class="agentops-feature-icon"><i class="fas fa-brain"></i></div>
 <h3>Three-Layer Memory</h3>
-<p>Working memory (sliding window), short-term (deterministic session summaries), long-term (user-curated). Context injection is BM25 relevance-ranked via FTS5. No embedding models, no vector DB.</p>
+<p>Working memory (token-budget trimmed), short-term (deterministic session summaries), long-term (user-curated). Context injection is BM25 relevance-ranked via FTS5. No embedding models, no vector DB.</p>
 <a href="docs/concepts/memory/" class="agentops-feature-link">Learn more &rarr;</a>
 </div>
 </div>
@@ -142,8 +142,7 @@ spec:
     - name: prometheus-tool
       registry: ghcr.io/samyn92/agent-tools/prometheus:v0.2.1
   memory:
-    workingMemory:
-      windowSize: 20
+    workingMemory: {}
     shortTerm:
       enabled: true
     longTerm:

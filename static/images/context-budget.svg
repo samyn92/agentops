@@ -51,7 +51,7 @@
   <!-- Layer 4: Conversation -->
   <rect x="80" y="250" width="300" height="75" fill="#1e293b" stroke="#10b981" stroke-width="0.75"/>
   <text x="230" y="280" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Conversation</text>
-  <text x="230" y="298" text-anchor="middle" fill="#475569" font-size="9">Working memory (sliding window)</text>
+  <text x="230" y="298" text-anchor="middle" fill="#475569" font-size="9">Working memory (token-budget trimmed)</text>
   <text x="230" y="312" text-anchor="middle" fill="#475569" font-size="9">Trimmed to fit remaining budget</text>
 
   <!-- Layer 5: User prompt -->
