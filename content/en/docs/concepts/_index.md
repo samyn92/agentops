@@ -40,3 +40,4 @@ Read on for deep dives into each concept:
 - [Providers]({{< relref "providers" >}}) — shared LLM provider configuration, type-based SDK wiring, per-call defaults
 - [Memory]({{< relref "memory" >}}) — three-layer model, context injection, write dedup, MCP tools
 - [Tools]({{< relref "tools" >}}) — MCP tool servers, OCI distribution, gateway sidecar, built-in servers
+- [Resources]({{< relref "resources" >}}) — external resource catalog, agent bindings, git workspaces, console integration
