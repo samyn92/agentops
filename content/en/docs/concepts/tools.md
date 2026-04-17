@@ -173,7 +173,7 @@ The gateway image is `ghcr.io/samyn92/mcp-gateway`. It supports two modes:
 
 ## Built-in tool servers
 
-AgentOps ships six MCP tool servers in the `agent-tools` repository, all compiled as static Go binaries and distributed as OCI artifacts:
+AgentOps ships seven MCP tool servers in the `agent-tools` repository, all compiled as static Go binaries and distributed as OCI artifacts. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
 
 ### kubectl (16 tools)
 
@@ -248,6 +248,25 @@ Flux CD GitOps operations. Like kubectl, the OCI artifact co-bundles the `flux` 
 **Readwrite tools (MODE=readwrite, 4):**
 `flux_reconcile`, `flux_suspend`, `flux_resume`, `flux_delete`
 
+### tempo (6 tools)
+
+Grafana Tempo trace analysis. Agents use this for observability-driven development — searching traces, finding slow tools, analyzing errors, and comparing agent execution runs.
+
+`tempo_search`, `tempo_get`, `tempo_agent_stats`, `tempo_slow_tools`, `tempo_errors`, `tempo_compare`
+
+Requires `TEMPO_URL` environment variable pointing to the Tempo HTTP API.
+
+## mcputil SDK
+
+All built-in tool servers are built on the shared `mcputil` SDK (`servers/pkg/mcputil/` in the agent-tools repository). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.
+
+Key features:
+- **Session-level root span** — `NewServer()` + `Run()` creates an `mcp.session` span for the server lifecycle
+- **Automatic tool tracing** — `AddToolTo()` wraps every invocation in a `tool.<name>` span
+- **Panic recovery** — handler panics are caught and returned as error results instead of crashing
+- **I/O recording** — `WithInputOutput()` opt-in for mutation tools
+- **Helpers** — `DoJSON()` for HTTP APIs, `RunCommand()` for CLI wrappers, `K8sClientset()` for in-cluster access
+
 ## MODE environment variable
 
 All tool servers that support mutable operations use the `MODE` environment variable to gate access:
@@ -265,16 +284,17 @@ To create a custom MCP tool server for AgentOps:
 
 ### 1. Implement the MCP stdio transport
 
-Write a Go binary (or any language) that speaks MCP over stdin/stdout. Using the Go SDK:
+Write a Go binary using the `mcputil` SDK (recommended) or the raw MCP Go SDK. Using mcputil:
 
 ```go
 package main
 
 import (
     "context"
-    "log"
+    "os"
 
     "github.com/modelcontextprotocol/go-sdk/mcp"
+    "github.com/samyn92/agent-tools/servers/pkg/mcputil"
 )
 
 type searchInput struct {
@@ -283,21 +303,20 @@ type searchInput struct {
 }
 
 func main() {
-    server := mcp.NewServer(
-        &mcp.Implementation{Name: "my-tool", Version: "1.0.0"},
-        nil,
+    server := mcputil.NewServer("my-tool", "1.0.0")
+
+    mcputil.AddToolTo(server, "my_search",
+        "Search the knowledge base",
+        func(ctx context.Context, req *mcp.CallToolRequest, input searchInput) (*mcp.CallToolResult, any, error) {
+            // implement tool logic — this call is automatically traced
+            return mcputil.TextResult("results..."), nil, nil
+        },
     )
 
-    mcp.AddTool(server, &mcp.Tool{
-        Name:        "my_search",
-        Description: "Search the knowledge base",
-    }, func(ctx context.Context, req *mcp.CallToolRequest, input searchInput) (*mcp.CallToolResult, any, error) {
-        // implement tool logic
-        return mcp.NewToolResultText("results..."), nil, nil
-    })
-
-    if err := server.Run(context.Background(), &mcp.StdioTransport{}); err != nil {
-        log.Fatal(err)
+    mcputil.Ready()
+    if err := server.Run(context.Background(), mcp.NewStdioTransport()); err != nil {
+        mcputil.Logger().Error("server failed", "error", err)
+        os.Exit(1)
     }
 }
 ```
@@ -307,7 +326,7 @@ func main() {
 ```json
 {
   "name": "my-tool",
-  "command": "my-tool",
+  "command": "mcp-my-tool",
   "transport": "stdio",
   "description": "Custom knowledge base search tool"
 }
@@ -316,8 +335,8 @@ func main() {
 ### 3. Build and push as OCI artifact
 
 ```bash
-# Build the binary
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o my-tool .
+# Build the binary (mcp-{server} naming convention)
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o bin/mcp-my-tool .
 
 # Push as OCI artifact using agent-tools CLI
 agent-tools push . -t ghcr.io/myorg/agent-tools/my-tool:1.0.0

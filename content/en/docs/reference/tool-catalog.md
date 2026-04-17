@@ -5,9 +5,9 @@ weight: 3
 description: "Complete catalog of built-in MCP tool servers with tool names and OCI references."
 ---
 
-AgentOps ships six MCP tool servers as OCI artifacts. Each server is a compiled Go binary implementing MCP stdio transport. Agents reference them via AgentTool CRs, and the operator pulls the binary at pod startup via a crane init container.
+AgentOps ships seven MCP tool servers as OCI artifacts. Each server is a compiled Go binary implementing MCP stdio transport, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents reference them via AgentTool CRs, and the operator pulls the binary at pod startup via a crane init container.
 
-All tool servers are published to `ghcr.io/samyn92/agent-tools/`.
+All tool servers are published to `ghcr.io/samyn92/agent-tools/`. Binaries follow the `mcp-{server}` naming convention.
 
 ---
 
@@ -15,7 +15,7 @@ All tool servers are published to `ghcr.io/samyn92/agent-tools/`.
 
 Intent-based Kubernetes exploration. Higher-level than raw kubectl -- the agent describes what it wants to understand, and the tool returns structured, relevant information.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/kube-explore:0.3.3`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/kube-explore:0.8.2`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -36,7 +36,7 @@ Intent-based Kubernetes exploration. Higher-level than raw kubectl -- the agent 
 
 Direct kubectl access for all standard operations. Provides fine-grained control when kube-explore's higher-level tools are insufficient.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/kubectl:0.3.3`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/kubectl:0.8.2`
 
 ### Read-only tools
 
@@ -72,7 +72,7 @@ Direct kubectl access for all standard operations. Provides fine-grained control
 
 Git operations for repository management. Agents use this for cloning repos, making changes, and pushing commits.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/git:0.0.8`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/git:0.8.2`
 
 ### Read-only tools
 
@@ -104,7 +104,7 @@ Git operations for repository management. Agents use this for cloning repos, mak
 
 GitHub API operations. Agents use this for pull request workflows, issue management, and CI status checks.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/github:0.3.1`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/github:0.8.2`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -129,7 +129,7 @@ GitHub API operations. Agents use this for pull request workflows, issue managem
 
 GitLab API operations. Agents use this for merge request workflows, issue management, and pipeline status.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/gitlab:0.3.1`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/gitlab:0.8.2`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -152,7 +152,7 @@ GitLab API operations. Agents use this for merge request workflows, issue manage
 
 Flux CD operations for GitOps workflows. Covers inspection, debugging, reconciliation, and lifecycle management of Flux resources.
 
-**OCI ref:** `ghcr.io/samyn92/agent-tools/flux:0.3.1`
+**OCI ref:** `ghcr.io/samyn92/agent-tools/flux:0.8.2`
 
 ### Read-only tools
 
@@ -183,6 +183,27 @@ Flux CD operations for GitOps workflows. Covers inspection, debugging, reconcili
 
 ---
 
+## tempo
+
+Grafana Tempo trace analysis. Agents use this to search, inspect, and aggregate execution traces for observability-driven development.
+
+**OCI ref:** `ghcr.io/samyn92/agent-tools/tempo:0.8.2`
+
+**Requires:** `TEMPO_URL` environment variable (e.g. `http://tempo.observability.svc:3200`).
+
+| Tool | Mode | Description |
+|------|------|-------------|
+| `tempo_search` | ro | Search traces by service, operation, duration, or status. |
+| `tempo_get` | ro | Get full trace by ID with span tree. |
+| `tempo_agent_stats` | ro | Aggregate agent execution statistics across traces. |
+| `tempo_slow_tools` | ro | Find slowest tool invocations across traces. |
+| `tempo_errors` | ro | Find error traces and error patterns. |
+| `tempo_compare` | ro | Compare two traces side-by-side. |
+
+**6 tools** (6 read-only)
+
+---
+
 ## AgentTool CR example
 
 To make a tool server available to agents, create an AgentTool CR:
@@ -198,7 +219,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agent-tools/kubectl:0.3.3
+    ref: ghcr.io/samyn92/agent-tools/kubectl:0.8.2
     pullPolicy: IfNotPresent
 ```
 
@@ -240,10 +261,11 @@ spec:
 
 | Server | Tools | Read-only | Read-write | OCI tag |
 |--------|-------|-----------|------------|---------|
-| kube-explore | 8 | 6 | 2 | `0.3.3` |
-| kubectl | 16 | 7 | 9 | `0.3.3` |
-| git | 12 | 5 | 7 | `0.0.8` |
-| github | 12 | 8 | 4 | `0.3.1` |
-| gitlab | 10 | 6 | 4 | `0.3.1` |
-| flux | 15 | 11 | 4 | `0.3.1` |
-| **Total** | **73** | **43** | **30** | |
+| kube-explore | 8 | 6 | 2 | `0.8.2` |
+| kubectl | 16 | 7 | 9 | `0.8.2` |
+| git | 12 | 5 | 7 | `0.8.2` |
+| github | 12 | 8 | 4 | `0.8.2` |
+| gitlab | 10 | 6 | 4 | `0.8.2` |
+| flux | 15 | 11 | 4 | `0.8.2` |
+| tempo | 6 | 6 | 0 | `0.8.2` |
+| **Total** | **79** | **49** | **30** | |
