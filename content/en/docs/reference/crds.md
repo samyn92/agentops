@@ -153,6 +153,7 @@ metadata:
 | `source` | `channel` \| `agent` \| `schedule` \| `console` | Yes | -- | What created this run. |
 | `sourceRef` | string | No | -- | Name of the source (Channel name, agent name, or "schedule"). |
 | `git` | AgentRunGitSpec | No | -- | Git workspace configuration for task agents. |
+| `outcome` | AgentRunOutcomeSpec | No | -- | Caller hint about the expected outcome (intent only). The runtime finalizes the authoritative outcome in `status.outcome`. |
 
 ### spec.git
 
@@ -161,6 +162,12 @@ metadata:
 | `resourceRef` | string | Yes | -- | AgentResource CR name providing the repository URL and credentials. |
 | `branch` | string | Yes | -- | Feature branch to work on. Created from baseBranch if it doesn't exist. |
 | `baseBranch` | string | No | repo default | Base branch for the PR/MR target. |
+
+### spec.outcome
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `intent` | `change` \| `plan` \| `incident` \| `discovery` \| `noop` | No | -- | Caller's hint about what this run is expected to produce. The runtime uses it as a fallback when it cannot infer the intent from the actual work performed. |
 
 ### status
 
@@ -177,10 +184,30 @@ metadata:
 | `cost` | string | Estimated cost in USD. |
 | `model` | string | Actual model used. |
 | `traceID` | string | OpenTelemetry trace ID (hex-encoded 128-bit). |
-| `pullRequestURL` | string | PR/MR URL (when `spec.git` is set). |
-| `commits` | int | Number of commits pushed. |
-| `branch` | string | Git branch the agent worked on. |
+| `outcome` | AgentRunOutcome | Structured result: intent + typed artifacts + short summary. Authoritative. See [status.outcome](#statusoutcome) below. |
 | `conditions` | []Condition | Standard conditions: `Complete`. |
+
+### status.outcome
+
+Every completed AgentRun carries a structured outcome. The runtime finalizes this at end-of-task; the operator never synthesizes it.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `intent` | `change` \| `plan` \| `incident` \| `discovery` \| `noop` | What the run actually produced. Falls back to `spec.outcome.intent` (caller hint) when the runtime cannot infer one. |
+| `summary` | string | Short human-readable summary (typically ≤1 line). |
+| `artifacts` | []AgentRunArtifact | Typed list of things the run produced or referenced. |
+
+Artifacts:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `kind` | `pr` \| `mr` \| `issue` \| `memory` \| `commit` | Artifact kind. |
+| `url` | string | External URL where applicable (PR page, issue page). |
+| `ref` | string | Local reference (branch name, commit SHA, memory ID). |
+| `provider` | string | Source provider (`github`, `gitlab`, etc.) when relevant. |
+| `title` | string | Short display title. |
+
+This replaces the pre-v0.12 flat fields `status.pullRequestURL`, `status.branch`, and `status.commits`, which no longer exist.
 
 ---
 

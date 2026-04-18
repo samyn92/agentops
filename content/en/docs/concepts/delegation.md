@@ -63,7 +63,7 @@ When an AgentRun includes a `spec.git` section, the task agent gets a fully prov
 1. The `resourceRef` points to an AgentResource CR (type `github-repo`, `gitlab-project`, or `git-repo`) that provides the repository URL and credentials.
 2. The operator clones the repo, checks out or creates the feature branch, and mounts it into the Job pod.
 3. The agent works on the branch and can create or update a pull/merge request.
-4. On completion, `status.pullRequestURL`, `status.branch`, and `status.commits` are populated on the AgentRun CR.
+4. On completion, `status.outcome` is populated on the AgentRun CR. This is a structured record containing the run's `intent` (`change` | `plan` | `incident` | `discovery` | `noop`), a short `summary`, and a typed list of `artifacts` (PRs, MRs, issues, memories, commits). The console renders this directly. See [AgentRun outcome](../agents/#agentrun-outcome).
 
 ## Concurrency control
 

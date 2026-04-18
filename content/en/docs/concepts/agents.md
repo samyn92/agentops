@@ -195,9 +195,33 @@ The AgentRun status captures the full execution record:
 | `cost` | Estimated cost in USD |
 | `model` | Actual model used (may differ from primary if fallback triggered) |
 | `traceID` | OpenTelemetry trace ID (hex-encoded 128-bit) |
-| `pullRequestURL` | PR/MR URL (when `spec.git` is set) |
-| `commits` | Number of commits pushed |
-| `branch` | Git branch the agent worked on |
+| `outcome` | Structured result of the run: intent + typed artifacts + short summary. See [AgentRun outcome](#agentrun-outcome) below. |
+
+### AgentRun outcome
+
+Every completed AgentRun carries a structured `status.outcome`:
+
+```yaml
+status:
+  outcome:
+    intent: change           # change | plan | incident | discovery | noop
+    summary: "Added NATS_URL env injection to task pods"
+    artifacts:
+      - kind: pr
+        provider: github
+        url: https://github.com/samyn92/agentops-core/pull/42
+        ref: feature/nats-env
+        title: "feat: inject NATS_URL env var"
+      - kind: commit
+        ref: feature/nats-env
+        title: "2 commit(s)"
+```
+
+The runtime finalizes this at end-of-task; the operator never synthesizes it. Callers can set `spec.outcome.intent` as a hint, but `status.outcome` is always authoritative.
+
+Supported artifact kinds: `pr`, `mr`, `issue`, `memory`, `commit`.
+
+This replaces the pre-v0.12 flat fields `status.pullRequestURL`, `status.branch`, and `status.commits`.
 
 ### Git workspace support
 

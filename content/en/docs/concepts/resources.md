@@ -132,7 +132,7 @@ When `spec.git` is set, the operator:
 1. Resolves the AgentResource CR from `resourceRef` to get the clone URL and credentials.
 2. Configures the Job pod to clone the repository and check out (or create) the feature branch.
 3. Mounts the workspace at `/workspace` for the agent runtime.
-4. After execution, the AgentRun status captures `pullRequestURL`, `branch`, and `commits`.
+4. After execution, the AgentRun's `status.outcome` captures the structured result — intent (`change` | `plan` | ...), a short summary, and typed artifacts (PR/MR, commit, issue, memory). See [AgentRun outcome](../agents/#agentrun-outcome).
 
 This works with `github-repo`, `gitlab-project`, and `git-repo` resource kinds.
 
