@@ -62,15 +62,14 @@ import type {
 const BASE = '/api/v1';
 
 // ── 401 Interceptor ──
-// When the BFF returns 401, redirect to login. This handles session expiry
-// transparently — the user is sent to /auth/login and returns to where they were.
+// When the BFF returns 401, throw an error. The App component reactively shows
+// the login screen when isAuthenticated() is false — no redirect needed.
+// This prevents login loops with multi-provider OAuth (where the browser may
+// have an active session on one provider that auto-grants tokens).
 
 function handleAuthRequired(res: Response): void {
   if (res.status === 401) {
-    const returnTo = window.location.pathname + window.location.search;
-    window.location.href = `/auth/login?return_to=${encodeURIComponent(returnTo)}`;
-    // Throw to prevent further processing of the response.
-    throw new Error('Session expired — redirecting to login');
+    throw new Error('Authentication required');
   }
 }
 

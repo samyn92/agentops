@@ -1,12 +1,13 @@
 import { Router, Route, useNavigate } from '@solidjs/router'
-import { onMount, onCleanup, createEffect } from 'solid-js'
+import { onMount, onCleanup, createEffect, Show, For, createResource } from 'solid-js'
 import MainApp from './pages/MainApp'
 import SettingsPage from './pages/SettingsPage'
 import MissionControl from './pages/MissionControl'
 import { registerKeyboardShortcuts } from './lib/keyboard'
 import AppErrorBoundary from './components/shared/ErrorBoundary'
 import { startEventStream, stopEventStream } from './stores/events'
-import { isAuthenticated, isAuthDisabled } from './stores/auth'
+import { isAuthenticated, isAuthDisabled, currentUser, providers, login } from './stores/auth'
+import { GitLabIcon } from './components/shared/Icons'
 
 function AppShell(props: { children?: any }) {
   const navigate = useNavigate()
@@ -17,7 +18,6 @@ function AppShell(props: { children?: any }) {
   })
 
   // Start SSE only when authenticated (or when auth is disabled — backward compat).
-  // This avoids an infinite EventSource reconnect loop on 401.
   createEffect(() => {
     if (isAuthenticated() || isAuthDisabled()) {
       startEventStream()
@@ -28,13 +28,64 @@ function AppShell(props: { children?: any }) {
 
   return (
     <AppErrorBoundary name="Application">
-      {props.children}
+      {/* Show login screen when not authenticated; show app when authenticated or auth disabled */}
+      <Show when={isAuthenticated() || isAuthDisabled()} fallback={<LoginScreen />}>
+        {props.children}
+      </Show>
     </AppErrorBoundary>
   )
 }
 
-// The legacy Work Board (/board) and GitLab Workspace (/gitlab) pages were
-// merged into Mission Control. Redirect old links to /mission so they don't 404.
+/** Login screen — shows available GitLab providers to authenticate with. */
+function LoginScreen() {
+  const providerList = () => providers();
+
+  return (
+    <div class="min-h-dvh bg-surface flex items-center justify-center p-4">
+      <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 grid place-items-center text-white text-2xl shadow-lg mx-auto mb-4">
+            &#9670;
+          </div>
+          <h1 class="text-xl font-bold tracking-tight">AgentOps</h1>
+          <p class="text-sm text-text-muted mt-1">Sign in to access the agent platform</p>
+        </div>
+
+        <div class="bg-surface-2 border border-border rounded-xl p-6">
+          <Show when={providerList().length > 0} fallback={
+            <div class="text-center py-4">
+              <p class="text-sm text-text-muted">Loading providers...</p>
+            </div>
+          }>
+            <div class="flex flex-col gap-3">
+              <For each={providerList()}>
+                {(provider) => (
+                  <button
+                    class="flex items-center gap-3 w-full px-4 py-3 rounded-lg border border-border-subtle bg-surface hover:bg-surface-3 hover:border-border transition-colors text-left"
+                    onClick={() => login(window.location.pathname, provider.id)}
+                  >
+                    <GitLabIcon class="w-5 h-5 text-[#FC6D26] flex-none" />
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-semibold">{provider.label}</div>
+                      <div class="text-[11px] text-text-muted font-mono truncate">{provider.baseUrl}</div>
+                    </div>
+                    <span class="text-text-muted text-xs">&#8594;</span>
+                  </button>
+                )}
+              </For>
+            </div>
+          </Show>
+        </div>
+
+        <p class="text-[11px] text-text-muted text-center mt-4">
+          Authenticate with your GitLab account to access workspaces, agents, and pipelines.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Legacy redirects
 function RedirectToMission() {
   const navigate = useNavigate()
   navigate('/mission', { replace: true })
