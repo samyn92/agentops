@@ -1681,7 +1681,19 @@ function Card(props: {
         </Show>
         {/* Multi-repo scope badge */}
         <Show when={isMultiRepo()}>
-          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium" title="Spans multiple repositories">multi-repo</span>
+          {(() => {
+            const repoCount = () => ((props.issue.description ?? '').match(/- `[^`]+`/g) ?? []).length || 2;
+            const repoPaths = () => ((props.issue.description ?? '').match(/- `([^`]+)`/g) ?? []).map(m => m.replace(/^- `|`$/g, ''));
+            return (
+              <span
+                class="text-[9px] px-1.5 py-0.5 rounded-full bg-[#FC6D26]/10 text-[#FC6D26] border border-[#FC6D26]/20 font-medium flex items-center gap-1 cursor-default"
+                title={repoPaths().join('\n')}
+              >
+                <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor"><path d="M4.845.904c-.435 0-.82.28-.955.692C2.639 5.449 1.246 9.728.07 13.335a1.437 1.437 0 00.522 1.607l11.071 8.045c.2.145.472.144.67-.004l11.073-8.04a1.436 1.436 0 00.522-1.61c-1.285-3.942-2.683-8.256-3.817-11.746a1.004 1.004 0 00-.957-.684h-3.16a.95.95 0 00-.9.663L12.44 9.556H11.6L8.95 1.569a.95.95 0 00-.9-.665z"/></svg>
+                {repoCount()}
+              </span>
+            );
+          })()}
         </Show>
         {/* Generating indicator */}
         <Show when={generating()}>
