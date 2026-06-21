@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../node_modules/@ark-ui/solid/dist/chunk/ROP6QZQ7.js"],
-  "sourcesContent": ["import { createEffect } from 'solid-js';\n\n// src/utils/compose-refs.ts\nvar isRefFn = (ref) => typeof ref === \"function\";\nvar setRefs = (refs, node) => {\n  for (const ref of refs) {\n    if (isRefFn(ref)) {\n      ref(node);\n    }\n  }\n};\nfunction composeRefs(...refs) {\n  let node = null;\n  createEffect(() => {\n    setRefs(refs, node);\n  });\n  return (el) => {\n    node = el;\n    setRefs(refs, el);\n  };\n}\n\nexport { composeRefs };\n"],
-  "mappings": ";;;;;AAGA,IAAI,UAAU,CAAC,QAAQ,OAAO,QAAQ;AACtC,IAAI,UAAU,CAAC,MAAM,SAAS;AAC5B,aAAW,OAAO,MAAM;AACtB,QAAI,QAAQ,GAAG,GAAG;AAChB,UAAI,IAAI;AAAA,IACV;AAAA,EACF;AACF;AACA,SAAS,eAAe,MAAM;AAC5B,MAAI,OAAO;AACX,eAAa,MAAM;AACjB,YAAQ,MAAM,IAAI;AAAA,EACpB,CAAC;AACD,SAAO,CAAC,OAAO;AACb,WAAO;AACP,YAAQ,MAAM,EAAE;AAAA,EAClB;AACF;",
-  "names": []
-}

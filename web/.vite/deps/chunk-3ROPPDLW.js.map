@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../node_modules/@ark-ui/solid/dist/chunk/GUFIKGZ6.js"],
-  "sourcesContent": ["import { createSplitProps } from './ZMHI4GDJ.js';\nimport { createContext } from './THN5C4U6.js';\n\n// src/utils/render-strategy.ts\nvar [RenderStrategyProvider, useRenderStrategyContext] = createContext({\n  hookName: \"useRenderStrategyContext\",\n  providerName: \"<RenderStrategyProvider />\"\n});\nvar splitRenderStrategyProps = (props) => createSplitProps()(props, [\"lazyMount\", \"unmountOnExit\"]);\n\nexport { RenderStrategyProvider, splitRenderStrategyProps, useRenderStrategyContext };\n"],
-  "mappings": ";;;;;;AAIA,IAAI,CAAC,wBAAwB,wBAAwB,IAAI,cAAc;AAAA,EACrE,UAAU;AAAA,EACV,cAAc;AAChB,CAAC;AACD,IAAI,2BAA2B,CAAC,UAAU,iBAAiB,EAAE,OAAO,CAAC,aAAa,eAAe,CAAC;",
-  "names": []
-}
