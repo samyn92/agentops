@@ -10,7 +10,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/samyn92
+  IMAGE_PREFIX: ghcr.io/samyn92/agentops
 
 jobs:
   build-images:
@@ -20,16 +20,16 @@ jobs:
         include:
           - component: operator
             dockerfile: Dockerfile.operator
-            image: agentops-operator
+            image: operator
           - component: console
             dockerfile: Dockerfile.console
-            image: agentops-console
+            image: console
           - component: runtime
             dockerfile: Dockerfile.runtime
-            image: agentops-runtime
+            image: runtime
           - component: memory
             dockerfile: Dockerfile.memory
-            image: agentops-memory
+            image: memory
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
