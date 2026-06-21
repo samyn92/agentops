@@ -19,8 +19,6 @@ import { relativeTime } from '../../lib/format';
 import Spinner from '../shared/Spinner';
 import Tip from '../shared/Tip';
 import AgentCard from './AgentCard';
-
-import TracesPanel from './TracesPanel';
 import RunPhaseIcon from '../shared/RunPhaseIcon';
 import type { AgentResponse, AgentRunResponse } from '../../types';
 import { Tabs } from '@ark-ui/solid/tabs';
@@ -229,28 +227,9 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* ── Expanded panel ── */}
       <Show when={isExpanded()}>
-        {/* Tab switcher + collapse toggle (no duplicate branding) */}
+        {/* Header: Agents label + collapse toggle */}
         <div class="flex items-center gap-2 px-3 h-10 border-b border-border flex-shrink-0">
-          <Tabs.Root
-            value={leftPanelTab()}
-            onValueChange={(details) => setLeftPanelTab(details.value as LeftPanelTab)}
-            class="flex gap-0.5 ml-1"
-          >
-            <Tabs.List class="flex gap-0.5">
-              <Tabs.Trigger
-                value="agents"
-                class="relative px-2.5 py-1 text-[11px] rounded-lg transition-colors data-[selected]:bg-surface-hover data-[selected]:text-text data-[selected]:font-medium text-text-muted hover:text-text-secondary hover:bg-surface-hover/50"
-              >
-                Agents
-              </Tabs.Trigger>
-              <Tabs.Trigger
-                value="traces"
-                class="relative px-2.5 py-1 text-[11px] rounded-lg transition-colors data-[selected]:bg-surface-hover data-[selected]:text-text data-[selected]:font-medium text-text-muted hover:text-text-secondary hover:bg-surface-hover/50"
-              >
-                Traces
-              </Tabs.Trigger>
-            </Tabs.List>
-          </Tabs.Root>
+          <span class="text-[11px] font-semibold tracking-wide uppercase text-text-muted ml-1">Agents</span>
           <Tip content="Collapse sidebar">
             <button
               class="ml-auto p-1 rounded-lg hover:bg-surface-hover text-text-muted hover:text-text transition-colors flex-shrink-0"
@@ -261,16 +240,8 @@ export default function Sidebar(props: SidebarProps) {
           </Tip>
         </div>
 
-        {/* ── Content area ── */}
+        {/* ── Content area: agents list + runs ── */}
         <div class="flex-1 flex flex-col overflow-hidden min-h-0">
-
-          {/* ── Traces tab ── */}
-          <Show when={leftPanelTab() === 'traces'}>
-            <TracesPanel />
-          </Show>
-
-          {/* ── Agents tab (split: agents list + agent runs) ── */}
-          <Show when={leftPanelTab() === 'agents'}>
           <div ref={splitContainerRef} class="flex-1 flex flex-col overflow-hidden min-h-0">
             {/* ── Top section: Agents list ── */}
             <div class="flex flex-col overflow-hidden min-h-0" style={{ height: `${splitPct()}%` }}>
