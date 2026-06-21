@@ -174,8 +174,13 @@ func (h *Handlers) GroupProjectIssueRefine(w http.ResponseWriter, r *http.Reques
 	}
 
 	// 5. Post a note summarizing what was changed (for audit trail).
-	noteText := fmt.Sprintf("**Plan updated** based on feedback:\n\n> %s\n\nThe issue description has been updated with the refined plan.",
-		req.Feedback)
+	var noteText string
+	if strings.HasPrefix(req.Feedback, "Create a detailed implementation plan") {
+		noteText = "**Plan generated** from initial request. Review the plan above and approve or request changes."
+	} else {
+		noteText = fmt.Sprintf("**Plan revised** based on feedback:\n\n> %s\n\nThe issue description has been updated with the refined plan.",
+			req.Feedback)
+	}
 	noteBody, _ := json.Marshal(map[string]string{"body": noteText})
 	notePath := fmt.Sprintf("/api/v4/projects/%s/issues/%s/notes", url.PathEscape(pid), url.PathEscape(iid))
 

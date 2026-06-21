@@ -1680,8 +1680,8 @@ function Card(props: {
       </Show>
 
       {/* Progress along the state machine */}
-      <div class="mc-progress h-1.5 rounded-full" data-active={active()}>
-        <i style={{ width: `${pct()}%` }} />
+      <div class="mc-progress h-1.5 rounded-full" data-active={active()} classList={{ 'mc-progress-generating': generating() }}>
+        <i style={{ width: generating() ? '100%' : `${pct()}%` }} />
       </div>
 
       {/* Delivery edge: MR + CI status (joined server-side on branch) */}

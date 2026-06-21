@@ -177,3 +177,14 @@
   0%, 100% { border-color: color-mix(in srgb, var(--mc-accent, #a855f7) 60%, transparent); box-shadow: 0 0 8px -2px color-mix(in srgb, var(--mc-accent, #a855f7) 30%, transparent); }
   50% { border-color: var(--mc-accent, #a855f7); box-shadow: 0 0 16px -2px color-mix(in srgb, var(--mc-accent, #a855f7) 50%, transparent); }
 }
+
+/* ── Progress bar: indeterminate shimmer while plan is being generated ── */
+.mc-progress-generating > i {
+  animation: mc-progress-shimmer 1.5s ease-in-out infinite !important;
+  background: linear-gradient(90deg, var(--mc-accent, #a855f7) 0%, color-mix(in srgb, var(--mc-accent, #a855f7) 60%, #fff) 50%, var(--mc-accent, #a855f7) 100%) !important;
+  background-size: 200% 100% !important;
+}
+@keyframes mc-progress-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
