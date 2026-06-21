@@ -1,11 +1,25 @@
-# Planner Integration (read + comment, no push)
+{{- $fullname := include "factory.fullname" . }}
+---
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: {{ .Values.provider.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "factory.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.provider.type }}
+  apiKeySecret:
+    name: {{ .Values.provider.apiKeySecret.name }}
+    key: {{ .Values.provider.apiKeySecret.key }}
+---
 apiVersion: agents.agentops.io/v1alpha1
 kind: Integration
 metadata:
-  name: {{ include "agent-factory.fullname" . }}-planner
+  name: {{ $fullname }}-planner
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
+    {{- include "factory.labels" . | nindent 4 }}
 spec:
   kind: gitlab-group
   displayName: "{{ .Values.scope.gitlab.group }} (planner)"
@@ -16,14 +30,13 @@ spec:
     name: {{ .Values.tokens.planner.secretName }}
     key: {{ .Values.tokens.planner.secretKey }}
 ---
-# Coder Integration (read + write + MR)
 apiVersion: agents.agentops.io/v1alpha1
 kind: Integration
 metadata:
-  name: {{ include "agent-factory.fullname" . }}-coder
+  name: {{ $fullname }}-coder
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
+    {{- include "factory.labels" . | nindent 4 }}
 spec:
   kind: gitlab-group
   displayName: "{{ .Values.scope.gitlab.group }} (coder)"

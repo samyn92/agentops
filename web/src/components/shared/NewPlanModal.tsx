@@ -160,36 +160,6 @@ export default function NewPlanModal(props: NewPlanModalProps) {
                 />
               </div>
 
-              {/* Domain expert picker */}
-              <Show when={(props.experts?.() ?? []).length > 1}>
-                <div>
-                  <label class="text-[11.5px] font-medium text-text-muted uppercase tracking-wider block mb-1.5">
-                    Domain Expert
-                    <span class="font-normal normal-case tracking-normal text-text-muted ml-1">(who should plan this?)</span>
-                  </label>
-                  <div class="flex flex-wrap gap-1.5">
-                    <For each={props.experts?.() ?? []}>
-                      {(expert) => {
-                        const isActive = () => selectedExpert() === expert.name || (!selectedExpert() && expert.name.includes('planner'));
-                        return (
-                          <button
-                            class="px-2.5 py-1.5 rounded-lg border text-[11.5px] font-medium transition-all"
-                            classList={{
-                              'border-accent bg-accent/8 text-text': isActive(),
-                              'border-border-subtle text-text-muted hover:border-border hover:text-text-secondary': !isActive(),
-                            }}
-                            onClick={() => setSelectedExpert(expert.name)}
-                          >
-                            <span class="mr-1">●</span>
-                            {expert.role || expert.name.replace(/^.*-/, '')}
-                          </button>
-                        );
-                      }}
-                    </For>
-                  </div>
-                </div>
-              </Show>
-
               {/* Target repos */}
               <div>
                 <label class="text-[11.5px] font-medium text-text-muted uppercase tracking-wider block mb-1.5">

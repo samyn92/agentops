@@ -1,0 +1,20 @@
+{{- $fullname := include "factory.fullname" . }}
+{{- $root := . }}
+
+{{- range $key, $agent := .Values.agents }}
+{{- if and $agent.enabled $agent.contextFiles }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullname }}-ctx-{{ $key | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "factory.labels" $root | nindent 4 }}
+data:
+  {{- range $agent.contextFiles }}
+  {{ .name }}.md: |
+{{ .content | indent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

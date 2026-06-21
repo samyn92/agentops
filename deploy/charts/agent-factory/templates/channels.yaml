@@ -1,30 +1,35 @@
-{{- $fullname := include "agent-factory.fullname" . }}
-{{- $plannerIntg := printf "%s-planner" $fullname }}
+{{- $fullname := include "factory.fullname" . }}
+{{- $root := . }}
 
-{{- if .Values.channels.labelBridge.enabled }}
+{{- range $key, $channel := .Values.channels }}
+{{- if $channel.enabled }}
+---
 apiVersion: agents.agentops.io/v1alpha1
 kind: Channel
 metadata:
-  name: {{ $fullname }}-label-bridge
-  namespace: {{ .Release.Namespace }}
+  name: {{ $fullname }}-{{ $key | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
+    {{- include "factory.labels" $root | nindent 4 }}
 spec:
-  type: gitlab-label
-  agentRef: {{ $fullname }}-implementer
-  image: {{ .Values.channels.labelBridge.image }}
+  type: {{ $channel.type }}
+  agentRef: {{ $fullname }}-{{ $channel.targets | first | dig "agent" "software-engineer" | kebabcase }}
+  image: {{ $channel.image }}
   gitlabLabel:
-    integrationRef: {{ $plannerIntg }}
+    integrationRef: {{ $fullname }}-planner
     target: issues
     labels:
-      {{- range .Values.channels.labelBridge.targets }}
+      {{- range $channel.targets }}
       - {{ .label }}
       {{- end }}
     state: opened
-    pollInterval: {{ .Values.channels.labelBridge.pollInterval }}
+    {{- if $channel.pollInterval }}
+    pollInterval: {{ $channel.pollInterval }}
+    {{- end }}
   prompt: |
     Work on GitLab issue #{{`{{ .item.IID }}`}} "{{`{{ .item.Title }}`}}" in project {{`{{ .gitlab.project }}`}}.
 
     Complete the work described, push your changes, and open a merge request.
     Read the full issue description from GitLab for detailed requirements.
+{{- end }}
 {{- end }}

@@ -1,157 +1,64 @@
-{{- $fullname := include "agent-factory.fullname" . }}
+{{- $fullname := include "factory.fullname" . }}
 {{- $provider := .Values.provider.name }}
-{{- $plannerIntg := printf "%s-planner" $fullname }}
-{{- $coderIntg := printf "%s-coder" $fullname }}
+{{- $runtime := .Values.runtime.image }}
+{{- $model := .Values.provider.model }}
+{{- $fallback := .Values.provider.fallbackModel }}
+{{- $memory := .Values.memory }}
+{{- $root := . }}
 
-{{- if .Values.agents.planner.enabled }}
+{{- range $key, $agent := .Values.agents }}
+{{- if $agent.enabled }}
 ---
 apiVersion: agents.agentops.io/v1alpha1
 kind: Agent
 metadata:
-  name: {{ $fullname }}-planner
-  namespace: {{ .Release.Namespace }}
+  name: {{ $fullname }}-{{ $key | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
+    {{- include "factory.labels" $root | nindent 4 }}
+    agentops.dev/role: {{ $agent.role | default $key | kebabcase | quote }}
+  annotations:
+    agentops.dev/description: {{ $agent.description | default "" | quote }}
 spec:
-  mode: {{ .Values.agents.planner.mode }}
-  model: {{ .Values.provider.model }}
-  image: {{ .Values.runtime.image }}
-  systemPrompt: {{ .Values.agents.planner.systemPrompt | quote }}
-  temperature: {{ .Values.agents.planner.temperature }}
-  maxSteps: {{ .Values.agents.planner.maxSteps }}
+  mode: {{ $agent.mode }}
+  model: {{ $model }}
+  image: {{ $runtime }}
+  systemPrompt: {{ $agent.systemPrompt | quote }}
+  {{- if $agent.temperature }}
+  temperature: {{ $agent.temperature }}
+  {{- end }}
+  {{- if $agent.maxSteps }}
+  maxSteps: {{ $agent.maxSteps }}
+  {{- end }}
+  {{- if $agent.timeout }}
+  timeout: {{ $agent.timeout | quote }}
+  {{- end }}
   providerRefs:
     - name: {{ $provider }}
   fallbackModels:
-    - {{ .Values.provider.fallbackModel }}
+    - {{ $fallback }}
   builtinTools: [bash, read, edit, write, grep, ls, glob, fetch]
+  {{- if $agent.tools }}
   tools:
-    {{- range .Values.agents.planner.tools }}
+    {{- range $agent.tools }}
     - name: {{ . }}
       oci:
         ref: ghcr.io/samyn92/agent-tools/{{ . }}:latest
     {{- end }}
-  integrations:
-    - name: {{ $plannerIntg }}
-  {{- if .Values.memory.enabled }}
-  memory:
-    serverRef: {{ .Values.memory.serverRef }}
   {{- end }}
-  delegation:
-    team:
-      - {{ $fullname }}-implementer
-    maxFanOut: 3
-{{- end }}
-
-{{- if .Values.agents.implementer.enabled }}
----
-apiVersion: agents.agentops.io/v1alpha1
-kind: Agent
-metadata:
-  name: {{ $fullname }}-implementer
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
-spec:
-  mode: {{ .Values.agents.implementer.mode }}
-  model: {{ .Values.provider.model }}
-  image: {{ .Values.runtime.image }}
-  systemPrompt: {{ .Values.agents.implementer.systemPrompt | quote }}
-  temperature: {{ .Values.agents.implementer.temperature | default 0.2 }}
-  maxSteps: {{ .Values.agents.implementer.maxSteps | default 100 }}
-  timeout: {{ .Values.agents.implementer.timeout | default "20m" | quote }}
-  providerRefs:
-    - name: {{ $provider }}
-  fallbackModels:
-    - {{ .Values.provider.fallbackModel }}
-  builtinTools: [bash, read, edit, write, grep, ls, glob, fetch]
-  tools:
-    {{- range .Values.agents.implementer.tools }}
-    - name: {{ . }}
-      oci:
-        ref: ghcr.io/samyn92/agent-tools/{{ . }}:latest
-    {{- end }}
   integrations:
-    - name: {{ $coderIntg }}
-  {{- if .Values.memory.enabled }}
-  memory:
-    serverRef: {{ .Values.memory.serverRef }}
-  {{- end }}
-  {{- if .Values.agents.implementer.concurrency }}
-  concurrency:
-    maxRuns: {{ .Values.agents.implementer.concurrency.maxRuns }}
-    policy: {{ .Values.agents.implementer.concurrency.policy }}
-  {{- end }}
-{{- end }}
-
-{{- if .Values.agents.reviewer.enabled }}
----
-apiVersion: agents.agentops.io/v1alpha1
-kind: Agent
-metadata:
-  name: {{ $fullname }}-reviewer
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
-spec:
-  mode: {{ .Values.agents.reviewer.mode }}
-  model: {{ .Values.provider.model }}
-  image: {{ .Values.runtime.image }}
-  systemPrompt: {{ .Values.agents.reviewer.systemPrompt | quote }}
-  temperature: {{ .Values.agents.reviewer.temperature | default 0.3 }}
-  maxSteps: {{ .Values.agents.reviewer.maxSteps | default 30 }}
-  providerRefs:
-    - name: {{ $provider }}
-  fallbackModels:
-    - {{ .Values.provider.fallbackModel }}
-  builtinTools: [bash, read, grep, ls, glob, fetch]
-  tools:
-    {{- range .Values.agents.reviewer.tools }}
-    - name: {{ . }}
-      oci:
-        ref: ghcr.io/samyn92/agent-tools/{{ . }}:latest
-    {{- end }}
-  integrations:
-    - name: {{ $plannerIntg }}
+    - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "root" $root) }}
+      {{- if eq $agent.mode "daemon" }}
       readOnly: true
-  {{- if .Values.memory.enabled }}
+      {{- end }}
+  {{- if and $memory $memory.enabled }}
   memory:
-    serverRef: {{ .Values.memory.serverRef }}
+    serverRef: {{ $memory.serverRef }}
+  {{- end }}
+  {{- if $agent.concurrency }}
+  concurrency:
+    maxRuns: {{ $agent.concurrency.maxRuns }}
+    policy: {{ $agent.concurrency.policy }}
   {{- end }}
 {{- end }}
-
-{{- if .Values.agents.ciFixer.enabled }}
----
-apiVersion: agents.agentops.io/v1alpha1
-kind: Agent
-metadata:
-  name: {{ $fullname }}-ci-fixer
-  namespace: {{ .Release.Namespace }}
-  labels:
-    {{- include "agent-factory.labels" . | nindent 4 }}
-spec:
-  mode: {{ .Values.agents.ciFixer.mode }}
-  model: {{ .Values.provider.model }}
-  image: {{ .Values.runtime.image }}
-  systemPrompt: {{ .Values.agents.ciFixer.systemPrompt | quote }}
-  temperature: {{ .Values.agents.ciFixer.temperature | default 0.2 }}
-  maxSteps: {{ .Values.agents.ciFixer.maxSteps | default 50 }}
-  timeout: {{ .Values.agents.ciFixer.timeout | default "15m" | quote }}
-  providerRefs:
-    - name: {{ $provider }}
-  fallbackModels:
-    - {{ .Values.provider.fallbackModel }}
-  builtinTools: [bash, read, edit, write, grep, ls, glob, fetch]
-  tools:
-    {{- range .Values.agents.ciFixer.tools }}
-    - name: {{ . }}
-      oci:
-        ref: ghcr.io/samyn92/agent-tools/{{ . }}:latest
-    {{- end }}
-  integrations:
-    - name: {{ $coderIntg }}
-  {{- if .Values.agents.ciFixer.concurrency }}
-  concurrency:
-    maxRuns: {{ .Values.agents.ciFixer.concurrency.maxRuns }}
-    policy: {{ .Values.agents.ciFixer.concurrency.policy }}
-  {{- end }}
 {{- end }}
