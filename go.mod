@@ -1,8 +1,6 @@
 module github.com/samyn92/agentops
 
-go 1.26.0
-
-toolchain go1.26.4
+go 1.26.4
 
 require (
 	charm.land/fantasy v0.33.1
