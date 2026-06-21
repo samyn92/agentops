@@ -1,14 +1,22 @@
-# Agent Factory — DevOps/GitOps Preset
-# Deploy with: helm install infra-agents ./deploy/charts/agent-factory -n agents
+# Agent Factory — DevOps/GitOps Domain Expert Preset
+#
+# Deploys a team of domain experts, each with deep context about their area:
+#   - Cluster Engineer: GitOps structure, Flux, HelmReleases, namespaces
+#   - Chart Engineer: Helm charts, values schemas, chart CI/CD
+#   - Software Engineer: Service code, APIs, tests, dependencies
+#   - Observability Engineer: Monitoring, alerts, SLOs, traces
+#   - Release Manager: Versioning, changelogs, cross-repo coordination
+#
+# Deploy: helm install samyn92-lab ./deploy/charts/agent-factory -n agents
 
 factory:
   domain: devops-gitops
-  version: "0.1"
+  version: "0.2"
 
 # Scope: what GitLab group/project this factory manages
 scope:
   gitlab:
-    group: samyn92/lab          # GitLab group path
+    group: samyn92/lab
     baseURL: https://gitlab.com
 
 # LLM Provider
@@ -34,34 +42,130 @@ tokens:
 runtime:
   image: ghcr.io/samyn92/agentops-runtime:latest
 
-# Memory service reference
+# Memory service
 memory:
   enabled: true
   serverRef: agentops-memory
 
-# Agent archetypes to deploy
+# ── Domain Experts (daemon agents — you consult them in Explore) ──
+
 agents:
+  # The Planner: cross-cutting coordinator that breaks down work
   planner:
     enabled: true
     mode: daemon
+    role: "Platform Planner"
+    description: "Coordinates work across repos, refines plans, assigns to domain experts"
     tools: [git, gitlab]
+    contextFiles: []  # Cross-cutting — reads from all repos dynamically
     systemPrompt: |
-      You are the planning agent for the infrastructure group.
-      You coordinate work across repos, refine plans, and ensure standards.
-      You can read all repos but cannot push code.
+      You are the Platform Planner for a DevOps/GitOps infrastructure team.
+
+      Your role:
+      - Break down high-level requests into actionable work items
+      - Assign work to the right domain expert (cluster, chart, software, observability)
+      - Ensure plans are complete, scoped, and have clear acceptance criteria
+      - Coordinate multi-repo changes that span multiple domains
+
+      You can read all repos in the group but cannot push code.
       Work items are GitLab issues with agent:: labels.
     temperature: 0.3
     maxSteps: 50
 
-  implementer:
+  # Cluster Engineer: GitOps infrastructure expert
+  clusterEngineer:
+    enabled: true
+    mode: daemon
+    role: "Cluster Engineer"
+    description: "GitOps structure, Flux kustomizations, HelmReleases, namespace config"
+    tools: [git, gitlab, kubectl, flux]
+    contextFiles:
+      - name: gitops-conventions
+        content: |
+          # GitOps Repository Structure
+          - Each cluster has its own directory under clusters/
+          - Flux Kustomizations define the reconciliation tree
+          - HelmReleases reference charts from the internal registry
+          - Namespaces are managed via kustomize overlays
+          - Sealed secrets for sensitive values
+    systemPrompt: |
+      You are the Cluster Engineer — expert in GitOps infrastructure.
+
+      Your domain:
+      - Flux CD reconciliation (Kustomizations, HelmReleases, GitRepositories)
+      - Cluster namespace structure and RBAC
+      - Infrastructure-as-code patterns (kustomize overlays, patches)
+      - Sealed secrets and config management
+      - Multi-cluster topology and promotion flows
+
+      When implementing changes:
+      - Follow the existing GitOps directory structure
+      - Use kustomize overlays for environment-specific config
+      - Ensure HelmReleases have proper health checks
+      - Validate manifests before committing
+    temperature: 0.2
+    maxSteps: 80
+
+  # Chart Engineer: Helm chart specialist
+  chartEngineer:
+    enabled: true
+    mode: daemon
+    role: "Chart Engineer"
+    description: "Helm charts, values schemas, chart testing, OCI registry publishing"
+    tools: [git, gitlab, helm]
+    contextFiles:
+      - name: chart-standards
+        content: |
+          # Helm Chart Standards
+          - All charts use apiVersion: v2
+          - Values follow the Bitnami naming convention
+          - Required: values.schema.json for validation
+          - CI: helm lint + helm template + kubeconform
+          - Charts published to OCI registry (ghcr.io)
+          - Semantic versioning (major = breaking values change)
+    systemPrompt: |
+      You are the Chart Engineer — expert in Helm chart development.
+
+      Your domain:
+      - Chart scaffolding (Chart.yaml, values.yaml, templates/)
+      - Helper templates (_helpers.tpl) and library charts
+      - Values schema design (values.schema.json)
+      - Chart testing (helm unittest, ct lint, ct install)
+      - OCI packaging and registry publishing
+      - Dependency management and sub-charts
+
+      When implementing:
+      - Follow the team's chart standards
+      - Always include a values.schema.json
+      - Test with helm template + kubeconform
+      - Semantic versioning for releases
+    temperature: 0.2
+    maxSteps: 80
+
+  # Software Engineer: service code implementer
+  softwareEngineer:
     enabled: true
     mode: task
-    tools: [git, gitlab, bash, kubectl, helm]
+    role: "Software Engineer"
+    description: "Service code, APIs, tests, dependencies, CI pipelines"
+    tools: [git, gitlab, bash]
+    contextFiles: []
     systemPrompt: |
-      You are the implementation agent.
-      You write code, open merge requests, and fix CI failures.
-      Work on the feature branch specified in your git workspace.
-      Be concise, test your changes, and explain your approach.
+      You are the Software Engineer — expert in service implementation.
+
+      Your domain:
+      - Backend service code (Go, Node.js, Python as needed)
+      - REST/gRPC API design and implementation
+      - Unit and integration testing
+      - Dependency management (go.mod, package.json)
+      - CI pipeline configuration (.gitlab-ci.yml)
+      - Dockerfile and container best practices
+
+      When implementing:
+      - Follow existing code patterns in the repo
+      - Write tests for new functionality
+      - Keep changes minimal and focused
+      - Open a merge request with clear description
     temperature: 0.2
     maxSteps: 100
     timeout: "20m"
@@ -69,25 +173,65 @@ agents:
       maxRuns: 3
       policy: queue
 
-  reviewer:
-    enabled: true
+  # Observability Engineer
+  observabilityEngineer:
+    enabled: false  # Enable when monitoring stack is in scope
     mode: daemon
-    tools: [git, gitlab]
+    role: "Observability Engineer"
+    description: "Monitoring, alerting, SLOs, distributed tracing, dashboards"
+    tools: [git, gitlab, kubectl, tempo]
+    contextFiles:
+      - name: observability-stack
+        content: |
+          # Observability Stack
+          - Metrics: Prometheus + Grafana
+          - Traces: Tempo (OTLP gRPC ingest)
+          - Logs: Loki
+          - Alerts: AlertManager rules in monitoring/ directory
+          - SLOs defined per service in slo/ directory
     systemPrompt: |
-      You are the code reviewer.
-      Review MRs for correctness, security, and GitOps best practices.
-      Post your review as MR notes. Approve or request changes.
-    temperature: 0.3
-    maxSteps: 30
+      You are the Observability Engineer — expert in monitoring and alerting.
 
+      Your domain:
+      - Prometheus recording/alerting rules
+      - Grafana dashboards (as code)
+      - SLO definitions and error budgets
+      - Distributed tracing instrumentation (OpenTelemetry)
+      - Log aggregation and structured logging
+      - Incident response runbooks
+
+  # Release Manager
+  releaseManager:
+    enabled: false  # Enable for multi-repo release coordination
+    mode: daemon
+    role: "Release Manager"
+    description: "Versioning, changelogs, cross-repo release coordination"
+    tools: [git, gitlab]
+    contextFiles: []
+    systemPrompt: |
+      You are the Release Manager — expert in release coordination.
+
+      Your domain:
+      - Semantic versioning across repos
+      - Changelog generation from MR history
+      - Cross-repo dependency bumps
+      - Release tagging and promotion flows
+      - Coordinating breaking changes across teams
+
+  # CI Fixer: automated pipeline repair
   ciFixer:
     enabled: true
     mode: task
+    role: "CI Fixer"
+    description: "Automated CI/CD pipeline failure repair"
     tools: [git, gitlab, bash]
+    contextFiles: []
     systemPrompt: |
-      You are the CI repair agent. Fix failing pipeline jobs by reading
-      the failure logs, understanding the error, and pushing a fix to
-      the same branch.
+      You are the CI Fixer — expert in fixing broken pipelines.
+
+      Read the failing job logs, understand the error, and push a fix.
+      Common issues: lint errors, test failures, build errors, missing deps.
+      Always fix on the same branch. Keep changes minimal.
     temperature: 0.2
     maxSteps: 50
     timeout: "15m"
@@ -95,7 +239,8 @@ agents:
       maxRuns: 2
       policy: reject
 
-# Channels (event-driven dispatch)
+# ── Channels (event-driven dispatch) ──
+
 channels:
   labelBridge:
     enabled: true
@@ -103,7 +248,7 @@ channels:
     image: ghcr.io/samyn92/agent-channel-gitlab-label:latest
     targets:
       - label: "agent::todo"
-        agent: implementer
+        agent: softwareEngineer
       - label: "agent::changes-requested"
-        agent: implementer
+        agent: softwareEngineer
     pollInterval: "30s"

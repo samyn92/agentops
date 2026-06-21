@@ -227,9 +227,9 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* ── Expanded panel ── */}
       <Show when={isExpanded()}>
-        {/* Header: Agents label + collapse toggle */}
+        {/* Header */}
         <div class="flex items-center gap-2 px-3 h-10 border-b border-border flex-shrink-0">
-          <span class="text-[11px] font-semibold tracking-wide uppercase text-text-muted ml-1">Agents</span>
+          <span class="text-[11px] font-semibold tracking-wide uppercase text-text-muted ml-1">Domain Experts</span>
           <Tip content="Collapse sidebar">
             <button
               class="ml-auto p-1 rounded-lg hover:bg-surface-hover text-text-muted hover:text-text transition-colors flex-shrink-0"

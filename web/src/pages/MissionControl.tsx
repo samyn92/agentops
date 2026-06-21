@@ -601,6 +601,7 @@ export default function MissionControl() {
           onClose={() => setShowNewPlan(false)}
           ctx={{ ns: ctx()!.ns, intg: ctx()!.intg }}
           projects={() => projects()}
+          experts={() => (agentList() ?? []).filter(a => a.mode === 'daemon').map(a => ({ name: a.name, namespace: a.namespace, role: roleForAgent(a.name) }))}
           plannerAgent={pmDaemon()?.name ?? 'samyn92-lab-planner'}
           onCreated={() => {
             setShowNewPlan(false);

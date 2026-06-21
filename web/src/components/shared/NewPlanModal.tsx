@@ -21,6 +21,9 @@ export interface NewPlanModalProps {
   onClose: () => void;
   ctx: { ns: string; intg: string };
   projects: Accessor<Array<{ id: number; name: string; path_with_namespace: string }> | undefined>;
+  /** Available domain experts (daemon agents) to assign planning to. */
+  experts: Accessor<Array<{ name: string; namespace: string; role?: string }> | undefined>;
+  /** Default planner agent name. */
   plannerAgent?: string;
   onCreated: () => void;
 }
@@ -28,6 +31,7 @@ export interface NewPlanModalProps {
 export default function NewPlanModal(props: NewPlanModalProps) {
   const [selectedProjects, setSelectedProjects] = createSignal<Set<number>>(new Set());
   const [prompt, setPrompt] = createSignal('');
+  const [selectedExpert, setSelectedExpert] = createSignal<string | null>(null);
   const [busy, setBusy] = createSignal(false);
   const [err, setErr] = createSignal<string | null>(null);
   const [status, setStatus] = createSignal('');
@@ -46,6 +50,7 @@ export default function NewPlanModal(props: NewPlanModalProps) {
     setErr(null);
     setStatus('');
     setSelectedProjects(new Set());
+    setSelectedExpert(null);
   }
 
   function close() {
@@ -96,7 +101,9 @@ export default function NewPlanModal(props: NewPlanModalProps) {
 
       // Trigger the planner agent to generate the full plan + title
       setStatus('Agent is generating the plan...');
-      if (props.plannerAgent) {
+      // Trigger the selected domain expert (or default planner) to generate the plan
+      const agentName = selectedExpert() || props.plannerAgent;
+      if (agentName) {
         const refineFeedback = targetProjects.length > 1
           ? `Create a detailed implementation plan for: ${prompt().trim()}\n\nThis work spans multiple repositories:\n${targetProjects.map(p => `- ${p.path_with_namespace}`).join('\n')}`
           : `Create a detailed implementation plan for: ${prompt().trim()}`;
@@ -106,7 +113,7 @@ export default function NewPlanModal(props: NewPlanModalProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             feedback: refineFeedback,
-            agent: props.plannerAgent,
+            agent: agentName,
           }),
         }).catch(() => {}); // Fire and forget
       }
@@ -152,6 +159,36 @@ export default function NewPlanModal(props: NewPlanModalProps) {
                   ref={el => props.open() && queueMicrotask(() => el?.focus())}
                 />
               </div>
+
+              {/* Domain expert picker */}
+              <Show when={(props.experts?.() ?? []).length > 1}>
+                <div>
+                  <label class="text-[11.5px] font-medium text-text-muted uppercase tracking-wider block mb-1.5">
+                    Domain Expert
+                    <span class="font-normal normal-case tracking-normal text-text-muted ml-1">(who should plan this?)</span>
+                  </label>
+                  <div class="flex flex-wrap gap-1.5">
+                    <For each={props.experts?.() ?? []}>
+                      {(expert) => {
+                        const isActive = () => selectedExpert() === expert.name || (!selectedExpert() && expert.name.includes('planner'));
+                        return (
+                          <button
+                            class="px-2.5 py-1.5 rounded-lg border text-[11.5px] font-medium transition-all"
+                            classList={{
+                              'border-accent bg-accent/8 text-text': isActive(),
+                              'border-border-subtle text-text-muted hover:border-border hover:text-text-secondary': !isActive(),
+                            }}
+                            onClick={() => setSelectedExpert(expert.name)}
+                          >
+                            <span class="mr-1">●</span>
+                            {expert.role || expert.name.replace(/^.*-/, '')}
+                          </button>
+                        );
+                      }}
+                    </For>
+                  </div>
+                </div>
+              </Show>
 
               {/* Target repos */}
               <div>
