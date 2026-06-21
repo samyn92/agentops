@@ -118,6 +118,7 @@ spec:
             - name: NATS_URL
               value: nats://agentops-nats.agent-system.svc.cluster.local:4222
             # GitLab OIDC — human login for the merge gate + "acting as" identity
+            # Provider: default (gitlab.com)
             - name: GITLAB_OAUTH_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -133,6 +134,32 @@ spec:
                 secretKeyRef:
                   name: gitlab-oauth
                   key: session-key
+            # Provider 1 (self-hosted GitLab — optional, enable by creating
+            # the gitlab-oauth-1 Secret in agent-system namespace)
+            - name: GITLAB_OAUTH_1_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth-1
+                  key: client-id
+                  optional: true
+            - name: GITLAB_OAUTH_1_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth-1
+                  key: client-secret
+                  optional: true
+            - name: GITLAB_OAUTH_1_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth-1
+                  key: base-url
+                  optional: true
+            - name: GITLAB_OAUTH_1_LABEL
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth-1
+                  key: label
+                  optional: true
           volumeMounts:
             - name: workspace
               mountPath: /workspace
