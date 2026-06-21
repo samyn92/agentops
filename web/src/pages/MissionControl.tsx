@@ -828,41 +828,6 @@ function TopBar(props: {
           ⤓
         </button>
       </Show>
-
-      <A
-        href="/"
-        class="text-[12.5px] text-text-muted hover:text-text px-2 py-1.5 rounded-lg hover:bg-surface-hover transition-colors"
-        title="Open the classic chat workspace"
-      >
-        Chat ↗
-      </A>
-
-      {/* Identity: who is acting in the console (OIDC) */}
-      <Show when={!isAuthDisabled()}>
-        <div class="h-5 w-px bg-border mx-0.5" />
-        <Show
-          when={isAuthenticated()}
-          fallback={
-            <button
-              class="text-[12px] px-2.5 py-1.5 rounded-lg border border-accent/40 text-accent hover:bg-accent/10 transition-colors"
-              onClick={() => login()}
-            >
-              Sign in
-            </button>
-          }
-        >
-          <button
-            class="flex items-center gap-2 text-[12px] rounded-lg px-2 py-1 hover:bg-surface-hover transition-colors"
-            onClick={() => logout()}
-            title={`Signed in as ${currentUser()?.username} — click to sign out`}
-          >
-            <Show when={currentUser()?.avatarUrl}>
-              <img src={currentUser()!.avatarUrl!} class="w-5 h-5 rounded-full" alt="" />
-            </Show>
-            <span class="font-medium text-text-secondary">{currentUser()?.username}</span>
-          </button>
-        </Show>
-      </Show>
     </header>
 
     {/* Slim center-view switcher sub-bar — sits directly under the spine. The
