@@ -495,30 +495,6 @@ export default function Sidebar(props: SidebarProps) {
             </div>
           </div>
         </div>
-        <div class="border-t border-border px-2 py-2 flex-shrink-0">
-          <A
-            href="/mission"
-            class="flex items-center gap-2 px-2.5 py-2 text-sm text-text-secondary hover:text-text hover:bg-surface-hover rounded-lg transition-colors"
-            activeClass="!text-text !bg-surface-hover"
-          >
-            <svg class="w-4 h-4" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="1.5" y="1.5" width="5" height="5" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-              <rect x="9.5" y="1.5" width="5" height="5" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-              <rect x="1.5" y="9.5" width="5" height="5" rx="1.2" stroke="currentColor" stroke-width="1.3" />
-              <path d="M12 9.5v5M9.5 12h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
-            </svg>
-            Mission Control
-          </A>
-          <A
-            href="/settings"
-            class="flex items-center gap-2 px-2.5 py-2 text-sm text-text-secondary hover:text-text hover:bg-surface-hover rounded-lg transition-colors"
-            activeClass="!text-text !bg-surface-hover"
-          >
-            <SettingsGearIcon class="w-4 h-4" />
-            Settings
-          </A>
-        </div>
-
         {/* Resize handle */}
         <div
           class={`sidebar-resize-handle absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-accent/30 ${isResizing() ? 'active bg-accent/30' : ''}`}
