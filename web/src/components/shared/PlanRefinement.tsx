@@ -74,24 +74,10 @@ export default function PlanRefinement(props: PlanRefinementProps) {
     finally { setBusy(false); }
   }
 
-  async function postComment() {
-    const body = comment().trim();
-    if (!body) return;
-    setBusy(true); setErr(null);
-    try {
-      await gitlabGroup.addProjectIssueNote(
-        props.ctx.ns, props.ctx.intg, props.issue.project_id, props.issue.iid, body
-      );
-      setComment('');
-      refetchNotes();
-    } catch (e) { setErr(String(e)); }
-    finally { setBusy(false); }
-  }
-
   async function revise() {
     const feedback = comment().trim();
     if (!feedback) {
-      setErr('Add your feedback in the comment box first');
+      setErr('Type your feedback first');
       return;
     }
     setBusy(true); setErr(null);
@@ -105,7 +91,7 @@ export default function PlanRefinement(props: PlanRefinementProps) {
       refetchNotes();
 
       // 2. Prompt the PM agent with full context — BFF orchestrates:
-      //    fetch issue → prompt agent → post response as note → return.
+      //    fetch issue → prompt agent → update description → return.
       const daemon = pm();
       const agentName = daemon?.name ?? 'svc-pm';
       setStreaming(true);
@@ -115,24 +101,11 @@ export default function PlanRefinement(props: PlanRefinementProps) {
         feedback, agentName
       );
 
-      // Agent responded and BFF posted the note — refetch to show it.
+      // Agent responded and BFF updated the description — refetch.
       setStreaming(false);
       refetchNotes();
-      refetchDetail(); // Agent may have suggested description changes.
+      refetchDetail();
     } catch (e) { setErr(String(e)); setStreaming(false); }
-    finally { setBusy(false); }
-  }
-
-  async function approve() {
-    setBusy(true); setErr(null);
-    try {
-      // Move from agent::planning → agent::todo.
-      await gitlabGroup.updateIssueLabels(
-        props.ctx.ns, props.ctx.intg, props.issue.project_id, props.issue.iid,
-        { add_labels: 'agent::todo', remove_labels: 'agent::planning' }
-      );
-      props.onMoved();
-    } catch (e) { setErr(String(e)); }
     finally { setBusy(false); }
   }
 
@@ -233,55 +206,35 @@ export default function PlanRefinement(props: PlanRefinementProps) {
         </Show>
       </div>
 
-      {/* Comment box + actions */}
+      {/* Comment box — every comment triggers agent revision */}
       <div class="flex-shrink-0 border-t border-border px-4 py-3">
         <Show when={err()}>
           <p class="text-[11px] text-red-400 mb-2">{err()}</p>
         </Show>
 
-        <div class="flex gap-2 mb-3">
+        <div class="flex gap-2 items-end">
           <textarea
-            class="flex-1 bg-surface-2 border border-border-subtle rounded-lg px-3 py-2 text-[12.5px] resize-none min-h-[60px] max-h-[120px] outline-none focus:border-accent placeholder:text-text-muted"
-            placeholder="Add feedback or refinement instructions..."
+            class="flex-1 bg-surface-2 border border-border-subtle rounded-lg px-3 py-2 text-[12.5px] resize-none min-h-[44px] max-h-[120px] outline-none focus:border-accent placeholder:text-text-muted"
+            placeholder="Request changes to the plan..."
             value={comment()}
             onInput={e => setComment(e.currentTarget.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
-                postComment();
+                revise();
               }
             }}
           />
-        </div>
-
-        <div class="flex items-center gap-2">
           <button
-            class="text-[11.5px] px-3 py-1.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-500 disabled:opacity-50 transition-colors"
-            disabled={busy()}
-            onClick={approve}
-            title="Approve the plan and move to Todo (triggers agent dispatch)"
-          >
-            &#10003; Approve → Todo
-          </button>
-
-          <button
-            class="text-[11.5px] px-3 py-1.5 rounded-lg bg-amber-600/90 text-white font-medium hover:bg-amber-500 disabled:opacity-50 transition-colors"
+            class="text-[11.5px] px-3 py-2 rounded-lg bg-accent text-white font-medium hover:opacity-90 disabled:opacity-50 transition-colors flex-none"
             disabled={busy() || !comment().trim()}
             onClick={revise}
-            title="Post your feedback and ask the agent to revise the plan"
           >
-            &#8634; Revise
+            {busy() ? 'Revising...' : 'Send'}
           </button>
-
-          <button
-            class="text-[11.5px] px-3 py-1.5 rounded-lg border border-border text-text-secondary hover:bg-surface-2 disabled:opacity-50 transition-colors"
-            disabled={busy() || !comment().trim()}
-            onClick={postComment}
-            title="Post a comment without triggering the agent (Ctrl+Enter)"
-          >
-            Comment
-          </button>
-
+        </div>
+        <div class="flex items-center mt-1.5">
+          <span class="text-[10px] text-text-muted">Cmd+Enter to send. Agent will revise the plan based on your feedback.</span>
           <Show when={props.issue.web_url}>
             <a
               class="ml-auto flex items-center gap-1 text-[10.5px] text-text-muted hover:text-[#FC6D26] transition-colors"
