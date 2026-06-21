@@ -60,10 +60,20 @@ jobs:
         with:
           go-version: '1.26'
           cache: true
-      - name: Build tool server
+      - name: Build tool CLI + server
         run: |
+          go build -o /tmp/agent-tools ./cmd/tools-cli/
+          mkdir -p tools/${{ matrix.tool }}/dist/bin
           CGO_ENABLED=0 go build -o tools/${{ matrix.tool }}/dist/bin/mcp-${{ matrix.tool }} ./tools/${{ matrix.tool }}/
-      # TODO: Package as OCI artifact and push to ghcr.io
+          cp tools/${{ matrix.tool }}/manifest.json tools/${{ matrix.tool }}/dist/ 2>/dev/null || true
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Push OCI artifact
+        run: |
+          /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
+            -t ghcr.io/samyn92/agent-tools/${{ matrix.tool }}:${{ github.ref_name }}
+          /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
+            -t ghcr.io/samyn92/agent-tools/${{ matrix.tool }}:latest
 
   build-channels:
     runs-on: ubuntu-latest
