@@ -3,3 +3,6 @@ web/node_modules/
 web/dist/
 .DS_Store
 *.swp
+# Compiled binaries
+**/dist/
+runtime
