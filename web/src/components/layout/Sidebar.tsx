@@ -254,15 +254,9 @@ export default function Sidebar(props: SidebarProps) {
                 }
               >
                 <div class="flex-1 overflow-y-auto min-h-0 pb-1">
-                  {/* Flat agent list — no confusing sub-categories. 
-                      Sorted: online daemons first, then task agents by run count. */}
+                  {/* Only daemon agents — task agents live on the Factory board */}
                   <div class="flex flex-col gap-0.5 px-2 py-1">
-                    <For each={[...(agentList() ?? [])].sort((a, b) => {
-                      // Online daemons first
-                      if (a.mode === 'daemon' && b.mode !== 'daemon') return -1;
-                      if (a.mode !== 'daemon' && b.mode === 'daemon') return 1;
-                      return a.name.localeCompare(b.name);
-                    })}>
+                    <For each={[...(agentList() ?? [])].filter(a => a.mode === 'daemon').sort((a, b) => a.name.localeCompare(b.name))}>
                       {(agent) => {
                         const isSelected = () => {
                           const sel = selectedAgent();
