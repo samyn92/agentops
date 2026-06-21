@@ -26,25 +26,21 @@ export default function AppHeader() {
         </span>
       </div>
 
-      {/* Center: Tab switcher */}
-      <nav class="flex items-center h-full gap-0.5">
+      {/* Center: Segmented control — premium pill switcher */}
+      <nav class="flex items-center h-7 rounded-lg border border-border-subtle bg-surface-2 p-0.5 gap-0.5">
         {MODES.map(mode => {
           const isActive = () => currentMode() === mode.id;
           return (
             <A
               href={mode.path}
-              class="relative flex items-center gap-1.5 px-3.5 h-full text-[12.5px] font-medium transition-colors"
+              class="relative flex items-center gap-1.5 px-3 h-full rounded-md text-[11.5px] font-medium transition-all duration-150"
               classList={{
-                'text-text': isActive(),
+                'bg-surface text-text shadow-sm border border-border-subtle': isActive(),
                 'text-text-muted hover:text-text-secondary': !isActive(),
               }}
             >
-              <span class="text-[11px]">{mode.icon}</span>
+              <span class="text-[10px] opacity-70">{mode.icon}</span>
               <span>{mode.label}</span>
-              {/* Active indicator — bottom bar */}
-              <Show when={isActive()}>
-                <span class="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-accent" />
-              </Show>
             </A>
           );
         })}
