@@ -452,9 +452,17 @@ export default function MissionControl() {
   const [tab, setTab] = createSignal<CockpitTab>('conversation');
   function openCard(issue: GitGroupIssue) {
     setCockpit({ kind: 'card', issue });
-    // Planning cards open directly to Plan Refinement; others to Conversation.
-    const isPlanning = (issue.labels ?? []).includes('agent::planning');
-    setTab(isPlanning ? 'plan' : 'conversation');
+    // Open the lane-appropriate default tab based on the card's state.
+    const idx = stateIndex(issue.labels);
+    switch (idx) {
+      case 0: setTab('plan'); break;           // Planning → Plan Refinement
+      case 1: setTab('plan'); break;           // Todo → read-only plan
+      case 2: setTab('conversation'); break;   // In Progress → live stream
+      case 3: setTab('gate'); break;           // Needs Review → code review
+      case 4: setTab('conversation'); break;   // Changes → feedback
+      case 5: setTab('gate'); break;           // Approved → merge
+      default: setTab('conversation');
+    }
   }
   // Drop onto Approved lands the human at the merge gate (relabel already done).
   function openCardAtGate(issue: GitGroupIssue) { setCockpit({ kind: 'card', issue }); setTab('gate'); }
@@ -1766,23 +1774,60 @@ function Cockpit(props: {
     { id: 'trace', label: '⌁ Trace' },
     { id: 'gate', label: '⎇ Diff & Gate' },
   ];
-  // Tabs depend on what's docked. A raw MR → only the gate. A supervisor
-  // (compose mode) has no card: the embedded <ChatView/> already streams its
-  // live activity (tool calls + delegations), so Conversation is the whole
-  // surface — no Plan/Trace/Gate. A Planning card → Plan Refinement replaces
-  // Conversation (the discussion thread is built into it). Other cards → all four.
+
+  // ── Lane-aware tab system ──
+  // Each lane shows purpose-built tabs for that stage of the workflow:
+  //   Planning:     Plan Refinement (discuss, refine, approve)
+  //   Todo:         Plan (read-only) + Trace (if queued)
+  //   In Progress:  Conversation (live agent stream) + Trace (live spans)
+  //   Needs Review: Diff & Gate (review MR) + Trace
+  //   Changes:      Conversation (feedback) + Trace + Diff & Gate
+  //   Approved:     Diff & Gate (merge) only
   const isCompose = () => props.target.kind === 'compose';
-  const isPlanning = () => curState() === 0;
+  const state = () => curState();
+
   const TABS = createMemo(() => {
     if (isMR()) return ALL_TABS.filter((t) => t.id === 'gate');
     if (isCompose()) return ALL_TABS.filter((t) => t.id === 'conversation');
-    if (isPlanning()) return ALL_TABS.filter((t) => t.id !== 'conversation');
-    return ALL_TABS;
+    if (!isCard()) return ALL_TABS;
+
+    switch (state()) {
+      case 0: // Planning — Plan Refinement is the whole experience
+        return ALL_TABS.filter((t) => t.id === 'plan');
+      case 1: // Todo — waiting for dispatch, show plan (read-only) + trace
+        return ALL_TABS.filter((t) => t.id === 'plan' || t.id === 'trace');
+      case 2: // In Progress — agent is working, show live stream + trace
+        return ALL_TABS.filter((t) => t.id === 'conversation' || t.id === 'trace');
+      case 3: // Needs Review — MR is open, review it
+        return ALL_TABS.filter((t) => t.id === 'gate' || t.id === 'trace');
+      case 4: // Changes Requested — feedback loop, re-dispatch
+        return ALL_TABS.filter((t) => t.id === 'conversation' || t.id === 'trace' || t.id === 'gate');
+      case 5: // Approved — merge and ship
+        return ALL_TABS.filter((t) => t.id === 'gate');
+      default:
+        return ALL_TABS;
+    }
   });
-  // If the docked target loses the active tab (e.g. switching from a card on the
-  // Gate tab to a supervisor), fall back to plan for Planning cards, else conversation.
+
+  // Default tab per lane (what opens first when you click a card)
+  const defaultTab = (): CockpitTab => {
+    if (isMR()) return 'gate';
+    if (isCompose()) return 'conversation';
+    switch (state()) {
+      case 0: return 'plan';           // Planning → Plan Refinement
+      case 1: return 'plan';           // Todo → read-only plan
+      case 2: return 'conversation';   // In Progress → live agent stream
+      case 3: return 'gate';           // Needs Review → code review
+      case 4: return 'conversation';   // Changes → feedback context
+      case 5: return 'gate';           // Approved → merge
+      default: return 'conversation';
+    }
+  };
+
+  // If the docked target loses the active tab (lane changed, or card switched),
+  // fall back to the lane-appropriate default.
   createEffect(() => {
-    if (!TABS().some((t) => t.id === props.tab())) props.onTab(isPlanning() ? 'plan' : 'conversation');
+    if (!TABS().some((t) => t.id === props.tab())) props.onTab(defaultTab());
   });
 
   return (
