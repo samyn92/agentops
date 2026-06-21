@@ -627,18 +627,6 @@ export default function MissionControl() {
         }
       >
         <div class="flex-1 flex min-h-0">
-          {/* Left fleet rail — the command column: supervisor agents (lab-pm and
-              future cluster-bound observability/testing/flux agents) + the task
-              workers they delegate to. Click an agent to dock its board-wide
-              conversation; escalation badges flag when an autonomous agent needs
-              a human. */}
-          <FleetRail
-            fleet={filteredFleet}
-            escalationsByAgent={escalationsByAgent}
-            selectedAgentKey={selectedAgentKey}
-            onPick={openAgentChat}
-          />
-
           {/* Center region — the view switcher selects ONE of five center views.
               The board (default) keeps its full drag-and-drop behavior untouched;
               the ported observability views render in the same slot. Detail for
