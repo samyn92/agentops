@@ -7,9 +7,9 @@
 // - No agent -> EmptyState
 // - Daemon agent (orchestrator) -> OrchestratorDetailView (Chat + Delegation tabs)
 // - Task agent (channel) -> AgentInspector (config, tools, resources)
-import { onMount, onCleanup, Show, createMemo } from 'solid-js';
+import { onMount, onCleanup, Show, createMemo, createEffect } from 'solid-js';
 import { startEventStream } from '../stores/events';
-import { selectedAgent, agentList } from '../stores/agents';
+import { selectedAgent, agentList, selectAgent } from '../stores/agents';
 import { centerView } from '../stores/view';
 import { selectedRunKey, allRuns, refreshRuns, startRunPolling, stopRunPolling } from '../stores/runs';
 import { selectedTraceForDetail } from '../stores/view';
@@ -50,6 +50,17 @@ export default function MainApp() {
 
   onCleanup(() => {
     stopRunPolling();
+  });
+
+  // Auto-select the first daemon agent if none is selected.
+  createEffect(() => {
+    if (selectedAgent()) return;
+    const list = agentList();
+    if (!list || list.length === 0) return;
+    // Prefer daemons (they have a live chat), then any agent.
+    const daemon = list.find(a => a.mode === 'daemon');
+    const pick = daemon ?? list[0];
+    selectAgent(pick.namespace, pick.name);
   });
 
   const hasAgent = () => selectedAgent() !== null;

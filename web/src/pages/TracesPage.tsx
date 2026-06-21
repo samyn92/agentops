@@ -1,12 +1,24 @@
 // TracesPage — standalone full-width traces view with inline detail.
-import { Show } from 'solid-js';
+import { Show, createEffect } from 'solid-js';
 import TracesPanel from '../components/layout/TracesPanel';
 import TraceDetailView from '../components/traces/TraceDetailView';
-import { selectedTraceForDetail, clearCenterOverlay } from '../stores/view';
+import { selectedTraceForDetail, clearCenterOverlay, showTraceDetail } from '../stores/view';
 import AppErrorBoundary from '../components/shared/ErrorBoundary';
+import { traces as tracesAPI } from '../lib/api';
 
 export default function TracesPage() {
   const hasDetail = () => !!selectedTraceForDetail();
+
+  // Auto-select the most recent trace if none is selected.
+  createEffect(async () => {
+    if (selectedTraceForDetail()) return;
+    try {
+      const result = await tracesAPI.search({ limit: 1 });
+      if (result.traces?.length > 0) {
+        showTraceDetail(result.traces[0].traceID);
+      }
+    } catch { /* ignore — traces may not be available */ }
+  });
 
   return (
     <div class="h-full flex bg-background text-text overflow-hidden">
