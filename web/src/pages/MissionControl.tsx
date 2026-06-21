@@ -49,6 +49,7 @@ import TraceDetailView from '../components/traces/TraceDetailView';
 import AppErrorBoundary from '../components/shared/ErrorBoundary';
 import WorkspaceBrowser from '../components/shared/WorkspaceBrowser';
 import PlanRefinement from '../components/shared/PlanRefinement';
+import NewPlanModal from '../components/shared/NewPlanModal';
 import type {
   AgentRunOutcome,
   AgentRunArtifact,
@@ -493,26 +494,11 @@ export default function MissionControl() {
   // ── New Plan: seed the planner daemon + dock the cockpit in compose mode ──
   const [startingPlan, setStartingPlan] = createSignal(false);
   const [planErr, setPlanErr] = createSignal<string | null>(null);
+  // ── New Plan: creates a GitLab issue with agent::planning label ──
+  const [showNewPlan, setShowNewPlan] = createSignal(false);
+
   async function startNewPlan() {
-    setPlanErr(null); setStartingPlan(true);
-    try {
-      const chs = await channels.list();
-      const planChan = chs.find((c) => c.spec.type === 'gitlab-comment');
-      if (!planChan) { setPlanErr('No planning channel (type gitlab-comment) found.'); return; }
-      const proj = projectFilter() != null ? projectsById().get(projectFilter()!) : undefined;
-      const target = proj ? `project ${proj.path_with_namespace}` : 'the appropriate project in the group';
-      const seed =
-        `Start a new plan in ${target}.\n\n` +
-        `Idea: <describe the feature or change you want planned>\n\n` +
-        `Draft a concise PLAN (goal, scope, approach, acceptance criteria) and ` +
-        `create the GitLab issue with the agent::planning label.`;
-      selectAgent(planChan.metadata.namespace, planChan.spec.agentRef);
-      setComposerSeed(seed);
-      setCockpit({ kind: 'compose', ns: planChan.metadata.namespace, name: planChan.spec.agentRef, title: 'New Plan', kicker: 'Compose' });
-      setTab('conversation');
-    } catch (e) {
-      setPlanErr(e instanceof Error ? e.message : String(e));
-    } finally { setStartingPlan(false); }
+    setShowNewPlan(true);
   }
 
   // Board refresh tick: GitLab label moves (a card going to in-progress, the
@@ -587,6 +573,17 @@ export default function MissionControl() {
         onNewPlan={startNewPlan}
         onSync={() => { refetchRuns(); refetchPipelines(); }}
       />
+
+      {/* New Plan modal */}
+      <Show when={ctx()}>
+        <NewPlanModal
+          open={showNewPlan}
+          onClose={() => setShowNewPlan(false)}
+          ctx={{ ns: ctx()!.ns, intg: ctx()!.intg }}
+          projects={() => projects()}
+          onCreated={() => { setShowNewPlan(false); setBoardTick(t => t + 1); }}
+        />
+      </Show>
 
       <Show
         when={ctx()}

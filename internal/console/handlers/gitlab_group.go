@@ -763,6 +763,18 @@ func (h *Handlers) GroupProjectIssueNotes(w http.ResponseWriter, r *http.Request
 	h.proxyGitLabAPI(w, r, token, baseURL, path)
 }
 
+// GroupProjectCreateIssue creates a new issue on a project.
+// POST .../group/projects/{projectID}/issues
+// body: {"title":"...", "description":"...", "labels":"agent::planning"}
+func (h *Handlers) GroupProjectCreateIssue(w http.ResponseWriter, r *http.Request) {
+	baseURL, pid, token, ok := h.groupProjectScope(w, r)
+	if !ok {
+		return
+	}
+	h.proxyGitLabAPIWithMethod(w, r, http.MethodPost, token, baseURL,
+		fmt.Sprintf("/api/v4/projects/%s/issues", pid), r.Body)
+}
+
 // GroupProjectAddIssueNote posts a note to an issue. Used by the work-board gate
 // to record review feedback ON THE ISSUE (where the re-fired PM reads it) when
 // requesting changes. POST .../group/projects/{projectID}/issues/{iid}/notes

@@ -212,6 +212,7 @@ func New(cfg Config, k8sClient *k8s.Client, mux *multiplexer.Multiplexer) *Serve
 			r.Get("/integrations/{ns}/{name}/group/projects/{projectID}/contributors", h.GroupProjectContributors)
 			// Deeper detail: CI jobs/logs + issue body & discussion.
 			r.Get("/integrations/{ns}/{name}/group/projects/{projectID}/issues/{iid}", h.GroupProjectIssue)
+			r.Post("/integrations/{ns}/{name}/group/projects/{projectID}/issues", h.GroupProjectCreateIssue)
 			r.Get("/integrations/{ns}/{name}/group/projects/{projectID}/issues/{iid}/notes", h.GroupProjectIssueNotes)
 			r.Post("/integrations/{ns}/{name}/group/projects/{projectID}/issues/{iid}/notes", h.GroupProjectAddIssueNote)
 			r.Put("/integrations/{ns}/{name}/group/projects/{projectID}/issues/{iid}", h.GroupProjectUpdateIssue)
