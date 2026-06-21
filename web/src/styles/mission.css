@@ -166,3 +166,14 @@
   .mc-card:hover,
   .mc-card:active { transform: none; }
 }
+
+/* ── Generating: pulsing glow on cards while agent creates the plan ─── */
+.mc-generating {
+  border-color: var(--mc-accent, #a855f7) !important;
+  animation: mc-gen-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 12px -2px color-mix(in srgb, var(--mc-accent, #a855f7) 40%, transparent);
+}
+@keyframes mc-gen-pulse {
+  0%, 100% { border-color: color-mix(in srgb, var(--mc-accent, #a855f7) 60%, transparent); box-shadow: 0 0 8px -2px color-mix(in srgb, var(--mc-accent, #a855f7) 30%, transparent); }
+  50% { border-color: var(--mc-accent, #a855f7); box-shadow: 0 0 16px -2px color-mix(in srgb, var(--mc-accent, #a855f7) 50%, transparent); }
+}

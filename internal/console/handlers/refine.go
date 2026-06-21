@@ -21,6 +21,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -142,9 +143,14 @@ func (h *Handlers) GroupProjectIssueRefine(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// 4. Update the issue DESCRIPTION with the agent's refined plan.
+	// 4. Update the issue DESCRIPTION (and optionally TITLE) with the agent's refined plan.
 	// The description IS the authoritative plan document.
-	updateBody, _ := json.Marshal(map[string]string{"description": agentOutput.Output})
+	// Extract a title from the first markdown heading if present.
+	updateFields := map[string]string{"description": agentOutput.Output}
+	if title := extractTitle(agentOutput.Output); title != "" {
+		updateFields["title"] = title
+	}
+	updateBody, _ := json.Marshal(updateFields)
 	updatePath := fmt.Sprintf("/api/v4/projects/%s/issues/%s", url.PathEscape(pid), url.PathEscape(iid))
 
 	updateReq, err := http.NewRequestWithContext(r.Context(), "PUT", baseURL+updatePath, bytes.NewReader(updateBody))
@@ -230,4 +236,19 @@ func buildRefinePrompt(title, description string, iid int, feedback string) stri
 	b.WriteString("- Objective\n- Technical approach\n- Files to create/modify\n- Acceptance criteria (as checkboxes)\n- Estimated effort\n\n")
 	b.WriteString("Your entire response becomes the new issue description. Be structured and actionable.")
 	return b.String()
+}
+
+// extractTitle pulls a concise title from the agent's markdown output.
+// Looks for the first H1 or H2 heading and uses that. Falls back to empty.
+func extractTitle(markdown string) string {
+	for _, line := range strings.Split(markdown, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "# ") {
+			return strings.TrimSpace(line[2:])
+		}
+		if strings.HasPrefix(line, "## ") {
+			return strings.TrimSpace(line[3:])
+		}
+	}
+	return ""
 }

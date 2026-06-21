@@ -582,7 +582,13 @@ export default function MissionControl() {
           ctx={{ ns: ctx()!.ns, intg: ctx()!.intg }}
           projects={() => projects()}
           plannerAgent={pmDaemon()?.name ?? 'samyn92-lab-planner'}
-          onCreated={() => { setShowNewPlan(false); setBoardTick(t => t + 1); }}
+          onCreated={() => {
+            setShowNewPlan(false);
+            // Immediate refresh + delayed refresh (GitLab indexing lag)
+            setBoardTick(t => t + 1);
+            setTimeout(() => setBoardTick(t => t + 1), 3000);
+            setTimeout(() => setBoardTick(t => t + 1), 8000);
+          }}
         />
       </Show>
 
@@ -1614,6 +1620,8 @@ function Card(props: {
   const idx = createMemo(() => Math.max(0, COLUMNS.findIndex((c) => c.label === props.col.label)));
   const pct = createMemo(() => Math.round(((idx() + 1) / COLUMNS.length) * 100));
   const [dragging, setDragging] = createSignal(false);
+  // Card is "generating" when the agent is still creating the plan
+  const generating = () => (props.issue.description ?? '').includes('Plan generation in progress');
 
   function onDragStart(e: DragEvent) {
     if (e.dataTransfer) {
@@ -1633,7 +1641,7 @@ function Card(props: {
     <button
       type="button"
       class="mc-card group/card relative text-left rounded-xl border bg-surface p-2.5"
-      classList={{ 'border-border-subtle': !props.selected, 'border-accent': props.selected, 'mc-dragging': dragging() }}
+      classList={{ 'border-border-subtle': !props.selected && !generating(), 'border-accent': props.selected, 'mc-dragging': dragging(), 'mc-generating': generating() }}
       draggable={true}
       data-selected={!!props.selected}
       style={{ '--mc-accent': props.col.accent }}
