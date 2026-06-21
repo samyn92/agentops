@@ -349,6 +349,19 @@ export default function MissionControl() {
       b.active - a.active || b.total - a.total || a.name.localeCompare(b.name));
   });
 
+  // Filter fleet to show only workspace-relevant agents (matching the workspace
+  // group prefix or having runs on workspace projects). Avoids showing agents
+  // from other workspaces (e.g. homecluster-coder in samyn92-lab board).
+  const filteredFleet = createMemo(() => {
+    const c = ctx();
+    if (!c) return fleet();
+    const group = c.group.replace(/\//g, '-'); // samyn92-lab
+    return fleet().filter(a =>
+      a.name.startsWith(group) || // factory agents (samyn92-lab-planner, etc.)
+      a.total > 0                 // agents with runs in this workspace
+    );
+  });
+
   // ── Escalations are defined after pmDaemon (below), which they depend on. ──
 
   // ── Filters ──
@@ -620,7 +633,7 @@ export default function MissionControl() {
               conversation; escalation badges flag when an autonomous agent needs
               a human. */}
           <FleetRail
-            fleet={fleet}
+            fleet={filteredFleet}
             escalationsByAgent={escalationsByAgent}
             selectedAgentKey={selectedAgentKey}
             onPick={openAgentChat}
@@ -1629,6 +1642,10 @@ function Card(props: {
   const [dragging, setDragging] = createSignal(false);
   // Card is "generating" when the agent is still creating the plan
   const generating = () => (props.issue.description ?? '').includes('Plan generation in progress');
+  // Multi-repo scope: description contains "This plan applies to" with multiple repos
+  const isMultiRepo = () => (props.issue.description ?? '').includes('This plan applies to');
+  // Has author info
+  const author = () => props.issue.author;
 
   function onDragStart(e: DragEvent) {
     if (e.dataTransfer) {
@@ -1662,12 +1679,37 @@ function Card(props: {
         <Show when={props.project}>
           <span class="text-[10px] font-mono text-text-muted truncate max-w-[10rem]" title={props.project!.path_with_namespace}>{props.project!.name}</span>
         </Show>
+        {/* Multi-repo scope badge */}
+        <Show when={isMultiRepo()}>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium" title="Spans multiple repositories">multi-repo</span>
+        </Show>
+        {/* Generating indicator */}
+        <Show when={generating()}>
+          <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20 font-medium flex items-center gap-1">
+            <span class="mc-live-dot w-1 h-1 rounded-full bg-accent" />
+            generating
+          </span>
+        </Show>
         <Show when={active()}>
           <span class="ml-auto mc-live-dot w-1.5 h-1.5 rounded-full" style={{ background: props.col.accent, '--mc-accent': props.col.accent }} />
         </Show>
       </div>
 
       <p class="text-[13px] font-semibold leading-snug mb-2 line-clamp-3">{props.issue.title}</p>
+
+      {/* Author avatar + timestamp row */}
+      <Show when={author() && !props.run}>
+        <div class="flex items-center gap-1.5 mb-2">
+          <Show when={author()!.avatar_url} fallback={
+            <span class="w-4 h-4 rounded-full grid place-items-center text-[8px] font-bold bg-purple-500/15 text-purple-400 flex-none uppercase">
+              {(author()!.username ?? '?').slice(0, 1)}
+            </span>
+          }>
+            <img src={author()!.avatar_url} class="w-4 h-4 rounded-full flex-none" alt="" />
+          </Show>
+          <span class="text-[10px] text-text-muted">{author()!.username}</span>
+        </div>
+      </Show>
 
       <Show when={(props.issue.labels?.filter((l) => !l.startsWith('agent::')).length ?? 0) > 0}>
         <div class="flex flex-wrap gap-1 mb-2">
