@@ -1,12 +1,11 @@
-FROM golang:1.25 AS builder
+FROM golang:1.26 AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace
 COPY go.mod go.sum ./
 RUN go mod download
-COPY internal/ internal/
-COPY channels/gitlab-label/ channels/gitlab-label/
+COPY channels/ channels/
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o channel-gitlab-label ./channels/gitlab-label/cmd/
 

@@ -307,6 +307,9 @@ func (c *AgentClient) CreateAgentRun(ctx context.Context, req *AgentRunRequest) 
 			if baseBranch := req.Metadata["gitBaseBranch"]; baseBranch != "" {
 				gitSpec["baseBranch"] = baseBranch
 			}
+			if project := req.Metadata["gitProject"]; project != "" {
+				gitSpec["project"] = project
+			}
 			manifest["spec"].(map[string]interface{})["git"] = gitSpec
 		}
 	}

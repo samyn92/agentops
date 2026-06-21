@@ -23,10 +23,8 @@ spec:
     state: opened
     pollInterval: {{ .Values.channels.labelBridge.pollInterval }}
   prompt: |
-    Work on GitLab issue #{{`{{ .IID }}`}} "{{`{{ .Title }}`}}" in project {{`{{ .Project }}`}}.
-
-    Issue description:
-    {{`{{ .Description }}`}}
+    Work on GitLab issue #{{`{{ .item.IID }}`}} "{{`{{ .item.Title }}`}}" in project {{`{{ .gitlab.project }}`}}.
 
     Complete the work described, push your changes, and open a merge request.
+    Read the full issue description from GitLab for detailed requirements.
 {{- end }}

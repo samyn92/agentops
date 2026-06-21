@@ -380,7 +380,13 @@ func (p *Poller) fire(ctx context.Context, it glItem, label string) {
 	iidStr := strconv.Itoa(it.IID)
 	projectRef := p.project
 	if projectRef == "" {
-		projectRef = strconv.Itoa(it.ProjectID)
+		// For group-scoped polls, extract the project path from the issue's web_url.
+		// Format: https://gitlab.com/<group>/<project>/-/issues/<iid>
+		projectRef = extractProjectPath(it.WebURL)
+		if projectRef == "" {
+			// Last resort: numeric ID (runtime may reject this for group integrations).
+			projectRef = strconv.Itoa(it.ProjectID)
+		}
 	}
 
 	data := map[string]interface{}{
@@ -428,6 +434,9 @@ func (p *Poller) fire(ctx context.Context, it glItem, label string) {
 		metadata["gitResourceRef"] = p.integrationRef
 		metadata["gitBaseBranch"] = p.baseBranch
 		metadata["gitBranch"] = fmt.Sprintf("agent/issue-%s", iidStr)
+		// For group integrations, pass the project path so the runtime knows
+		// which specific repo within the group to clone.
+		metadata["gitProject"] = projectRef
 	}
 
 	p.logger.Info("firing agent for matched item",
@@ -494,6 +503,30 @@ func (p *Poller) fire(ctx context.Context, it glItem, label string) {
 	}
 
 	p.markSeen(key)
+}
+
+// extractProjectPath extracts the project path from a GitLab issue/MR web URL.
+// Input:  "https://gitlab.com/samyn92-lab/billing-svc/-/issues/7"
+// Output: "samyn92-lab/billing-svc"
+func extractProjectPath(webURL string) string {
+	// Find "/-/" which separates the project path from the resource type.
+	idx := strings.Index(webURL, "/-/")
+	if idx < 0 {
+		return ""
+	}
+	// Strip the base URL prefix (everything up to the first path after the host).
+	path := webURL[:idx]
+	// Remove scheme + host: find the third "/" (after https://host/)
+	slashes := 0
+	for i, c := range path {
+		if c == '/' {
+			slashes++
+			if slashes == 3 {
+				return path[i+1:]
+			}
+		}
+	}
+	return ""
 }
 
 // transition moves an item from one label to another via the GitLab REST API

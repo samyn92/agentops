@@ -20,7 +20,7 @@ path_export := "export PATH=/usr/local/bin:/go/bin:/usr/local/go/bin:$PATH"
 # imported into k3s containerd. Agents pin spec.image to this tag with the
 # default IfNotPresent pull policy, so re-import + re-fire picks up changes
 # without ever touching a registry.
-rt_dir   := justfile_directory() / ".." / ".."
+rt_dir   := justfile_directory() / ".." / ".." / ".."
 rt_image := "ghcr.io/samyn92/agentops-runtime-fantasy:dev"
 rt_tar   := "/tmp/agentops-runtime-dev.tar"
 
@@ -28,7 +28,7 @@ rt_tar   := "/tmp/agentops-runtime-dev.tar"
 # runtime. Channel CRs pin spec.image to ghcr.io/samyn92/agent-channel-<type>:dev
 # with imagePullPolicy: IfNotPresent, so re-import + rollout restart picks up
 # changes without a registry round-trip.
-ch_dir   := justfile_directory() / ".." / ".."
+ch_dir   := justfile_directory() / ".." / ".." / ".."
 
 
 # ── Lifecycle ─────────────────────────────────────────────
