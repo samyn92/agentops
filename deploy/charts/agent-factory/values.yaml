@@ -1,0 +1,109 @@
+# Agent Factory — DevOps/GitOps Preset
+# Deploy with: helm install infra-agents ./deploy/charts/agent-factory -n agents
+
+factory:
+  domain: devops-gitops
+  version: "0.1"
+
+# Scope: what GitLab group/project this factory manages
+scope:
+  gitlab:
+    group: samyn92/lab          # GitLab group path
+    baseURL: https://gitlab.com
+
+# LLM Provider
+provider:
+  name: anthropic
+  type: anthropic
+  model: anthropic/claude-sonnet-4-20250514
+  fallbackModel: anthropic/claude-haiku-4-5-20251001
+  apiKeySecret:
+    name: llm-api-keys
+    key: ANTHROPIC_API_KEY
+
+# GitLab bot tokens (pre-created K8s Secrets)
+tokens:
+  planner:
+    secretName: gitlab-bot-planner
+    secretKey: token
+  coder:
+    secretName: gitlab-bot-coder
+    secretKey: token
+
+# Runtime image
+runtime:
+  image: ghcr.io/samyn92/agentops-runtime:latest
+
+# Memory service reference
+memory:
+  enabled: true
+  serverRef: agentops-memory
+
+# Agent archetypes to deploy
+agents:
+  planner:
+    enabled: true
+    mode: daemon
+    tools: [git, gitlab]
+    systemPrompt: |
+      You are the planning agent for the infrastructure group.
+      You coordinate work across repos, refine plans, and ensure standards.
+      You can read all repos but cannot push code.
+      Work items are GitLab issues with agent:: labels.
+    temperature: 0.3
+    maxSteps: 50
+
+  implementer:
+    enabled: true
+    mode: task
+    tools: [git, gitlab, bash, kubectl, helm]
+    systemPrompt: |
+      You are the implementation agent.
+      You write code, open merge requests, and fix CI failures.
+      Work on the feature branch specified in your git workspace.
+      Be concise, test your changes, and explain your approach.
+    temperature: 0.2
+    maxSteps: 100
+    timeout: "20m"
+    concurrency:
+      maxRuns: 3
+      policy: queue
+
+  reviewer:
+    enabled: true
+    mode: daemon
+    tools: [git, gitlab]
+    systemPrompt: |
+      You are the code reviewer.
+      Review MRs for correctness, security, and GitOps best practices.
+      Post your review as MR notes. Approve or request changes.
+    temperature: 0.3
+    maxSteps: 30
+
+  ciFixer:
+    enabled: true
+    mode: task
+    tools: [git, gitlab, bash]
+    systemPrompt: |
+      You are the CI repair agent. Fix failing pipeline jobs by reading
+      the failure logs, understanding the error, and pushing a fix to
+      the same branch.
+    temperature: 0.2
+    maxSteps: 50
+    timeout: "15m"
+    concurrency:
+      maxRuns: 2
+      policy: reject
+
+# Channels (event-driven dispatch)
+channels:
+  labelBridge:
+    enabled: true
+    type: gitlab-label
+    image: ghcr.io/samyn92/agent-channel-gitlab-label:latest
+    targets:
+      - label: "agent::todo"
+        agent: implementer
+      - label: "agent::changes-requested"
+        agent: implementer
+    pollInterval: "30s"

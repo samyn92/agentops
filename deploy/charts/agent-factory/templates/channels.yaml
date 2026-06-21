@@ -1,0 +1,32 @@
+{{- $fullname := include "agent-factory.fullname" . }}
+{{- $plannerIntg := printf "%s-planner" $fullname }}
+
+{{- if .Values.channels.labelBridge.enabled }}
+apiVersion: agents.agentops.io/v1alpha1
+kind: Channel
+metadata:
+  name: {{ $fullname }}-label-bridge
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agent-factory.labels" . | nindent 4 }}
+spec:
+  type: gitlab-label
+  agentRef: {{ $fullname }}-implementer
+  image: {{ .Values.channels.labelBridge.image }}
+  gitlabLabel:
+    integrationRef: {{ $plannerIntg }}
+    target: issues
+    labels:
+      {{- range .Values.channels.labelBridge.targets }}
+      - {{ .label }}
+      {{- end }}
+    state: opened
+    pollInterval: {{ .Values.channels.labelBridge.pollInterval }}
+  prompt: |
+    Work on GitLab issue #{{`{{ .IID }}`}} "{{`{{ .Title }}`}}" in project {{`{{ .Project }}`}}.
+
+    Issue description:
+    {{`{{ .Description }}`}}
+
+    Complete the work described, push your changes, and open a merge request.
+{{- end }}

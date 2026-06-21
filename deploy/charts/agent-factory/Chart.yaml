@@ -1,0 +1,15 @@
+apiVersion: v2
+name: agent-factory
+description: >-
+  Agent Factory — deploy pre-composed AI agent teams as Helm releases.
+  Generates Provider, Integration, Agent, and Channel CRDs from a
+  domain-specific preset (DevOps/GitOps, Security, ML/Data, etc.).
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">=1.28.0-0"
+home: https://github.com/samyn92/agentops
+maintainers:
+  - name: samyn92
+keywords:
+  - agentops, agent-factory, ai-agents, kubernetes, gitops, devops, helm

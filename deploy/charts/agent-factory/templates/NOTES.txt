@@ -1,0 +1,26 @@
+Agent Factory "{{ include "agent-factory.fullname" . }}" deployed!
+
+Domain:  {{ .Values.factory.domain }}
+Scope:   {{ .Values.scope.gitlab.group }} ({{ .Values.scope.gitlab.baseURL }})
+
+Agents:
+{{- if .Values.agents.planner.enabled }}
+  - {{ include "agent-factory.fullname" . }}-planner (daemon)
+{{- end }}
+{{- if .Values.agents.implementer.enabled }}
+  - {{ include "agent-factory.fullname" . }}-implementer (task)
+{{- end }}
+{{- if .Values.agents.reviewer.enabled }}
+  - {{ include "agent-factory.fullname" . }}-reviewer (daemon)
+{{- end }}
+{{- if .Values.agents.ciFixer.enabled }}
+  - {{ include "agent-factory.fullname" . }}-ci-fixer (task)
+{{- end }}
+
+Channels:
+{{- if .Values.channels.labelBridge.enabled }}
+  - {{ include "agent-factory.fullname" . }}-label-bridge (gitlab-label)
+{{- end }}
+
+To check status:
+  kubectl get agents,channels,integrations -n {{ .Release.Namespace }} -l agentops.dev/factory={{ include "agent-factory.fullname" . }}

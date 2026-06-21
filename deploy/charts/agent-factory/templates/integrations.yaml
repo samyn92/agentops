@@ -1,0 +1,35 @@
+# Planner Integration (read + comment, no push)
+apiVersion: agents.agentops.io/v1alpha1
+kind: Integration
+metadata:
+  name: {{ include "agent-factory.fullname" . }}-planner
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agent-factory.labels" . | nindent 4 }}
+spec:
+  kind: gitlab-group
+  displayName: "{{ .Values.scope.gitlab.group }} (planner)"
+  gitlabGroup:
+    baseURL: {{ .Values.scope.gitlab.baseURL }}
+    group: {{ .Values.scope.gitlab.group }}
+  credentials:
+    name: {{ .Values.tokens.planner.secretName }}
+    key: {{ .Values.tokens.planner.secretKey }}
+---
+# Coder Integration (read + write + MR)
+apiVersion: agents.agentops.io/v1alpha1
+kind: Integration
+metadata:
+  name: {{ include "agent-factory.fullname" . }}-coder
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agent-factory.labels" . | nindent 4 }}
+spec:
+  kind: gitlab-group
+  displayName: "{{ .Values.scope.gitlab.group }} (coder)"
+  gitlabGroup:
+    baseURL: {{ .Values.scope.gitlab.baseURL }}
+    group: {{ .Values.scope.gitlab.group }}
+  credentials:
+    name: {{ .Values.tokens.coder.secretName }}
+    key: {{ .Values.tokens.coder.secretKey }}
