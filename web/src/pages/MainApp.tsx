@@ -75,7 +75,7 @@ export default function MainApp() {
   });
 
   return (
-    <div class="flex h-screen bg-background text-text overflow-hidden">
+    <div class="flex h-full bg-background text-text overflow-hidden">
       {/* ── Left Sidebar (agents — hierarchical) ── */}
       <AppErrorBoundary name="Sidebar">
         <Sidebar />

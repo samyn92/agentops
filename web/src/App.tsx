@@ -3,6 +3,7 @@ import { onMount, onCleanup, createEffect, Show, For, createResource } from 'sol
 import MainApp from './pages/MainApp'
 import SettingsPage from './pages/SettingsPage'
 import MissionControl from './pages/MissionControl'
+import TracesPage from './pages/TracesPage'
 import { registerKeyboardShortcuts } from './lib/keyboard'
 import AppErrorBoundary from './components/shared/ErrorBoundary'
 import { startEventStream, stopEventStream } from './stores/events'
@@ -103,6 +104,7 @@ export default function App() {
     <Router root={AppShell}>
       <Route path="/" component={MainApp} />
       <Route path="/mission" component={MissionControl} />
+      <Route path="/traces" component={TracesPage} />
       <Route path="/board" component={RedirectToMission} />
       <Route path="/gitlab" component={RedirectToMission} />
       <Route path="/settings" component={SettingsPage} />

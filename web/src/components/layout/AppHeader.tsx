@@ -4,16 +4,21 @@ import { Show } from 'solid-js';
 import { A, useLocation } from '@solidjs/router';
 import { currentUser, logout } from '../../stores/auth';
 
-type AppMode = 'explore' | 'factory';
+type AppMode = 'explore' | 'factory' | 'traces';
 
 const MODES: { id: AppMode; label: string; path: string; icon: string }[] = [
   { id: 'explore', label: 'Explore', path: '/', icon: '◇' },
   { id: 'factory', label: 'Factory', path: '/mission', icon: '◆' },
+  { id: 'traces', label: 'Traces', path: '/traces', icon: '⌁' },
 ];
 
 export default function AppHeader() {
   const location = useLocation();
-  const currentMode = () => location.pathname === '/mission' ? 'factory' : 'explore';
+  const currentMode = () => {
+    if (location.pathname === '/mission') return 'factory';
+    if (location.pathname === '/traces') return 'traces';
+    return 'explore';
+  };
   const user = () => currentUser();
 
   return (
