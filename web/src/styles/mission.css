@@ -188,3 +188,26 @@
   0% { background-position: 100% 0; }
   100% { background-position: -100% 0; }
 }
+
+/* ── Plan description: shimmer overlay while agent is updating ──────── */
+.mc-plan-updating {
+  animation: mc-plan-border-pulse 2s ease-in-out infinite;
+}
+@keyframes mc-plan-border-pulse {
+  0%, 100% { border-color: color-mix(in srgb, var(--accent, #8b5cf6) 30%, transparent); }
+  50% { border-color: color-mix(in srgb, var(--accent, #8b5cf6) 60%, transparent); }
+}
+.mc-plan-shimmer {
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    color-mix(in srgb, var(--accent, #8b5cf6) 6%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: mc-shimmer-sweep 1.8s ease-in-out infinite;
+}
+@keyframes mc-shimmer-sweep {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

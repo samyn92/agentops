@@ -132,11 +132,16 @@ export default function PlanRefinement(props: PlanRefinementProps) {
         </div>
 
         <Show when={editing()} fallback={
-          <div class="text-[12.5px] bg-surface-2 border border-border-subtle rounded-lg p-3 overflow-auto flex-1 min-h-0">
+          <div class="text-[12.5px] bg-surface-2 border rounded-lg p-3 overflow-auto flex-1 min-h-0 relative"
+            classList={{ 'border-border-subtle': !streaming(), 'border-accent/40 mc-plan-updating': streaming() }}>
             <Show when={detail()?.description ?? props.issue.description} fallback={
               <p class="text-text-muted italic">No plan description yet. Click "Edit plan" to add one.</p>
             }>
               <Markdown content={(detail()?.description ?? props.issue.description)!} />
+            </Show>
+            {/* Shimmer overlay while agent updates the plan */}
+            <Show when={streaming()}>
+              <div class="absolute inset-0 rounded-lg pointer-events-none mc-plan-shimmer" />
             </Show>
           </div>
         }>
@@ -185,22 +190,11 @@ export default function PlanRefinement(props: PlanRefinementProps) {
             {n => <NoteItem note={n} />}
           </For>
 
-          {/* Live streaming indicator */}
+          {/* Subtle streaming indicator */}
           <Show when={streaming()}>
-            <div class="flex gap-2.5 py-2 animate-in fade-in">
-              <span class="w-7 h-7 rounded-full grid place-items-center text-[10px] font-bold bg-blue-500/15 text-blue-400 flex-none uppercase">
-                {pm()?.name?.slice(0, 2) ?? 'AI'}
-              </span>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1.5 mb-0.5">
-                  <span class="text-[11.5px] font-medium text-blue-400">{pm()?.name ?? 'agent'}</span>
-                  <span class="mc-live-dot w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  <span class="text-[10.5px] text-text-muted">revising plan...</span>
-                </div>
-                <div class="text-[12px] text-text-secondary bg-surface-2 border border-border-subtle rounded-lg p-2.5">
-                  <span class="text-text-muted">Agent is processing your feedback. Response will appear here shortly...</span>
-                </div>
-              </div>
+            <div class="flex items-center gap-1.5 py-1.5 px-1">
+              <span class="mc-live-dot w-1.5 h-1.5 rounded-full bg-accent" />
+              <span class="text-[10.5px] text-text-muted">{pm()?.name ?? 'agent'} is updating the plan...</span>
             </div>
           </Show>
         </Show>
