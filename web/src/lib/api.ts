@@ -156,8 +156,18 @@ export interface AuthUser {
   avatarUrl?: string;
   email?: string;
   authenticated: boolean;
+  /** The provider ID this user authenticated with (e.g. "default", "1"). */
+  provider?: string;
+  /** The GitLab instance base URL for this session. */
+  gitlabUrl?: string;
   /** True when the BFF has no OIDC configured (env vars absent). */
   authDisabled?: boolean;
+}
+
+export interface AuthProvider {
+  id: string;
+  label: string;
+  baseUrl: string;
 }
 
 export const authApi = {
@@ -167,10 +177,17 @@ export const authApi = {
     if (!res.ok) return { username: '', authenticated: false };
     return res.json();
   },
-  /** Redirect the browser to the GitLab login page. */
-  login: (returnTo?: string) => {
+  /** List available OAuth providers. */
+  providers: async (): Promise<AuthProvider[]> => {
+    const res = await fetch('/auth/providers');
+    if (!res.ok) return [];
+    return res.json();
+  },
+  /** Redirect the browser to the GitLab login page for a specific provider. */
+  login: (returnTo?: string, provider?: string) => {
     const params = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : '';
-    window.location.href = `/auth/login${params}`;
+    const providerPath = provider ? `/${provider}` : '';
+    window.location.href = `/auth/login${providerPath}${params}`;
   },
   /** Log out (clears session cookie). */
   logout: async () => {

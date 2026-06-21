@@ -1,17 +1,24 @@
-// Package auth implements GitLab OAuth2/OIDC authentication for the console BFF.
+// Package auth implements multi-provider GitLab OAuth2/OIDC authentication.
 //
-// The human logs in via the standard Authorization Code flow:
+// Multiple GitLab instances (gitlab.com, self-hosted, etc.) can be configured
+// via environment variables using a suffix convention:
 //
-//	Browser → /auth/login → GitLab authorize → callback with code
-//	BFF exchanges code → access_token + refresh_token + id_token
-//	BFF sets an encrypted HTTP-only session cookie
+//	GITLAB_OAUTH_CLIENT_ID          → default provider
+//	GITLAB_OAUTH_1_CLIENT_ID        → provider "1"
+//	GITLAB_OAUTH_2_CLIENT_ID        → provider "2"
 //
-// Write actions (merge, approve, comment) proxy to GitLab using the HUMAN's
-// access token — so merges are authenticated as the operator, not the agent bot.
-// Read actions (board browsing) continue to use the Integration's bot token.
+// Each provider gets its own OAuth2 application credentials and base URL. All
+// share a single AES-256-GCM session key (GITLAB_OAUTH_SESSION_KEY). The
+// session cookie stores which provider the user authenticated with so token
+// refresh hits the correct GitLab instance.
 //
-// Session is a thin AES-256-GCM encrypted cookie — no external session store.
-// The session key comes from the gitlab-oauth Secret (session-key).
+// Routes:
+//
+//	/auth/providers          → list available providers (for the login picker)
+//	/auth/login/{provider}   → redirect to that provider's GitLab authorize URL
+//	/auth/callback/{provider}→ exchange code, set session cookie
+//	/auth/logout             → clear session
+//	/auth/me                 → current user identity + provider info
 package auth
 
 import (
@@ -26,57 +33,134 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
 )
 
-// Config holds the OAuth2 + session configuration, read from env vars
-// (injected from the gitlab-oauth Secret).
+// ── Provider ─────────────────────────────────────────────────────────────────
+
+// ProviderConfig holds the OAuth2 config for one GitLab instance.
+type ProviderConfig struct {
+	ID           string // "default", "1", "2", ...
+	Label        string // Display name ("GitLab.com", "Company GitLab")
+	ClientID     string
+	ClientSecret string
+	BaseURL      string // e.g. https://gitlab.com
+	RedirectURL  string // full callback URL for this provider
+}
+
+// Provider is a configured OAuth2 provider (one GitLab instance).
+type Provider struct {
+	ID      string
+	Label   string
+	BaseURL string
+	oauth   *oauth2.Config
+}
+
+// ProviderInfo is the public-facing provider metadata (returned by /auth/providers).
+type ProviderInfo struct {
+	ID      string `json:"id"`
+	Label   string `json:"label"`
+	BaseURL string `json:"baseUrl"`
+}
+
+// ── AuthManager ──────────────────────────────────────────────────────────────
+
+// AuthManager manages multiple OAuth2 providers with a shared session cookie.
+type AuthManager struct {
+	providers map[string]*Provider // keyed by provider ID
+	order     []string             // ordered provider IDs (for listing)
+	gcm       cipher.AEAD
+	cookie    string
+}
+
+// Config holds the multi-provider auth configuration.
 type Config struct {
-	ClientID     string // GITLAB_OAUTH_CLIENT_ID
-	ClientSecret string // GITLAB_OAUTH_CLIENT_SECRET
-	SessionKey   string // GITLAB_OAUTH_SESSION_KEY (32-byte hex)
-	BaseURL      string // GitLab base URL (default https://gitlab.com)
-	RedirectURL  string // OAuth2 callback URL (default http://localhost:30173/auth/callback)
+	Providers  []ProviderConfig
+	SessionKey string // 32-byte hex → AES-256-GCM (shared across providers)
 }
 
 // ConfigFromEnv reads auth config from environment variables.
-// Returns nil if GITLAB_OAUTH_CLIENT_ID is not set (auth disabled).
+// Returns nil if no providers are configured (auth disabled).
+//
+// Convention:
+//
+//	GITLAB_OAUTH_CLIENT_ID          → default provider
+//	GITLAB_OAUTH_1_CLIENT_ID        → provider "1"
+//	GITLAB_OAUTH_2_CLIENT_ID        → provider "2"
+//
+// Each provider reads: CLIENT_ID, CLIENT_SECRET, BASE_URL, LABEL, REDIRECT_URL.
+// GITLAB_OAUTH_SESSION_KEY is shared.
 func ConfigFromEnv() *Config {
-	clientID := os.Getenv("GITLAB_OAUTH_CLIENT_ID")
-	if clientID == "" {
+	sessionKey := os.Getenv("GITLAB_OAUTH_SESSION_KEY")
+	if sessionKey == "" {
 		return nil
 	}
-	baseURL := os.Getenv("GITLAB_BASE_URL")
+
+	var providers []ProviderConfig
+
+	// Default provider (no suffix)
+	if id := os.Getenv("GITLAB_OAUTH_CLIENT_ID"); id != "" {
+		providers = append(providers, readProviderEnv("default", ""))
+	}
+
+	// Numbered providers (_1, _2, _3, ...)
+	for i := 1; i <= 10; i++ {
+		suffix := fmt.Sprintf("_%d", i)
+		if id := os.Getenv("GITLAB_OAUTH" + suffix + "_CLIENT_ID"); id != "" {
+			providers = append(providers, readProviderEnv(fmt.Sprintf("%d", i), suffix))
+		}
+	}
+
+	if len(providers) == 0 {
+		return nil
+	}
+
+	return &Config{
+		Providers:  providers,
+		SessionKey: sessionKey,
+	}
+}
+
+func readProviderEnv(id, suffix string) ProviderConfig {
+	prefix := "GITLAB_OAUTH" + suffix
+
+	baseURL := os.Getenv(prefix + "_BASE_URL")
 	if baseURL == "" {
 		baseURL = "https://gitlab.com"
 	}
-	redirectURL := os.Getenv("GITLAB_OAUTH_REDIRECT_URL")
-	if redirectURL == "" {
-		redirectURL = "http://localhost:30173/auth/callback"
+
+	label := os.Getenv(prefix + "_LABEL")
+	if label == "" {
+		// Derive label from base URL.
+		label = strings.TrimPrefix(baseURL, "https://")
+		label = strings.TrimPrefix(label, "http://")
 	}
-	return &Config{
-		ClientID:     clientID,
-		ClientSecret: os.Getenv("GITLAB_OAUTH_CLIENT_SECRET"),
-		SessionKey:   os.Getenv("GITLAB_OAUTH_SESSION_KEY"),
+
+	redirectURL := os.Getenv(prefix + "_REDIRECT_URL")
+	if redirectURL == "" {
+		base := os.Getenv("GITLAB_OAUTH_REDIRECT_URL")
+		if base == "" {
+			base = "http://localhost:30173/auth/callback"
+		}
+		redirectURL = strings.TrimRight(base, "/") + "/" + id
+	}
+
+	return ProviderConfig{
+		ID:           id,
+		Label:        label,
+		ClientID:     os.Getenv(prefix + "_CLIENT_ID"),
+		ClientSecret: os.Getenv(prefix + "_CLIENT_SECRET"),
 		BaseURL:      strings.TrimRight(baseURL, "/"),
 		RedirectURL:  redirectURL,
 	}
 }
 
-// Auth handles OAuth2 login, sessions, and token management.
-type Auth struct {
-	oauth  *oauth2.Config
-	gcm    cipher.AEAD
-	base   string // GitLab base URL
-	cookie string // session cookie name
-}
-
-// New creates an Auth instance. Returns an error if the session key is invalid.
-func New(cfg *Config) (*Auth, error) {
-	// Parse session key (hex → 32 bytes → AES-256-GCM).
+// New creates an AuthManager with all configured providers.
+func New(cfg *Config) (*AuthManager, error) {
 	keyBytes, err := parseHexKey(cfg.SessionKey)
 	if err != nil {
 		return nil, fmt.Errorf("invalid session key: %w", err)
@@ -90,64 +174,129 @@ func New(cfg *Config) (*Auth, error) {
 		return nil, fmt.Errorf("gcm: %w", err)
 	}
 
-	return &Auth{
-		oauth: &oauth2.Config{
-			ClientID:     cfg.ClientID,
-			ClientSecret: cfg.ClientSecret,
-			RedirectURL:  cfg.RedirectURL,
-			Scopes:       []string{"api", "read_user", "openid", "profile"},
-			Endpoint: oauth2.Endpoint{
-				AuthURL:  cfg.BaseURL + "/oauth/authorize",
-				TokenURL: cfg.BaseURL + "/oauth/token",
+	mgr := &AuthManager{
+		providers: make(map[string]*Provider, len(cfg.Providers)),
+		gcm:       gcm,
+		cookie:    "agentops_session",
+	}
+
+	for _, pc := range cfg.Providers {
+		p := &Provider{
+			ID:      pc.ID,
+			Label:   pc.Label,
+			BaseURL: pc.BaseURL,
+			oauth: &oauth2.Config{
+				ClientID:     pc.ClientID,
+				ClientSecret: pc.ClientSecret,
+				RedirectURL:  pc.RedirectURL,
+				Scopes:       []string{"api", "read_user", "openid", "profile"},
+				Endpoint: oauth2.Endpoint{
+					AuthURL:  pc.BaseURL + "/oauth/authorize",
+					TokenURL: pc.BaseURL + "/oauth/token",
+				},
 			},
-		},
-		gcm:    gcm,
-		base:   cfg.BaseURL,
-		cookie: "agentops_session",
-	}, nil
+		}
+		mgr.providers[pc.ID] = p
+		mgr.order = append(mgr.order, pc.ID)
+	}
+
+	return mgr, nil
+}
+
+// Providers returns the list of configured providers (for the login picker).
+func (m *AuthManager) Providers() []ProviderInfo {
+	out := make([]ProviderInfo, 0, len(m.order))
+	for _, id := range m.order {
+		p := m.providers[id]
+		out = append(out, ProviderInfo{
+			ID:      p.ID,
+			Label:   p.Label,
+			BaseURL: p.BaseURL,
+		})
+	}
+	return out
+}
+
+// provider returns a provider by ID or nil.
+func (m *AuthManager) provider(id string) *Provider {
+	return m.providers[id]
+}
+
+// DefaultProviderID returns the first provider ID (for backward compat).
+func (m *AuthManager) DefaultProviderID() string {
+	if len(m.order) > 0 {
+		return m.order[0]
+	}
+	return ""
+}
+
+// HasMultipleProviders returns true if more than one provider is configured.
+func (m *AuthManager) HasMultipleProviders() bool {
+	return len(m.providers) > 1
 }
 
 // ── HTTP Handlers ────────────────────────────────────────────────────────────
 
-// HandleLogin redirects the browser to GitLab's authorize URL.
-func (a *Auth) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	// state = where to redirect after login (default /)
+// HandleProviders returns the list of available OAuth providers as JSON.
+// GET /auth/providers
+func (m *AuthManager) HandleProviders(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(m.Providers())
+}
+
+// HandleLogin redirects the browser to the specified provider's authorize URL.
+// GET /auth/login/{provider}
+func (m *AuthManager) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	providerID := extractProvider(r)
+	p := m.provider(providerID)
+	if p == nil {
+		http.Error(w, fmt.Sprintf("unknown auth provider %q", providerID), http.StatusBadRequest)
+		return
+	}
+
 	returnTo := r.URL.Query().Get("return_to")
 	if returnTo == "" {
 		returnTo = "/"
 	}
+	// Encode return_to in state.
 	state := base64.RawURLEncoding.EncodeToString([]byte(returnTo))
-	url := a.oauth.AuthCodeURL(state, oauth2.AccessTypeOffline)
+	url := p.oauth.AuthCodeURL(state, oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 // HandleCallback exchanges the authorization code for tokens and sets the
-// session cookie.
-func (a *Auth) HandleCallback(w http.ResponseWriter, r *http.Request) {
+// session cookie. GET /auth/callback/{provider}
+func (m *AuthManager) HandleCallback(w http.ResponseWriter, r *http.Request) {
+	providerID := extractProvider(r)
+	p := m.provider(providerID)
+	if p == nil {
+		http.Error(w, fmt.Sprintf("unknown auth provider %q", providerID), http.StatusBadRequest)
+		return
+	}
+
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "missing code parameter", http.StatusBadRequest)
 		return
 	}
 
-	// Exchange code → tokens.
-	token, err := a.oauth.Exchange(r.Context(), code)
+	token, err := p.oauth.Exchange(r.Context(), code)
 	if err != nil {
-		slog.Error("oauth2 token exchange failed", "error", err)
+		slog.Error("oauth2 token exchange failed", "provider", providerID, "error", err)
 		http.Error(w, "authentication failed", http.StatusInternalServerError)
 		return
 	}
 
-	// Fetch the user's GitLab profile.
-	user, err := a.fetchUser(r.Context(), token.AccessToken)
+	user, err := fetchUser(r.Context(), p.BaseURL, token.AccessToken)
 	if err != nil {
-		slog.Error("failed to fetch gitlab user", "error", err)
+		slog.Error("failed to fetch gitlab user", "provider", providerID, "error", err)
 		http.Error(w, "failed to fetch user profile", http.StatusInternalServerError)
 		return
 	}
 
-	// Build session.
 	sess := Session{
+		Provider:     providerID,
+		GitLabURL:    p.BaseURL,
 		AccessToken:  token.AccessToken,
 		RefreshToken: token.RefreshToken,
 		ExpiresAt:    token.Expiry,
@@ -157,15 +306,14 @@ func (a *Auth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Email:        user.Email,
 	}
 
-	if err := a.setSession(w, &sess); err != nil {
+	if err := m.setSession(w, &sess); err != nil {
 		slog.Error("failed to set session cookie", "error", err)
 		http.Error(w, "session error", http.StatusInternalServerError)
 		return
 	}
 
-	slog.Info("user authenticated", "username", user.Username)
+	slog.Info("user authenticated", "username", user.Username, "provider", providerID, "gitlab", p.BaseURL)
 
-	// Redirect back to the return_to path (from state param).
 	returnTo := "/"
 	if st := r.URL.Query().Get("state"); st != "" {
 		if b, err := base64.RawURLEncoding.DecodeString(st); err == nil && len(b) > 0 {
@@ -176,16 +324,15 @@ func (a *Auth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleLogout clears the session cookie.
-func (a *Auth) HandleLogout(w http.ResponseWriter, r *http.Request) {
+func (m *AuthManager) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     a.cookie,
+		Name:     m.cookie,
 		Value:    "",
 		Path:     "/",
 		MaxAge:   -1,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
-	// Return JSON for API callers, redirect for browsers.
 	if strings.Contains(r.Header.Get("Accept"), "application/json") {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"ok":true}`))
@@ -194,9 +341,9 @@ func (a *Auth) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleMe returns the current user's identity (or 401 if not logged in).
-func (a *Auth) HandleMe(w http.ResponseWriter, r *http.Request) {
-	sess, err := a.getSession(r)
+// HandleMe returns the current user's identity + provider info.
+func (m *AuthManager) HandleMe(w http.ResponseWriter, r *http.Request) {
+	sess, err := m.getSession(r)
 	if err != nil || sess == nil {
 		http.Error(w, `{"error":"not authenticated"}`, http.StatusUnauthorized)
 		return
@@ -207,6 +354,8 @@ func (a *Auth) HandleMe(w http.ResponseWriter, r *http.Request) {
 		Name:          sess.Name,
 		AvatarURL:     sess.AvatarURL,
 		Email:         sess.Email,
+		Provider:      sess.Provider,
+		GitLabURL:     sess.GitLabURL,
 		Authenticated: true,
 	})
 }
@@ -215,6 +364,8 @@ func (a *Auth) HandleMe(w http.ResponseWriter, r *http.Request) {
 
 // Session is the encrypted cookie payload.
 type Session struct {
+	Provider     string    `json:"p"`            // provider ID
+	GitLabURL    string    `json:"gl"`           // provider's GitLab base URL
 	AccessToken  string    `json:"at"`
 	RefreshToken string    `json:"rt,omitempty"`
 	ExpiresAt    time.Time `json:"exp"`
@@ -230,30 +381,30 @@ type UserInfo struct {
 	Name          string `json:"name,omitempty"`
 	AvatarURL     string `json:"avatarUrl,omitempty"`
 	Email         string `json:"email,omitempty"`
+	Provider      string `json:"provider,omitempty"`
+	GitLabURL     string `json:"gitlabUrl,omitempty"`
 	Authenticated bool   `json:"authenticated"`
 }
 
-// GetSession extracts and decrypts the session from the request. Returns nil
-// (no error) if no session cookie is present. Automatically refreshes the
-// access token if it's expired and a refresh token is available.
-func (a *Auth) GetSession(r *http.Request) (*Session, error) {
-	return a.getSession(r)
+// GetSession extracts and decrypts the session from the request.
+func (m *AuthManager) GetSession(r *http.Request) (*Session, error) {
+	return m.getSession(r)
 }
 
-func (a *Auth) getSession(r *http.Request) (*Session, error) {
-	c, err := r.Cookie(a.cookie)
+func (m *AuthManager) getSession(r *http.Request) (*Session, error) {
+	c, err := r.Cookie(m.cookie)
 	if err != nil {
-		return nil, nil // no cookie → not logged in
+		return nil, nil
 	}
 	data, err := base64.RawURLEncoding.DecodeString(c.Value)
 	if err != nil {
 		return nil, fmt.Errorf("decode cookie: %w", err)
 	}
-	if len(data) < a.gcm.NonceSize() {
+	if len(data) < m.gcm.NonceSize() {
 		return nil, fmt.Errorf("cookie too short")
 	}
-	nonce, ciphertext := data[:a.gcm.NonceSize()], data[a.gcm.NonceSize():]
-	plain, err := a.gcm.Open(nil, nonce, ciphertext, nil)
+	nonce, ciphertext := data[:m.gcm.NonceSize()], data[m.gcm.NonceSize():]
+	plain, err := m.gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
 		return nil, fmt.Errorf("decrypt session: %w", err)
 	}
@@ -264,46 +415,49 @@ func (a *Auth) getSession(r *http.Request) (*Session, error) {
 	return &sess, nil
 }
 
-func (a *Auth) setSession(w http.ResponseWriter, sess *Session) error {
+func (m *AuthManager) setSession(w http.ResponseWriter, sess *Session) error {
 	plain, err := json.Marshal(sess)
 	if err != nil {
 		return err
 	}
-	nonce := make([]byte, a.gcm.NonceSize())
+	nonce := make([]byte, m.gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
 		return err
 	}
-	sealed := a.gcm.Seal(nonce, nonce, plain, nil)
+	sealed := m.gcm.Seal(nonce, nonce, plain, nil)
 	encoded := base64.RawURLEncoding.EncodeToString(sealed)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     a.cookie,
+		Name:     m.cookie,
 		Value:    encoded,
 		Path:     "/",
-		MaxAge:   86400 * 7, // 7 days
+		MaxAge:   86400 * 7,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		// Secure: true for production (HTTPS); false for localhost dev.
 	})
 	return nil
 }
 
-// RefreshIfNeeded checks whether the access token is expired and refreshes it
-// if a refresh token is available. Returns the (possibly refreshed) session
-// and true if the session was updated (caller should re-set the cookie).
-func (a *Auth) RefreshIfNeeded(ctx context.Context, w http.ResponseWriter, sess *Session) (*Session, bool, error) {
+// RefreshIfNeeded refreshes the access token if near-expiry using the correct
+// provider's token endpoint.
+func (m *AuthManager) RefreshIfNeeded(ctx context.Context, w http.ResponseWriter, sess *Session) (*Session, bool, error) {
 	if sess == nil || sess.AccessToken == "" {
 		return sess, false, nil
 	}
-	// Not expired yet → no refresh needed.
 	if time.Until(sess.ExpiresAt) > 60*time.Second {
 		return sess, false, nil
 	}
 	if sess.RefreshToken == "" {
 		return sess, false, fmt.Errorf("access token expired and no refresh token")
 	}
-	// Use oauth2 token source to refresh.
-	ts := a.oauth.TokenSource(ctx, &oauth2.Token{
+
+	// Find the provider to use for refresh.
+	p := m.provider(sess.Provider)
+	if p == nil {
+		return sess, false, fmt.Errorf("unknown provider %q in session", sess.Provider)
+	}
+
+	ts := p.oauth.TokenSource(ctx, &oauth2.Token{
 		AccessToken:  sess.AccessToken,
 		RefreshToken: sess.RefreshToken,
 		Expiry:       sess.ExpiresAt,
@@ -315,23 +469,21 @@ func (a *Auth) RefreshIfNeeded(ctx context.Context, w http.ResponseWriter, sess 
 	sess.AccessToken = newTok.AccessToken
 	sess.RefreshToken = newTok.RefreshToken
 	sess.ExpiresAt = newTok.Expiry
-	// Persist the refreshed session.
-	if err := a.setSession(w, sess); err != nil {
+	if err := m.setSession(w, sess); err != nil {
 		return sess, true, fmt.Errorf("save refreshed session: %w", err)
 	}
-	slog.Debug("access token refreshed", "username", sess.Username)
+	slog.Debug("access token refreshed", "username", sess.Username, "provider", sess.Provider)
 	return sess, true, nil
 }
 
 // UserAccessToken extracts the user's GitLab access token from the request's
-// session, refreshing if needed. Returns ("", nil) if not logged in; non-nil
-// error only on session-corruption/refresh-failure.
-func (a *Auth) UserAccessToken(w http.ResponseWriter, r *http.Request) (string, error) {
-	sess, err := a.getSession(r)
+// session, refreshing if needed.
+func (m *AuthManager) UserAccessToken(w http.ResponseWriter, r *http.Request) (string, error) {
+	sess, err := m.getSession(r)
 	if err != nil || sess == nil {
 		return "", err
 	}
-	sess, _, err = a.RefreshIfNeeded(r.Context(), w, sess)
+	sess, _, err = m.RefreshIfNeeded(r.Context(), w, sess)
 	if err != nil {
 		return "", err
 	}
@@ -347,8 +499,8 @@ type gitlabUser struct {
 	Email     string `json:"email"`
 }
 
-func (a *Auth) fetchUser(ctx context.Context, accessToken string) (*gitlabUser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.base+"/api/v4/user", nil)
+func fetchUser(ctx context.Context, baseURL, accessToken string) (*gitlabUser, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, baseURL+"/api/v4/user", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -367,6 +519,20 @@ func (a *Auth) fetchUser(ctx context.Context, accessToken string) (*gitlabUser, 
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+// extractProvider gets the provider ID from the URL path. Supports both
+// /auth/login/{provider} and /auth/login (defaults to first provider).
+func extractProvider(r *http.Request) string {
+	// Try chi URL param first
+	parts := strings.Split(strings.TrimRight(r.URL.Path, "/"), "/")
+	if len(parts) > 0 {
+		last := parts[len(parts)-1]
+		if last != "login" && last != "callback" {
+			return last
+		}
+	}
+	return "default"
+}
 
 func parseHexKey(hex string) ([]byte, error) {
 	if len(hex) != 64 {
@@ -396,3 +562,6 @@ func hexNibble(c byte) byte {
 		return 0xff
 	}
 }
+
+// Suppress unused import warning
+var _ = sort.Strings

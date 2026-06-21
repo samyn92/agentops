@@ -28,7 +28,7 @@ import (
 type Handlers struct {
 	k8s  *k8s.Client
 	mux  *multiplexer.Multiplexer
-	auth *auth.Auth // nil when OIDC is disabled
+	auth *auth.AuthManager // nil when OIDC is disabled
 }
 
 // tracer is used to emit per-SSE-event child spans so delegation results and
@@ -43,7 +43,7 @@ func sanitizePathParam(param string) bool {
 }
 
 // New creates a new Handlers instance. auth may be nil (OIDC disabled).
-func New(k8sClient *k8s.Client, mux *multiplexer.Multiplexer, auth *auth.Auth) *Handlers {
+func New(k8sClient *k8s.Client, mux *multiplexer.Multiplexer, auth *auth.AuthManager) *Handlers {
 	return &Handlers{
 		k8s:  k8sClient,
 		mux:  mux,

@@ -1,32 +1,49 @@
 // Auth store — reactive session state for the console.
-// Fetches /auth/me on mount; exposes the user identity + login/logout actions.
-// When OIDC is disabled on the BFF, authDisabled is true and the UI hides
-// the login button (backward-compatible: everything works, just unsigned).
-import { createSignal, createResource } from 'solid-js';
-import { authApi, type AuthUser } from '../lib/api';
+// Supports multi-provider GitLab OIDC (gitlab.com + self-hosted instances).
+import { createResource } from 'solid-js';
+import { authApi, type AuthUser, type AuthProvider } from '../lib/api';
 
 const [authUser, { refetch: refetchAuth }] = createResource<AuthUser>(
   () => authApi.me().catch(() => ({ username: '', authenticated: false }) as AuthUser),
 );
 
-/** Reactive: the current authenticated user (null while loading). */
+const [authProviders] = createResource<AuthProvider[]>(
+  () => authApi.providers().catch(() => []),
+);
+
+/** Reactive: the current authenticated user (undefined while loading). */
 export function currentUser(): AuthUser | undefined {
   return authUser();
 }
 
-/** Is the user logged in? (false while loading or if not authed). */
+/** Is the user logged in? */
 export function isAuthenticated(): boolean {
   return authUser()?.authenticated === true;
 }
 
-/** Is OIDC disabled on the BFF (env vars absent)? */
+/** Is OIDC disabled on the BFF? */
 export function isAuthDisabled(): boolean {
   return authUser()?.authDisabled === true;
 }
 
-/** Redirect to GitLab login. */
-export function login(returnTo?: string) {
-  authApi.login(returnTo ?? window.location.pathname);
+/** Available OAuth providers (for the login picker). */
+export function providers(): AuthProvider[] {
+  return authProviders() ?? [];
+}
+
+/** Are there multiple providers (show picker vs direct redirect)? */
+export function hasMultipleProviders(): boolean {
+  return (authProviders() ?? []).length > 1;
+}
+
+/** The GitLab instance URL for the current session. */
+export function currentGitLabURL(): string | undefined {
+  return authUser()?.gitlabUrl;
+}
+
+/** Redirect to GitLab login. With multiple providers, specify which one. */
+export function login(returnTo?: string, provider?: string) {
+  authApi.login(returnTo ?? window.location.pathname, provider);
 }
 
 /** Log out + reload. */

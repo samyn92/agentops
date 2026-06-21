@@ -21,12 +21,11 @@ const (
 )
 
 // RequireAuth returns chi-compatible middleware that enforces authentication.
-// Unauthenticated requests receive a 401 JSON response. When the access token
-// is near-expiry, it's refreshed transparently (cookie re-set). The validated
-// access token + session are stashed in request context.
-func (a *Auth) RequireAuth(next http.Handler) http.Handler {
+// Works with multi-provider sessions — validates regardless of which provider
+// the user authenticated with.
+func (m *AuthManager) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sess, err := a.getSession(r)
+		sess, err := m.getSession(r)
 		if err != nil {
 			slog.Debug("auth middleware: invalid session", "error", err)
 			writeUnauthorized(w, "invalid session")
@@ -37,10 +36,10 @@ func (a *Auth) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// Auto-refresh expired token.
-		sess, _, err = a.RefreshIfNeeded(r.Context(), w, sess)
+		// Auto-refresh expired token (uses the correct provider's token endpoint).
+		sess, _, err = m.RefreshIfNeeded(r.Context(), w, sess)
 		if err != nil {
-			slog.Warn("auth middleware: token refresh failed", "user", sess.Username, "error", err)
+			slog.Warn("auth middleware: token refresh failed", "user", sess.Username, "provider", sess.Provider, "error", err)
 			writeUnauthorized(w, "session expired — please log in again")
 			return
 		}
@@ -52,9 +51,7 @@ func (a *Auth) RequireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// TokenFromContext returns the user's GitLab access token from the request
-// context (set by RequireAuth middleware). Returns "" if the middleware is not
-// active or the token was not set (auth disabled).
+// TokenFromContext returns the user's GitLab access token from the request context.
 func TokenFromContext(ctx context.Context) string {
 	if v, ok := ctx.Value(ctxTokenKey).(string); ok {
 		return v
@@ -70,7 +67,6 @@ func SessionFromContext(ctx context.Context) *Session {
 	return nil
 }
 
-// writeUnauthorized sends a 401 JSON response.
 func writeUnauthorized(w http.ResponseWriter, msg string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusUnauthorized)

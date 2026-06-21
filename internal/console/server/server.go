@@ -57,27 +57,32 @@ func New(cfg Config, k8sClient *k8s.Client, mux *multiplexer.Multiplexer) *Serve
 	r.Use(cors.Handler(corsOpts))
 
 	// ── GitLab OIDC auth (optional — disabled when env vars are absent) ──
-	var authProvider *auth.Auth
+	var authProvider *auth.AuthManager
 	if authCfg := auth.ConfigFromEnv(); authCfg != nil {
 		var err error
 		authProvider, err = auth.New(authCfg)
 		if err != nil {
 			slog.Error("failed to initialize GitLab OIDC auth", "error", err)
 		} else {
-			slog.Info("GitLab OIDC auth enabled",
-				"clientID", authCfg.ClientID,
-				"redirectURL", authCfg.RedirectURL,
-				"baseURL", authCfg.BaseURL,
-			)
+			for _, p := range authProvider.Providers() {
+				slog.Info("GitLab OIDC provider configured",
+					"id", p.ID,
+					"label", p.Label,
+					"baseURL", p.BaseURL,
+				)
+			}
 		}
 	} else {
-		slog.Info("GitLab OIDC auth disabled (GITLAB_OAUTH_CLIENT_ID not set)")
+		slog.Info("GitLab OIDC auth disabled (GITLAB_OAUTH_SESSION_KEY not set)")
 	}
 
 	// Auth routes (outside /api/v1 — the browser hits these directly).
 	if authProvider != nil {
-		r.Get("/auth/login", authProvider.HandleLogin)
-		r.Get("/auth/callback", authProvider.HandleCallback)
+		r.Get("/auth/providers", authProvider.HandleProviders)
+		r.Get("/auth/login/{provider}", authProvider.HandleLogin)
+		r.Get("/auth/login", authProvider.HandleLogin) // default provider
+		r.Get("/auth/callback/{provider}", authProvider.HandleCallback)
+		r.Get("/auth/callback", authProvider.HandleCallback) // default provider
 		r.Post("/auth/logout", authProvider.HandleLogout)
 		r.Get("/auth/logout", authProvider.HandleLogout)
 		r.Get("/auth/me", authProvider.HandleMe)
