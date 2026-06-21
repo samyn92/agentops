@@ -1,0 +1,157 @@
+# Multi-cluster test environment using k3d
+# Simulates: management cluster + 2 workload clusters
+# Usage: just --justfile deploy/test-clusters/justfile <recipe>
+
+set dotenv-load := false
+
+mgmt_cluster   := "agentops-mgmt"
+prod_cluster   := "agentops-prod"
+staging_cluster := "agentops-staging"
+network        := "agentops-net"
+
+# ── Lifecycle ─────────────────────────────────────────
+
+# Create all clusters + shared network
+up:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "==> Creating shared Docker network..."
+    docker network create {{network}} 2>/dev/null || true
+
+    echo "==> Creating management cluster..."
+    k3d cluster create {{mgmt_cluster}} \
+      --config {{justfile_directory()}}/k3d-mgmt.yaml \
+      --network {{network}}
+
+    echo "==> Creating prod cluster..."
+    k3d cluster create {{prod_cluster}} \
+      --config {{justfile_directory()}}/k3d-workload.yaml \
+      --network {{network}}
+
+    echo "==> Creating staging cluster..."
+    k3d cluster create {{staging_cluster}} \
+      --config {{justfile_directory()}}/k3d-workload.yaml \
+      --network {{network}}
+
+    echo ""
+    echo "==> Generating kubeconfigs for cross-cluster access..."
+    just --justfile {{justfile()}} generate-kubeconfigs
+
+    echo ""
+    echo "=== Multi-cluster environment ready ==="
+    echo "  mgmt:    kubectl --context k3d-{{mgmt_cluster}}"
+    echo "  prod:    kubectl --context k3d-{{prod_cluster}}"
+    echo "  staging: kubectl --context k3d-{{staging_cluster}}"
+    echo ""
+    echo "Next: just --justfile deploy/test-clusters/justfile deploy-platform"
+
+# Tear down all clusters
+down:
+    k3d cluster delete {{mgmt_cluster}} 2>/dev/null || true
+    k3d cluster delete {{prod_cluster}} 2>/dev/null || true
+    k3d cluster delete {{staging_cluster}} 2>/dev/null || true
+    docker network rm {{network}} 2>/dev/null || true
+    @echo "All clusters removed."
+
+# Show cluster status
+status:
+    @echo "=== Clusters ==="
+    @k3d cluster list 2>/dev/null | grep agentops || echo "  (none running)"
+    @echo ""
+    @echo "=== Contexts ==="
+    @kubectl config get-contexts 2>/dev/null | grep agentops || echo "  (none)"
+
+# ── Kubeconfig Generation ─────────────────────────────
+
+# Generate kubeconfigs that the mgmt cluster agents use to access workload clusters.
+# These are injected as K8s Secrets in the mgmt cluster.
+generate-kubeconfigs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    mkdir -p {{justfile_directory()}}/generated
+
+    for cluster in {{prod_cluster}} {{staging_cluster}}; do
+      echo "  generating kubeconfig for $cluster..."
+      # Get the kubeconfig with the internal docker-network server address
+      k3d kubeconfig get "$cluster" | \
+        sed "s|https://0.0.0.0:[0-9]*|https://k3d-${cluster}-server-0:6443|g" \
+        > {{justfile_directory()}}/generated/${cluster}.kubeconfig
+    done
+
+    echo "  kubeconfigs written to deploy/test-clusters/generated/"
+
+# Inject kubeconfigs as Secrets in the mgmt cluster (for observer agents)
+inject-kubeconfigs:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+
+    kubectl --context "$ctx" create namespace agents 2>/dev/null || true
+
+    for cluster in {{prod_cluster}} {{staging_cluster}}; do
+      echo "  injecting kubeconfig for $cluster..."
+      kubectl --context "$ctx" create secret generic "kubeconfig-${cluster}" \
+        -n agents \
+        --from-file=kubeconfig={{justfile_directory()}}/generated/${cluster}.kubeconfig \
+        --dry-run=client -o yaml | kubectl --context "$ctx" apply -f -
+    done
+
+    echo "  done. Agents can now access workload clusters."
+
+# ── Platform Deployment ───────────────────────────────
+
+# Deploy AgentOps platform on the mgmt cluster (CRDs + operator)
+deploy-platform:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    echo "==> Installing CRDs on mgmt cluster..."
+    kubectl --context "$ctx" apply -f {{justfile_directory()}}/../../config/crd/bases/
+
+    echo "==> Creating namespaces..."
+    kubectl --context "$ctx" create namespace agent-system 2>/dev/null || true
+    kubectl --context "$ctx" create namespace agents 2>/dev/null || true
+
+    echo "==> Platform ready. Deploy agents with:"
+    echo "  helm install infra deploy/charts/agent-factory -n agents --kube-context k3d-{{mgmt_cluster}}"
+
+# Deploy the agent factory on the mgmt cluster
+deploy-factory preset="devops-gitops":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    echo "==> Deploying agent factory ({{preset}})..."
+    helm install infra {{justfile_directory()}}/../charts/agent-factory \
+      -n agents --create-namespace \
+      --kube-context "$ctx" \
+      --set scope.gitlab.group=samyn92/lab
+    echo "==> Factory deployed. Check: kubectl --context $ctx get agents,channels,integrations -n agents"
+
+# Simulate workload on prod/staging (deploy sample apps for agents to observe)
+deploy-workloads:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for cluster in {{prod_cluster}} {{staging_cluster}}; do
+      ctx="k3d-${cluster}"
+      echo "==> Deploying sample workloads on $cluster..."
+      kubectl --context "$ctx" create namespace demo 2>/dev/null || true
+      kubectl --context "$ctx" apply -f {{justfile_directory()}}/workloads/ -n demo
+    done
+    echo "==> Workloads deployed."
+
+# ── Utilities ─────────────────────────────────────────
+
+# Shell into the mgmt cluster context
+mgmt-ctx:
+    @kubectl config use-context k3d-{{mgmt_cluster}}
+    @echo "Now using: k3d-{{mgmt_cluster}}"
+
+# Shell into prod cluster context
+prod-ctx:
+    @kubectl config use-context k3d-{{prod_cluster}}
+    @echo "Now using: k3d-{{prod_cluster}}"
+
+# Shell into staging cluster context
+staging-ctx:
+    @kubectl config use-context k3d-{{staging_cluster}}
+    @echo "Now using: k3d-{{staging_cluster}}"
