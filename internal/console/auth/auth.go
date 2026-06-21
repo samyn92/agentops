@@ -146,7 +146,13 @@ func readProviderEnv(id, suffix string) ProviderConfig {
 		if base == "" {
 			base = "http://localhost:30173/auth/callback"
 		}
-		redirectURL = strings.TrimRight(base, "/") + "/" + id
+		// Default provider uses the base callback URL (backward compatible);
+		// additional providers append their ID as a path suffix.
+		if id == "default" {
+			redirectURL = base
+		} else {
+			redirectURL = strings.TrimRight(base, "/") + "/" + id
+		}
 	}
 
 	return ProviderConfig{
