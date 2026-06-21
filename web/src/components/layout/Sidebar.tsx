@@ -279,33 +279,6 @@ export default function Sidebar(props: SidebarProps) {
                     </For>
                   </div>
 
-                          return (
-                            <div>
-                              <AgentCard
-                                agent={agent}
-                                selected={isSelected()}
-                                onSelect={() => { clearRunSelection(); selectAgent(agent.namespace, agent.name); }}
-                              />
-                              {/* Channel binding pills below the card */}
-                              <Show when={channels().length > 0}>
-                                <div class="flex flex-wrap gap-1 px-3 pb-1 -mt-0.5">
-                                  <For each={channels()}>
-                                    {(ch) => (
-                                      <span class="sidebar-channel-pill">
-                                        <ChannelTypeIcon type={ch.spec.type} />
-                                        <span class="truncate">{ch.metadata.name}</span>
-                                      </span>
-                                    )}
-                                  </For>
-                                </div>
-                              </Show>
-                            </div>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
-
                   {/* Fallback when no agents exist at all */}
                   <Show when={(agentList()?.length ?? 0) === 0}>
                     <div class="flex flex-col items-center justify-center py-8 px-4 text-center">
