@@ -7,38 +7,11 @@ resources:
   # Providers
   - provider-anthropic.yaml
   - provider-kimi.yaml
-  # Integrations (repos/platforms bound to agents)
-  - integration-agent-tools-repo.yaml
-  - integration-agentops-console-repo.yaml
-  - integration-agentops-core-repo.yaml
-  - integration-agentops-memory-repo.yaml
-  - integration-agentops-platform-repo.yaml
-  - integration-agentops-runtime-repo.yaml
+  # Homecluster (standalone workspace — not factory-managed)
   - integration-homecluster-repo.yaml
-  - integration-samyn92-lab.yaml
-  # ── Platform factory (GitHub) — builds AgentOps itself ──
-  - agent-architect.yaml
-  - agent-ci-watcher.yaml
-  - agent-cluster-healthcheck.yaml
-  - agent-coder.yaml
   - agent-homecluster-manager.yaml
-  - agent-observability-engineer.yaml
-  - agent-platform-lead.yaml
-  - agent-pr-reviewer.yaml
-  - agent-tester.yaml
-  # ── svc-lifecycle (GitLab) — the DevOps lifecycle swarm ──
-  # CI side (delivery): plan → code + Helm chart → CI-green MR → merge
-  - agent-svc-planner.yaml
-  - agent-svc-pm.yaml
-  - agent-svc-coder.yaml
-  - agent-svc-chart-author.yaml
-  - agent-svc-ci-fixer.yaml
-  - agent-svc-reviewer.yaml
-  # CD side (release): merged chart → Flux rollout → verify → observe
-  - agent-svc-release-mgr.yaml
-  - agent-svc-flux.yaml
-  - agent-svc-verifier.yaml
-  - agent-svc-observability.yaml
-  # Channels
-  - channel-svc-delivery-board.yaml
-  - channel-svc-planning-board.yaml
+  # Factory-managed agents are deployed via Helm:
+  #   helm install samyn92-lab deploy/charts/agent-factory -n agents \
+  #     --set scope.gitlab.group=samyn92-lab \
+  #     --set runtime.image=ghcr.io/samyn92/agentops-runtime-fantasy:dev \
+  #     --set channels.labelBridge.image=ghcr.io/samyn92/agent-channel-gitlab-label:dev
