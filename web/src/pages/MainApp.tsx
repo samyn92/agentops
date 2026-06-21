@@ -13,6 +13,7 @@ import { selectedAgent, agentList, selectAgent } from '../stores/agents';
 import { centerView } from '../stores/view';
 import { selectedRunKey, allRuns, refreshRuns, startRunPolling, stopRunPolling } from '../stores/runs';
 import { selectedTraceForDetail } from '../stores/view';
+import { clearCenterOverlay } from '../stores/view';
 import { phaseVariant } from '../lib/format';
 import { MonitorIcon } from '../components/shared/Icons';
 import { startDelegationEventListener } from '../stores/chat';
@@ -33,6 +34,9 @@ export default function MainApp() {
     startRunPolling();
     refreshRuns();
     const unsubDelegation = startDelegationEventListener();
+
+    // Clear any trace/run overlay from other pages (e.g. Traces tab).
+    clearCenterOverlay();
 
     // Prevent browser back button from leaving the app.
     // Push a guard state so popstate fires before navigation leaves '/'.
