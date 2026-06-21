@@ -22,6 +22,8 @@ export interface NewPlanModalProps {
   ctx: { ns: string; intg: string };
   /** Available projects in the workspace. */
   projects: Accessor<Array<{ id: number; name: string; path_with_namespace: string }> | undefined>;
+  /** Planner agent name (for auto-refinement after creation). */
+  plannerAgent?: string;
   /** Called after issue is created (refetch board). */
   onCreated: () => void;
 }
@@ -96,6 +98,22 @@ export default function NewPlanModal(props: NewPlanModalProps) {
       if (!res.ok) {
         const data = await res.json().catch(() => ({ error: res.statusText }));
         throw new Error(data.error || `HTTP ${res.status}`);
+      }
+
+      const createdIssue = await res.json().catch(() => null);
+
+      // Trigger the planner agent to propose a detailed implementation plan.
+      // This runs in the background — the Plan Refinement view will show the
+      // agent's response once it posts a note on the issue.
+      if (props.plannerAgent && createdIssue?.iid) {
+        fetch(`/api/v1/integrations/${props.ctx.ns}/${props.ctx.intg}/group/projects/${primaryProject.id}/issues/${createdIssue.iid}/refine`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            feedback: 'Analyze this plan and propose a detailed implementation approach. Include: technical approach, files to modify, dependencies, risks, and estimated effort.',
+            agent: props.plannerAgent,
+          }),
+        }).catch(() => {}); // Fire and forget — don't block the UI
       }
 
       close();

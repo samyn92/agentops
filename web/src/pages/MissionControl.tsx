@@ -581,6 +581,7 @@ export default function MissionControl() {
           onClose={() => setShowNewPlan(false)}
           ctx={{ ns: ctx()!.ns, intg: ctx()!.intg }}
           projects={() => projects()}
+          plannerAgent={pmDaemon()?.name ?? 'samyn92-lab-planner'}
           onCreated={() => { setShowNewPlan(false); setBoardTick(t => t + 1); }}
         />
       </Show>
