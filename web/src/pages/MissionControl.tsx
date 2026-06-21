@@ -1735,7 +1735,17 @@ function Card(props: {
           <div class="flex items-center gap-2 mb-2 text-[11px]">
             <span class="w-5 h-5 rounded-md grid place-items-center text-[9px] font-extrabold text-white bg-gradient-to-br from-indigo-500 to-purple-500 flex-none">{run().agentRef.slice(0, 2).toUpperCase()}</span>
             <span class="font-semibold truncate">{run().agentRef}</span>
-            <span class="ml-auto"><Badge variant={phaseVariant(run().phase)} dot={active()}>{run().phase ?? 'Pending'}</Badge></span>
+            <span class="ml-auto" title={run().phase ?? 'Pending'}>
+              {run().phase === 'Succeeded' ? (
+                <span class="w-4 h-4 rounded-full bg-green-500/15 grid place-items-center text-green-400 text-[10px]">&#10003;</span>
+              ) : run().phase === 'Failed' ? (
+                <span class="w-4 h-4 rounded-full bg-red-500/15 grid place-items-center text-red-400 text-[10px]">&#10005;</span>
+              ) : run().phase === 'Running' ? (
+                <span class="w-4 h-4 rounded-full bg-blue-500/15 grid place-items-center"><span class="mc-live-dot w-1.5 h-1.5 rounded-full bg-blue-400" /></span>
+              ) : (
+                <span class="w-4 h-4 rounded-full bg-surface-2 grid place-items-center text-text-muted text-[10px]">&#8226;</span>
+              )}
+            </span>
           </div>
         )}
       </Show>
