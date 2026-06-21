@@ -229,25 +229,7 @@ export default function Sidebar(props: SidebarProps) {
 
       {/* ── Expanded panel ── */}
       <Show when={isExpanded()}>
-        {/* Header with logo */}
-        <div class="flex items-center gap-2 px-3 h-12 border-b border-border flex-shrink-0">
-          <div class="flex items-center gap-2.5 min-w-0 flex-1">
-            <img src="/logo.png" alt="AgentOps" class="w-6 h-6 rounded-lg flex-shrink-0" />
-            <span class="text-[15px] font-semibold text-text truncate tracking-wide leading-tight">
-              Agent<span class="text-text-secondary">Ops</span> <span class="text-text-secondary">Console</span>
-            </span>
-          </div>
-          <Tip content="Collapse sidebar">
-            <button
-              class="p-1 rounded-lg hover:bg-surface-hover text-text-secondary hover:text-text transition-colors flex-shrink-0"
-              onClick={() => toggleLeftPanel()}
-            >
-              <HamburgerIcon class="w-5 h-5" />
-            </button>
-          </Tip>
-        </div>
-
-        {/* Tab switcher */}
+        {/* Tab switcher + collapse toggle (no duplicate branding) */}
         <div class="flex items-center gap-2 px-3 h-10 border-b border-border flex-shrink-0">
           <Tabs.Root
             value={leftPanelTab()}
@@ -269,6 +251,14 @@ export default function Sidebar(props: SidebarProps) {
               </Tabs.Trigger>
             </Tabs.List>
           </Tabs.Root>
+          <Tip content="Collapse sidebar">
+            <button
+              class="ml-auto p-1 rounded-lg hover:bg-surface-hover text-text-muted hover:text-text transition-colors flex-shrink-0"
+              onClick={() => toggleLeftPanel()}
+            >
+              <HamburgerIcon class="w-4 h-4" />
+            </button>
+          </Tip>
         </div>
 
         {/* ── Content area ── */}
