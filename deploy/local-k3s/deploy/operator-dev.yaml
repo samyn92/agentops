@@ -87,7 +87,7 @@ spec:
       serviceAccountName: operator-dev
       containers:
         - name: dev
-          image: golang:1.26
+          image: golang:1.26.4
           command: ["/bin/bash", "/workspace/deploy/local-k3s/deploy/scripts/operator-init.sh"]
           workingDir: /workspace
           env:
