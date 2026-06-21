@@ -10,29 +10,43 @@ interface AppErrorBoundaryProps {
 export default function AppErrorBoundary(props: AppErrorBoundaryProps) {
   return (
     <SolidErrorBoundary
-      fallback={(err, reset) => (
-        <div class="flex flex-col items-center justify-center p-6 gap-3 text-center min-h-[120px]">
-          <div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-            </svg>
+      fallback={(err, reset) => {
+        const isAuth = err instanceof Error && err.message.toLowerCase().includes('authentication');
+        return (
+          <div class="flex flex-col items-center justify-center p-6 gap-3 text-center min-h-[120px]">
+            <div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-text">
+                {isAuth ? 'Session expired' : props.name ? `${props.name} crashed` : 'Something went wrong'}
+              </p>
+              <p class="text-xs text-text-muted mt-1 max-w-xs">
+                {isAuth ? 'Please log in again to continue.' : err instanceof Error ? err.message : String(err)}
+              </p>
+            </div>
+            <div class="flex gap-2">
+              {isAuth ? (
+                <button
+                  class="px-3 py-1.5 text-xs font-medium text-white bg-accent hover:opacity-90 rounded-lg transition-colors"
+                  onClick={() => window.location.href = '/auth/login/default'}
+                >
+                  Log in
+                </button>
+              ) : (
+                <button
+                  class="px-3 py-1.5 text-xs font-medium text-text bg-surface-hover hover:bg-surface-2 rounded-lg border border-border transition-colors"
+                  onClick={reset}
+                >
+                  Try again
+                </button>
+              )}
+            </div>
           </div>
-          <div>
-            <p class="text-sm font-medium text-text">
-              {props.name ? `${props.name} crashed` : 'Something went wrong'}
-            </p>
-            <p class="text-xs text-text-muted mt-1 max-w-xs">
-              {err instanceof Error ? err.message : String(err)}
-            </p>
-          </div>
-          <button
-            class="px-3 py-1.5 text-xs font-medium text-text bg-surface-hover hover:bg-surface-2 rounded-lg border border-border transition-colors"
-            onClick={reset}
-          >
-            Try again
-          </button>
-        </div>
-      )}
+        );
+      }}
     >
       {props.children}
     </SolidErrorBoundary>
