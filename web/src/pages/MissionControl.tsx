@@ -234,13 +234,28 @@ export default function MissionControl() {
 
   // Board workspaces: a gitlab-group (many projects) OR a single gitlab-project.
   // Both are first-class — the BFF re-scopes the read routes by integration kind.
-  const [groups] = createResource(() => integrations.gitlabWorkspaces());
+  // Deduplicate by group/project path (factory may create multiple Integrations
+  // for the same scope with different token roles).
+  const [allGroups] = createResource(() => integrations.gitlabWorkspaces());
+  const groups = createMemo(() => {
+    const all = allGroups() ?? [];
+    const seen = new Set<string>();
+    const deduped: typeof all = [];
+    for (const g of all) {
+      const key = g.spec.gitlabGroup?.group || g.spec.gitlab?.project || g.metadata.name;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduped.push(g);
+      }
+    }
+    return deduped;
+  });
   const [selected, setSelected] = createSignal<IntegrationResource | null>(null);
 
   // Auto-select the first Ready workspace so the deck is live on arrival.
   createEffect(() => {
     if (selected()) return;
-    const list = groups() ?? [];
+    const list = groups();
     if (list.length === 0) return;
     setSelected(list.find((g) => g.status?.phase === 'Ready') ?? list[0]);
   });
@@ -741,21 +756,19 @@ function TopBar(props: {
 
       {/* Workspace switcher — selects which Integration backs the board */}
       <select
-        class="bg-surface-2 border border-border-subtle rounded-lg px-2.5 py-1.5 text-[12px] max-w-[14rem]"
-        value={props.selected() ? `${props.selected()!.metadata.namespace}/${props.selected()!.metadata.name}` : ''}
+        class="bg-surface-2 border border-border-subtle rounded-lg px-2.5 py-1.5 text-[12px] max-w-[16rem]"
+        value={props.selected()?.metadata.name ?? ''}
         onChange={(e) => {
-          const v = e.currentTarget.value;
-          if (!v) { props.onSelectGroup(null); return; }
-          const [ns, ...rest] = v.split('/');
-          const name = rest.join('/');
-          props.onSelectGroup((props.groups() ?? []).find((g) => g.metadata.namespace === ns && g.metadata.name === name) ?? null);
+          const name = e.currentTarget.value;
+          if (!name) return;
+          const found = (props.groups() ?? []).find((g) => g.metadata.name === name);
+          if (found) props.onSelectGroup(found);
         }}
       >
         <For each={props.groups()}>
           {(g) => (
-            <option value={`${g.metadata.namespace}/${g.metadata.name}`}>
+            <option value={g.metadata.name}>
               {g.spec.displayName || g.spec.gitlabGroup?.group || g.spec.gitlab?.project || g.metadata.name}
-              {g.status?.phase && g.status.phase !== 'Ready' ? ` (${g.status.phase})` : ''}
             </option>
           )}
         </For>
