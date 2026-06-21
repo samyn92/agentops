@@ -27,17 +27,26 @@ export interface NewPlanModalProps {
 }
 
 export default function NewPlanModal(props: NewPlanModalProps) {
-  const [selectedProject, setSelectedProject] = createSignal<number | null>(null);
+  const [selectedProjects, setSelectedProjects] = createSignal<Set<number>>(new Set());
   const [title, setTitle] = createSignal('');
   const [description, setDescription] = createSignal('');
   const [busy, setBusy] = createSignal(false);
   const [err, setErr] = createSignal<string | null>(null);
 
+  function toggleProject(id: number) {
+    setSelectedProjects(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   function reset() {
     setTitle('');
     setDescription('');
     setErr(null);
-    setSelectedProject(null);
+    setSelectedProjects(new Set());
   }
 
   function close() {
@@ -47,21 +56,39 @@ export default function NewPlanModal(props: NewPlanModalProps) {
 
   async function create() {
     if (!title().trim()) { setErr('Title is required'); return; }
-    if (selectedProject() == null) { setErr('Select a target repository'); return; }
+    if (selectedProjects().size === 0) { setErr('Select at least one target repository'); return; }
 
     setBusy(true); setErr(null);
     try {
-      const projectId = selectedProject()!;
+      const selected = selectedProjects();
+      const allProjects = props.projects() ?? [];
+      const targetProjects = allProjects.filter(p => selected.has(p.id));
+
+      // Build the description with scope header for multi-repo plans
+      let fullDescription = '';
+      if (targetProjects.length > 1) {
+        fullDescription += `## Scope\n\nThis plan applies to multiple repositories:\n`;
+        for (const p of targetProjects) {
+          fullDescription += `- \`${p.path_with_namespace}\`\n`;
+        }
+        fullDescription += '\n';
+      }
+      if (description().trim()) {
+        fullDescription += description().trim();
+      }
+
+      // Create the issue on the FIRST selected project (primary target).
+      // The scope section in the description tells the agent about other repos.
+      const primaryProject = targetProjects[0];
       const body: Record<string, string> = {
         title: title().trim(),
         labels: 'agent::planning',
       };
-      if (description().trim()) {
-        body.description = description().trim();
+      if (fullDescription) {
+        body.description = fullDescription;
       }
 
-      // POST to GitLab via the BFF proxy
-      const res = await fetch(`/api/v1/integrations/${props.ctx.ns}/${props.ctx.intg}/group/projects/${projectId}/issues`, {
+      const res = await fetch(`/api/v1/integrations/${props.ctx.ns}/${props.ctx.intg}/group/projects/${primaryProject.id}/issues`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -97,29 +124,45 @@ export default function NewPlanModal(props: NewPlanModalProps) {
 
             {/* Body */}
             <div class="px-5 py-4 flex flex-col gap-4">
-              {/* Target repo */}
+              {/* Target repos (multi-select) */}
               <div>
                 <label class="text-[11.5px] font-medium text-text-muted uppercase tracking-wider block mb-1.5">
-                  Target Repository
+                  Target Repositories
+                  <span class="font-normal normal-case tracking-normal text-text-muted ml-1">(select one or more)</span>
                 </label>
-                <div class="grid grid-cols-1 gap-1.5 max-h-32 overflow-y-auto">
+                <div class="grid grid-cols-1 gap-1.5 max-h-40 overflow-y-auto">
                   <For each={props.projects() ?? []}>
-                    {(p) => (
-                      <button
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-[12.5px] transition-colors"
-                        classList={{
-                          'border-accent bg-accent/5': selectedProject() === p.id,
-                          'border-border-subtle hover:border-border hover:bg-surface-2': selectedProject() !== p.id,
-                        }}
-                        onClick={() => setSelectedProject(p.id)}
-                      >
-                        <GitLabIcon class="w-3.5 h-3.5 text-[#FC6D26] flex-none" />
-                        <span class="font-semibold">{p.name}</span>
-                        <span class="text-text-muted font-mono text-[10.5px] ml-auto">{p.path_with_namespace}</span>
-                      </button>
-                    )}
+                    {(p) => {
+                      const isSelected = () => selectedProjects().has(p.id);
+                      return (
+                        <button
+                          class="flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-[12.5px] transition-colors"
+                          classList={{
+                            'border-accent bg-accent/5': isSelected(),
+                            'border-border-subtle hover:border-border hover:bg-surface-2': !isSelected(),
+                          }}
+                          onClick={() => toggleProject(p.id)}
+                        >
+                          <span class="w-4 h-4 rounded border flex-none grid place-items-center text-[10px]"
+                            classList={{
+                              'border-accent bg-accent text-white': isSelected(),
+                              'border-border-subtle': !isSelected(),
+                            }}>
+                            <Show when={isSelected()}>&#10003;</Show>
+                          </span>
+                          <GitLabIcon class="w-3.5 h-3.5 text-[#FC6D26] flex-none" />
+                          <span class="font-semibold">{p.name}</span>
+                          <span class="text-text-muted font-mono text-[10.5px] ml-auto">{p.path_with_namespace}</span>
+                        </button>
+                      );
+                    }}
                   </For>
                 </div>
+                <Show when={selectedProjects().size > 1}>
+                  <p class="text-[10.5px] text-text-muted mt-1.5">
+                    Multi-repo plan: issue created on <strong>{(props.projects() ?? []).find(p => p.id === [...selectedProjects()][0])?.name}</strong>, scope includes all {selectedProjects().size} repos.
+                  </p>
+                </Show>
                 <Show when={(props.projects() ?? []).length === 0}>
                   <p class="text-[12px] text-text-muted italic">No projects loaded yet.</p>
                 </Show>
@@ -163,7 +206,7 @@ export default function NewPlanModal(props: NewPlanModalProps) {
             <div class="flex items-center gap-2 px-5 py-3 border-t border-border bg-surface-2/50">
               <button
                 class="text-[12px] px-4 py-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 text-white font-medium shadow hover:opacity-90 disabled:opacity-50 transition"
-                disabled={busy() || !title().trim() || selectedProject() == null}
+                disabled={busy() || !title().trim() || selectedProjects().size === 0}
                 onClick={create}
               >
                 Create Plan
