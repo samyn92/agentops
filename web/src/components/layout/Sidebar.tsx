@@ -254,84 +254,30 @@ export default function Sidebar(props: SidebarProps) {
                 }
               >
                 <div class="flex-1 overflow-y-auto min-h-0 pb-1">
-
-                  {/* ── 1. Orchestrators (daemon agents) + nested workers ── */}
-                  <Show when={agentTree().orchestrators.length > 0}>
-                    <div class="section-header section-header--first">
-                      <span class="section-label">Orchestrators</span>
-                    </div>
-                    <div class="flex flex-col gap-0.5 px-2">
-                      <For each={agentTree().orchestrators}>
-                        {(agent) => {
-                          const isSelected = () => {
-                            const sel = selectedAgent();
-                            return sel?.namespace === agent.namespace && sel?.name === agent.name;
-                          };
-
-                          // Delegation targets for this orchestrator (only shown when selected)
-                          const targets = createMemo(() =>
-                            isSelected() ? getDelegationTargetsFor(agent.name, agent.namespace) : []
-                          );
-
-                          return (
-                            <>
-                              <AgentCard
-                                agent={agent}
-                                selected={isSelected()}
-                                onSelect={() => { clearRunSelection(); selectAgent(agent.namespace, agent.name); }}
-                              />
-                              {/* Nested worker fleet (only when this orchestrator is selected) */}
-                              <Show when={isSelected() && targets().length > 0}>
-                                <div class="ml-4 pl-2 border-l border-border-subtle space-y-px mb-1">
-                                  <For each={targets()}>
-                                    {(target) => <WorkerRow agent={target} />}
-                                  </For>
-                                </div>
-                              </Show>
-                            </>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
-
-                  {/* ── 2. Standalone daemons (daemon agents without delegation) ── */}
-                  <Show when={agentTree().standaloneDaemons.length > 0}>
-                    <div class="section-header">
-                      <span class="section-label">Daemons</span>
-                    </div>
-                    <div class="flex flex-col gap-0.5 px-2">
-                      <For each={agentTree().standaloneDaemons}>
-                        {(agent) => {
-                          const isSelected = () => {
-                            const sel = selectedAgent();
-                            return sel?.namespace === agent.namespace && sel?.name === agent.name;
-                          };
-                          return (
-                            <AgentCard
-                              agent={agent}
-                              selected={isSelected()}
-                              onSelect={() => { clearRunSelection(); selectAgent(agent.namespace, agent.name); }}
-                            />
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
-
-                  {/* ── 3. Channels (task agents with channel bindings or schedule triggers) ── */}
-                  <Show when={agentTree().channels.length > 0}>
-                    <div class="section-header">
-                      <span class="section-label">Channels</span>
-                    </div>
-                    <div class="flex flex-col gap-1 px-2">
-                      <For each={agentTree().channels}>
-                        {(agent) => {
-                          const isSelected = () => {
-                            const sel = selectedAgent();
-                            return sel?.namespace === agent.namespace && sel?.name === agent.name;
-                          };
-                          const channels = () => getChannelsForAgent(agent.name);
+                  {/* Flat agent list — no confusing sub-categories. 
+                      Sorted: online daemons first, then task agents by run count. */}
+                  <div class="flex flex-col gap-0.5 px-2 py-1">
+                    <For each={[...(agentList() ?? [])].sort((a, b) => {
+                      // Online daemons first
+                      if (a.mode === 'daemon' && b.mode !== 'daemon') return -1;
+                      if (a.mode !== 'daemon' && b.mode === 'daemon') return 1;
+                      return a.name.localeCompare(b.name);
+                    })}>
+                      {(agent) => {
+                        const isSelected = () => {
+                          const sel = selectedAgent();
+                          return sel?.namespace === agent.namespace && sel?.name === agent.name;
+                        };
+                        return (
+                          <AgentCard
+                            agent={agent}
+                            selected={isSelected()}
+                            onSelect={() => { clearRunSelection(); selectAgent(agent.namespace, agent.name); }}
+                          />
+                        );
+                      }}
+                    </For>
+                  </div>
 
                           return (
                             <div>
