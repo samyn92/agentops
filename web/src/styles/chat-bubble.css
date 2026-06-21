@@ -1,0 +1,48 @@
+/* ===== Chat Bubble System (Material You M3) =====
+   M3 chat spec: asymmetric radii (tail corner 4dp, others 20dp),
+   body-medium typography (14/20, +0.25 tracking),
+   label-small timestamps (11/16, +0.5 tracking).
+   Spacing: 6dp between same-role, 16dp between role changes. */
+
+/* ── User bubble ── */
+.chat-bubble-user {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: var(--shadow-sm);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ── Assistant bubble ── */
+.chat-bubble-assistant {
+  background: var(--assistant-bubble);
+  border: 1px solid var(--assistant-bubble-border);
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: var(--shadow-sm);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ── Timestamp (M3 label-small: 11/16, +0.5 tracking) ── */
+.chat-timestamp {
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  padding: 0 4px;
+  user-select: none;
+}
+
+/* ── Material You overrides for chat bubbles ── */
+.material .chat-bubble-user {
+  border-radius: 20px 20px 4px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.material .chat-bubble-assistant {
+  border-radius: 20px 20px 20px 4px;
+  box-shadow: none;
+  border-width: 1px;
+}

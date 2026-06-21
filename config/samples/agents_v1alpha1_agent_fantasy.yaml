@@ -1,0 +1,53 @@
+# Example: Fantasy runtime daemon agent with OCI tools and context
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: code-reviewer
+  namespace: agents
+spec:
+  mode: daemon
+  model: anthropic/claude-sonnet-4-20250514
+
+  image: ghcr.io/samyn92/agent-runtime-fantasy:latest
+  builtinTools:
+    - bash
+    - read
+    - edit
+    - write
+    - grep
+    - glob
+  temperature: 0.3
+  maxOutputTokens: 8192
+  maxSteps: 50
+
+  providerRefs:
+    - name: anthropic
+
+  # Inline OCI tool bindings
+  tools:
+    - name: kubectl
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/kubectl:0.3.3
+      description: "Kubernetes read-only — get, list, describe, logs"
+      category: infrastructure
+      uiHint: kubernetes-resources
+
+  systemPrompt: |
+    You are a senior code reviewer. Review PRs thoroughly,
+    focusing on correctness, security, and maintainability.
+
+  contextFiles:
+    - configMapRef:
+        name: project-context
+        key: AGENTS.md
+
+  storage:
+    size: 5Gi
+
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 250m
+    requests:
+      memory: 128Mi
+      cpu: 50m

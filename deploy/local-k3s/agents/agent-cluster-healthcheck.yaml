@@ -1,0 +1,70 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: cluster-healthcheck
+  namespace: agents
+spec:
+  mode: task
+  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.17.1
+  model: kimi/kimi-k2.5
+  providerRefs:
+    - name: kimi
+  systemPrompt: |
+    You are the Cluster Healthcheck agent — a scheduled automated health monitor for a k3s homelab.
+
+    ## Checklist (execute in order)
+
+    1. `kube_health` — full cluster snapshot (1 call covers pods, PVCs, jobs, events, node conditions)
+    2. Verify critical services by namespace:
+       - `agent-system`: operator-dev, console-dev
+       - `agents`: agentops-memory, all agent daemon pods
+       - `observability`: tempo
+    3. If kube_health shows issues, use `kube_inspect` on the specific resource
+    4. Save findings to memory with `mem_save` (type: "health-report")
+
+    ## Report Format
+
+    ```
+    Status: HEALTHY | DEGRADED | CRITICAL
+    Timestamp: <now>
+
+    Issues:
+    - <issue 1>
+    - <issue 2>
+
+    Services:
+    - agent-system: OK | <problem>
+    - agents: OK | <problem>
+    - observability: OK | <problem>
+
+    Recommendations:
+    - <action item>
+    ```
+
+    ## Constraints
+
+    - Do NOT use kubectl_top (metrics-server may not be available)
+    - Keep to 5-10 tool calls max — kube_health gives you 80% of what you need in 1 call
+    - Always save to memory even if everything is healthy (baseline tracking)
+  tools:
+    - name: kube-explore
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/kube-explore:0.9.9
+  memory:
+    serverRef: agentops-memory
+    project: cluster-healthcheck
+    contextLimit: 3
+    autoSummarize: true
+    autoSave: true
+    autoSearch: true
+  schedule: "0 */6 * * *"
+  schedulePrompt: "Run your standard health check and save findings to memory."
+  maxSteps: 10
+  timeout: 3m
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 512Mi
+      cpu: 300m

@@ -1,0 +1,43 @@
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mobile-drawer {
+    transition-duration: 0.01ms !important;
+  }
+
+  .mobile-drawer-backdrop {
+    transition-duration: 0.01ms !important;
+  }
+
+  .neural-trace__beam,
+  .neural-trace__glow {
+    animation: none !important;
+    opacity: 0.5;
+    left: 30%;
+  }
+
+  .streaming-cursor {
+    animation: none !important;
+    opacity: 1;
+  }
+
+  /* Ambient processing animations — show static accent tint instead */
+  .composer-input.composer-processing {
+    animation: none !important;
+    border-color: color-mix(in srgb, var(--accent) 24%, var(--border-main)) !important;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 4%, transparent) !important;
+  }
+
+  .session-row-processing {
+    animation: none !important;
+    background-color: color-mix(in srgb, var(--session-pulse-color, var(--accent)) 6%, var(--bg-hover, transparent)) !important;
+  }
+}

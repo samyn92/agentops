@@ -1,0 +1,284 @@
+# =============================================================================
+# AgentOps Platform — Umbrella Values
+# =============================================================================
+# Override subchart values by nesting under the subchart name.
+# e.g. agentops-operator.image.tag or tempo.tempo.storage.trace.backend
+
+# =============================================================================
+# Global
+# =============================================================================
+global:
+  # -- Image pull secrets propagated to all sub-charts and inline templates
+  imagePullSecrets: []
+  # - name: ghcr-pull-secret
+
+# -- Namespace where agent workloads run (operator creates workloads here)
+agentNamespace: agents
+
+# -- Create the agent namespace as part of this release
+createNamespace: true
+
+# =============================================================================
+# AgentOps Operator
+# =============================================================================
+agentops-operator:
+  # -- Enable the AgentOps operator subchart
+  enabled: true
+  image:
+    repository: ghcr.io/samyn92/agentops-operator
+    pullPolicy: IfNotPresent
+    # -- Override tag (defaults to chart appVersion)
+    tag: ""
+  # -- Pod-level security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  # -- Container-level security context
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+  # -- RBAC mode: set namespaced=true when the deploying SA cannot create ClusterRoles
+  rbac:
+    create: true
+    namespaced: false
+    watchNamespaces: []
+
+# =============================================================================
+# AgentOps Console — Go BFF + SolidJS PWA
+# =============================================================================
+agentops-console:
+  # -- Enable the AgentOps console subchart
+  enabled: true
+  image:
+    repository: ghcr.io/samyn92/agentops-console
+    pullPolicy: IfNotPresent
+    # -- Override tag (defaults to chart appVersion)
+    tag: ""
+  # -- Pod-level security context
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  # -- Container-level security context
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+    seccompProfile:
+      type: RuntimeDefault
+  # -- Console BFF environment variables
+  # Tempo and Memory URLs are auto-wired via the agentops-platform-console-env ConfigMap.
+  # Add any extra env vars here:
+  env: []
+  # -- Load auto-wired service URLs from the platform ConfigMap
+  envFrom:
+    - configMapRef:
+        name: agentops-platform-console-env
+  # -- Console settings
+  console:
+    # -- Restrict to a single namespace (empty = all)
+    namespace: ""
+    webDir: "/app/web/dist"
+    dev: false
+  # -- Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  # -- Ingress for external access to the console
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: agentops.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # -- RBAC mode: set namespaced=true when the deploying SA cannot create ClusterRoles
+  rbac:
+    create: true
+    namespaced: false
+    watchNamespaces: []
+
+# =============================================================================
+# Memory — AgentOps Memory Service (inline templates, not a sub-chart)
+# Purpose-built SQLite + FTS5 memory with relevance-ranked context injection.
+# =============================================================================
+memory:
+  # -- Enable the memory backend
+  enabled: true
+  image:
+    # -- Memory service container image
+    repository: ghcr.io/samyn92/agentops-memory
+    # -- Image tag (updated automatically by dependency-update workflow)
+    tag: "0.4.2"
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+  # -- Persistence for SQLite database
+  persistence:
+    # -- Storage size
+    size: 1Gi
+    # -- Storage class (leave empty for cluster default)
+    storageClassName: ""
+  # -- Resource requests and limits
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+  # -- Node selector
+  nodeSelector: {}
+  # -- Tolerations
+  tolerations: []
+  # -- Affinity rules
+  affinity: {}
+
+# =============================================================================
+# Tempo — Distributed Tracing
+# =============================================================================
+tempo:
+  # -- Enable Grafana Tempo for trace collection
+  enabled: true
+  # -- Pod-level security context (Grafana Tempo chart value key)
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  # -- Container-level security context (nested under tempo: in this chart)
+  tempo:
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+    # -- Disable mem-ballast (deprecated in Tempo 2.x; Go GC handles it).
+    # Without this the chart default (1024 MB) exceeds the 512Mi memory limit.
+    memBallastSizeMbs: 0
+    # -- Retention period for traces
+    retention: 72h
+    # -- Ingestion rate limits (using Tempo defaults for compatibility)
+    overrides:
+      defaults: null
+    storage:
+      trace:
+        # -- Storage backend: local, s3, gcs, azure
+        backend: local
+        local:
+          path: /var/tempo/traces
+        wal:
+          path: /var/tempo/wal
+    # -- OTLP receiver configuration
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            # -- gRPC endpoint for OTLP ingest (agents send traces here)
+            endpoint: "0.0.0.0:4317"
+          http:
+            # -- HTTP endpoint for OTLP ingest
+            endpoint: "0.0.0.0:4318"
+    # -- Enable trace search (required for console Traces panel)
+    searchEnabled: true
+    # -- Metrics generator (disabled — keep footprint minimal)
+    metricsGenerator:
+      enabled: false
+  # -- Tempo server settings
+  server:
+    http_listen_port: 3200
+  # -- Persistence for local storage backend
+  persistence:
+    enabled: true
+    size: 5Gi
+    # -- Storage class (leave empty for cluster default)
+    storageClassName: ""
+  # -- Service configuration
+  service:
+    type: ClusterIP
+
+# =============================================================================
+# NATS — Lightweight Messaging for FEP Events
+# The runtime publishes Fantasy Event Protocol events to NATS subjects
+# (agents.{ns}.{name}.fep.{type}), and the console subscribes for real-time
+# delivery to browsers via SSE.
+# =============================================================================
+nats:
+  # -- Enable NATS messaging
+  enabled: true
+  config:
+    cluster:
+      enabled: false
+    jetstream:
+      enabled: false
+  # -- Pod-level security context (NATS chart uses podTemplate.merge)
+  podTemplate:
+    merge:
+      spec:
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 65534
+          runAsGroup: 65534
+          fsGroup: 65534
+          seccompProfile:
+            type: RuntimeDefault
+  # -- Container-level security context + resource limits
+  container:
+    merge:
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        limits:
+          cpu: 200m
+          memory: 64Mi
+        requests:
+          cpu: 10m
+          memory: 16Mi
+  # -- Disable config reloader sidecar (not needed for single-node)
+  reloader:
+    enabled: false
+  # -- Disable nats-box debug container (fails Kyverno policies, not needed)
+  natsBox:
+    enabled: false

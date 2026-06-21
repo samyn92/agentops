@@ -1,0 +1,38 @@
+# Example: Task mode agent (one-shot) with schedule
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: nightly-audit
+  namespace: agents
+spec:
+  mode: task
+  model: anthropic/claude-sonnet-4-20250514
+
+  builtinTools:
+    - bash
+    - read
+    - grep
+    - glob
+  maxSteps: 30
+
+  providerRefs:
+    - name: anthropic
+
+  systemPrompt: |
+    You are a security auditor. Scan the codebase for
+    common vulnerabilities and report findings.
+
+  toolHooks:
+    blockedCommands:
+      - "rm -rf"
+      - "curl"
+      - "wget"
+    allowedPaths:
+      - /data/repos
+
+  schedule: "0 2 * * *"
+  schedulePrompt: "Run a security audit on the main branch."
+
+  concurrency:
+    maxRuns: 1
+    policy: reject

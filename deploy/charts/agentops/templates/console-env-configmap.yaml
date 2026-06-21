@@ -1,0 +1,21 @@
+{{- if (index .Values "agentops-console" "enabled") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agentops-platform-console-env
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "agentops-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: console
+data:
+  {{- if .Values.tempo.enabled }}
+  TEMPO_URL: {{ include "agentops-platform.tempo.url" . | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ include "agentops-platform.tempo.otlpEndpoint" . | quote }}
+  {{- end }}
+  {{- if .Values.memory.enabled }}
+  ENGRAM_URL_OVERRIDE: {{ include "agentops-platform.memory.url" . | quote }}
+  {{- end }}
+  {{- if .Values.nats.enabled }}
+  NATS_URL: {{ include "agentops-platform.nats.url" . | quote }}
+  {{- end }}
+{{- end }}

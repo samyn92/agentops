@@ -1,0 +1,95 @@
+{{- if .Values.memory.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "agentops-platform.fullname" . }}-memory
+  namespace: {{ .Values.agentNamespace }}
+  labels:
+    {{- include "agentops-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: memory
+    app.kubernetes.io/name: agentops-memory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: agentops-memory
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: agentops-memory
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: memory
+        agents.agentops.io/component: memory
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: memory
+          image: "{{ .Values.memory.image.repository }}:{{ .Values.memory.image.tag }}"
+          imagePullPolicy: {{ .Values.memory.image.pullPolicy }}
+          env:
+            - name: MEMORY_DB_PATH
+              value: /data/memory.db
+            - name: MEMORY_LISTEN
+              value: ":7437"
+            {{- if $.Values.tempo.enabled }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ include "agentops-platform.tempo.otlpEndpoint" $ }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 7437
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 1
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.memory.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 65534
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "agentops-platform.fullname" . }}-memory-data
+      {{- with .Values.memory.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.memory.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.memory.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

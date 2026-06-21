@@ -1,0 +1,6 @@
+{
+  "name": "git",
+  "command": "mcp-git",
+  "transport": "stdio",
+  "description": "Git operations with readonly and readwrite modes. Readonly: status, diff, log, branch_list, show. Readwrite adds: add, commit, push, pull, branch, clone. Set MODE=readwrite (default) to enable mutating operations."
+}

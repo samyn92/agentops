@@ -1,0 +1,19 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Channel
+metadata:
+  name: svc-planning-board
+  namespace: agents
+  labels:
+    agentops.dev/swarm: svc-lifecycle
+spec:
+  type: gitlab-comment
+  agentRef: svc-planner
+  image: ghcr.io/samyn92/agent-channel-gitlab-comment:dev
+  imagePullPolicy: IfNotPresent
+  # No spec.prompt: the operator injects the default planner prompt template
+  # (defaultGitLabCommentPrompt) which drives PLAN refinement + thread replies.
+  gitlabComment:
+    integrationRef: samyn92-lab
+    planningLabel: "agent::planning"
+    state: opened
+    pollInterval: 30s

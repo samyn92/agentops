@@ -1,0 +1,22 @@
+{{- if .Values.memory.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "agentops-platform.fullname" . }}-memory-data
+  namespace: {{ .Values.agentNamespace }}
+  labels:
+    {{- include "agentops-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: memory
+    app.kubernetes.io/name: agentops-memory
+  annotations:
+    "helm.sh/resource-policy": keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.memory.persistence.size }}
+  {{- if .Values.memory.persistence.storageClassName }}
+  storageClassName: {{ .Values.memory.persistence.storageClassName | quote }}
+  {{- end }}
+{{- end }}

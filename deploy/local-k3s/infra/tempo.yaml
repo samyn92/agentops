@@ -1,0 +1,190 @@
+# Grafana Tempo — monolithic mode, local storage
+# Receives OTLP traces from operator, console BFF, memory service, and agent runtimes.
+# DNS: tempo.observability.svc.cluster.local
+#
+# Dev-optimized config: small WAL, fast flush, flush-all-on-shutdown to avoid
+# WAL replay issues on restart. No more PVC wipes needed.
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tempo-data
+  namespace: observability
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo
+  namespace: observability
+  labels:
+    app: tempo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+      containers:
+        - name: tempo
+          image: grafana/tempo:2.7.2
+          args:
+            - -config.file=/etc/tempo/tempo.yaml
+          ports:
+            - name: http
+              containerPort: 3200
+            - name: otlp-grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tempo
+            - name: data
+              mountPath: /var/tempo
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          # startupProbe gives Tempo up to 5 min for WAL replay before
+          # liveness/readiness probes kick in. This is the correct K8s
+          # pattern for services with variable startup times.
+          startupProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            timeoutSeconds: 5
+            periodSeconds: 15
+            failureThreshold: 5
+      volumes:
+        - name: config
+          configMap:
+            name: tempo-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: tempo-data
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  namespace: observability
+data:
+  tempo.yaml: |
+    server:
+      http_listen_port: 3200
+      grpc_listen_port: 9095
+      graceful_shutdown_timeout: 10s
+
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: "0.0.0.0:4317"
+            http:
+              endpoint: "0.0.0.0:4318"
+
+    ingester:
+      lifecycler:
+        ring:
+          replication_factor: 1
+          kvstore:
+            store: inmemory
+      # Flush traces to WAL quickly — small WAL on restart
+      trace_idle_period: 2s
+      flush_check_period: 5s
+      # Small blocks = fast WAL replay if dirty shutdown occurs
+      max_block_bytes: 52428800
+      max_block_duration: 5m
+      # Don't hold completed blocks long
+      complete_block_timeout: 1m
+      # KEY: drain WAL on clean shutdown — no replay needed on next start
+      flush_all_on_shutdown: true
+
+    compactor:
+      ring:
+        kvstore:
+          store: inmemory
+      compaction:
+        block_retention: 24h
+        compacted_block_retention: 15m
+        compaction_window: 30m
+        max_block_bytes: 104857600
+
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /var/tempo/traces
+        wal:
+          path: /var/tempo/wal
+          v2_encoding: snappy
+          search_encoding: snappy
+        block:
+          v2_encoding: snappy
+        blocklist_poll: 1m
+
+    query_frontend:
+      search:
+        max_duration: 0s
+
+    multitenancy_enabled: false
+
+    usage_report:
+      reporting_enabled: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  namespace: observability
+  labels:
+    app: tempo
+spec:
+  selector:
+    app: tempo
+  ports:
+    - name: http
+      port: 3200
+      targetPort: 3200
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318

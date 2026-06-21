@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# k3s-image-import — import an OCI image tarball into the k3s containerd
+# image store (k8s.io namespace) so the kubelet can use it with
+# imagePullPolicy: IfNotPresent. Installed to /usr/local/bin and allowed
+# passwordless via /etc/sudoers.d/agentops-k3s-import for local dev.
+set -euo pipefail
+if [ "$#" -ne 1 ]; then
+  echo "usage: k3s-image-import <image.tar>" >&2
+  exit 2
+fi
+exec /usr/bin/k3s ctr images import "$1"

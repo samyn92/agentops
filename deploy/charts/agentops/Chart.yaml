@@ -1,0 +1,47 @@
+apiVersion: v2
+name: agentops-platform
+description: >-
+  Umbrella Helm chart for the AgentOps platform — operator, console, memory (Engram), and observability (Tempo). One install, full stack.
+type: application
+version: 0.17.2
+appVersion: "0.17.2"
+kubeVersion: ">=1.28.0-0"
+home: https://github.com/samyn92/agentops-platform
+sources:
+  - https://github.com/samyn92/agentops-platform
+  - https://github.com/samyn92/agentops-core
+  - https://github.com/samyn92/agentops-console
+  - https://github.com/samyn92/agentops-runtime
+maintainers:
+  - name: samyn92
+keywords:
+  - agentops
+  - platform
+  - ai-agents
+  - kubernetes
+  - operator
+  - console
+  - memory
+  - observability
+  - tracing
+dependencies:
+  # -- AgentOps operator: CRDs, controllers, RBAC
+  - name: agentops-operator
+    version: "0.17.1"
+    repository: "oci://ghcr.io/samyn92/charts"
+    condition: agentops-operator.enabled
+  # -- AgentOps console: Go BFF + SolidJS PWA
+  - name: agentops-console
+    version: "0.11.8"
+    repository: "oci://ghcr.io/samyn92/charts"
+    condition: agentops-console.enabled
+  # -- Grafana Tempo: distributed tracing backend (monolithic mode)
+  - name: tempo
+    version: "1.24.4"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: tempo.enabled
+  # -- NATS: lightweight messaging for FEP event delivery between runtime and console
+  - name: nats
+    version: "2.12.6"
+    repository: "https://nats-io.github.io/k8s/helm/charts"
+    condition: nats.enabled

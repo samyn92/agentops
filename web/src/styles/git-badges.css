@@ -1,0 +1,93 @@
+/* ===== Git Badges — branch, PR, commits indicators ===== */
+/* Compact inline pills for git workspace information on run cards.
+   Uses a distinctive teal/cyan accent to differentiate from phase badges. */
+
+.git-branch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  background: color-mix(in srgb, #06b6d4 10%, transparent);
+  color: #06b6d4;
+  border: 1px solid color-mix(in srgb, #06b6d4 20%, transparent);
+  line-height: 1.3;
+  max-width: 200px;
+}
+
+.git-branch-badge--sm {
+  font-size: 10px;
+  padding: 1px 6px;
+  max-width: 140px;
+}
+
+.git-pr-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: color-mix(in srgb, #8b5cf6 10%, transparent);
+  color: #8b5cf6;
+  border: 1px solid color-mix(in srgb, #8b5cf6 20%, transparent);
+  line-height: 1.3;
+  text-decoration: none;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.git-pr-badge:hover {
+  background: color-mix(in srgb, #8b5cf6 18%, transparent);
+  border-color: color-mix(in srgb, #8b5cf6 35%, transparent);
+  text-decoration: none;
+}
+
+.git-pr-badge--sm {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+.git-commits-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+  color: var(--success);
+  border: 1px solid color-mix(in srgb, var(--success) 15%, transparent);
+  line-height: 1.3;
+}
+
+.git-commits-badge--sm {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+
+/* Dark mode — slightly stronger badge backgrounds */
+:root.dark .git-branch-badge {
+  background: color-mix(in srgb, #06b6d4 12%, transparent);
+  border-color: color-mix(in srgb, #06b6d4 25%, transparent);
+}
+
+:root.dark .git-pr-badge {
+  background: color-mix(in srgb, #8b5cf6 12%, transparent);
+  border-color: color-mix(in srgb, #8b5cf6 25%, transparent);
+}
+
+:root.dark .git-pr-badge:hover {
+  background: color-mix(in srgb, #8b5cf6 22%, transparent);
+  border-color: color-mix(in srgb, #8b5cf6 40%, transparent);
+}
+
+:root.dark .git-commits-badge {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+  border-color: color-mix(in srgb, var(--success) 20%, transparent);
+}

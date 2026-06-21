@@ -1,0 +1,88 @@
+# agentops-memory — SQLite-backed memory service for AI agents
+# Provides three-layer memory: working (runtime), short-term (sessions), long-term (observations)
+# FTS5 BM25 relevance-ranked search, three-tier write dedup, OTEL tracing
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agentops-memory-data
+  namespace: agents
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentops-memory
+  namespace: agents
+  labels:
+    app: agentops-memory
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate          # SQLite — single writer
+  selector:
+    matchLabels:
+      app: agentops-memory
+  template:
+    metadata:
+      labels:
+        app: agentops-memory
+    spec:
+      containers:
+        - name: memory
+          image: ghcr.io/samyn92/agentops-memory:0.3.0
+          ports:
+            - name: http
+              containerPort: 7437
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: tempo.observability.svc.cluster.local:4317
+            - name: OTEL_SERVICE_NAME
+              value: agentops-memory
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: agentops-memory-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentops-memory
+  namespace: agents
+  labels:
+    app: agentops-memory
+spec:
+  selector:
+    app: agentops-memory
+  ports:
+    - name: http
+      port: 7437
+      targetPort: 7437

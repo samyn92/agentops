@@ -1,0 +1,99 @@
+/* ===== Neural Trace — Agent Activity Beam ===== */
+/* A luminous beam that sweeps back and forth along a rail,
+   inspired by OpenCode CLI's bouncing progress bar.
+   The beam has a tight hotspot with a comet-tail trail. */
+
+.neural-trace {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 1px;
+}
+
+/* Height variants */
+.neural-trace--sm { height: 2px; }
+.neural-trace--md { height: 3px; }
+
+/* The subtle rail/track the beam moves along */
+.neural-trace__rail {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  opacity: 0.06;
+  border-radius: inherit;
+}
+
+:root.dark .neural-trace__rail { opacity: 0.08; }
+
+/* The sweeping beam */
+.neural-trace__beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  border-radius: inherit;
+  animation: neural-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  /* Beam: tight bright center + soft fade on each side */
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neural-color, var(--accent)) 30%,
+    var(--neural-color, var(--accent)) 50%,
+    transparent 100%
+  );
+  opacity: 0.8;
+}
+
+/* The phosphor afterglow — a fainter, wider trail that lingers */
+.neural-trace__glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  border-radius: inherit;
+  animation: neural-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: -0.12s;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--neural-color, var(--accent)) 40%,
+    transparent 100%
+  );
+  opacity: 0.15;
+  filter: blur(3px);
+}
+
+:root.dark .neural-trace__beam { opacity: 0.9; }
+:root.dark .neural-trace__glow { opacity: 0.2; }
+
+@keyframes neural-sweep {
+  0% { left: -40%; }
+  50% { left: 100%; }
+  100% { left: -40%; }
+}
+
+/* Color variants (via CSS custom property) */
+.neural-trace--accent { --neural-color: var(--accent); }
+.neural-trace--success { --neural-color: var(--success); }
+.neural-trace--warning { --neural-color: var(--warning); }
+.neural-trace--error { --neural-color: var(--error); }
+
+/* Compact inline variant for sidebar items — narrower beam, faster */
+.neural-trace--inline .neural-trace__beam {
+  width: 35%;
+  animation-duration: 1.4s;
+}
+.neural-trace--inline .neural-trace__glow {
+  width: 45%;
+  animation-duration: 1.4s;
+}
+
+/* Fade-in entrance when the trace appears */
+.neural-trace-enter {
+  animation: neural-trace-in 0.3s ease-out;
+}
+
+@keyframes neural-trace-in {
+  from { opacity: 0; transform: scaleX(0.8); }
+  to { opacity: 1; transform: scaleX(1); }
+}

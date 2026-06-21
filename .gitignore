@@ -1,24 +1,5 @@
-# Hugo build output
-public/
-resources/_gen/
-.hugo_build.lock
-
-# Hugo cache
-.hugo_cache/
-
-# OS files
+deploy/local-k3s/secrets/
+web/node_modules/
+web/dist/
 .DS_Store
-Thumbs.db
-
-# IDE
-.idea/
-.vscode/
 *.swp
-*.swo
-*~
-
-# Go
-vendor/
-
-# Node
-node_modules/

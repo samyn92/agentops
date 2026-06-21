@@ -1,0 +1,65 @@
+# Default sample: Fantasy runtime daemon agent with inline OCI tools
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: code-review-agent
+  labels:
+    app.kubernetes.io/name: agentops-core
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  mode: daemon
+  model: anthropic/claude-sonnet-4-20250514
+
+  builtinTools:
+    - bash
+    - read
+    - edit
+    - write
+    - grep
+    - glob
+  temperature: 0.3
+  maxSteps: 50
+
+  providerRefs:
+    - name: anthropic
+
+  fallbackModels:
+    - openai/gpt-4o
+
+  systemPrompt: |
+    You are a senior code reviewer. Analyze code changes for bugs,
+    security issues, and style violations. Be concise and actionable.
+
+  # Inline OCI tool bindings (no AgentTool CRs needed)
+  tools:
+    - name: gitlab
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/gitlab:0.9.7
+      description: "GitLab API — MRs, issues, pipelines"
+      category: development
+      uiHint: gitlab
+
+  storage:
+    size: 5Gi
+    storageClass: local-path
+
+  concurrency:
+    maxRuns: 3
+    policy: queue
+
+  toolHooks:
+    blockedCommands:
+      - "rm -rf /"
+      - "curl"
+      - "wget"
+    allowedPaths:
+      - /workspace
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+
+  timeout: "15m"

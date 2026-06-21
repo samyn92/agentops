@@ -1,0 +1,39 @@
+/* ===== Agent Card (M3 card component) ===== */
+/* M3 shape: Small (8dp/rounded-lg). Surface tint via border for selection.
+   Compact card with 3 content rows. */
+.agent-card {
+  position: relative;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+  cursor: pointer;
+}
+
+.agent-card:hover {
+  background: var(--bg-hover);
+}
+
+.agent-card--selected {
+  background: var(--accent-muted);
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+.agent-card--selected:hover {
+  background: var(--accent-muted);
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* Material You overrides for agent cards */
+.material .agent-card {
+  border-radius: 16px;
+}
+
+.material .agent-card--selected {
+  box-shadow: var(--shadow-md);
+}

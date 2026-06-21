@@ -1,0 +1,1235 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
+  name: agents.agents.agentops.io
+spec:
+  group: agents.agentops.io
+  names:
+    kind: Agent
+    listKind: AgentList
+    plural: agents
+    shortNames:
+    - ag
+    singular: agent
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.mode
+      name: Mode
+      type: string
+    - jsonPath: .spec.model
+      name: Model
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          Agent is the Schema for the agents API.
+          One CRD for all agents. mode controls lifecycle:
+          daemon = Deployment + PVC + Service (always running).
+          task = Job template (one prompt, exits).
+          The agent runtime is powered by the Charm Fantasy SDK (Go).
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AgentSpec defines the desired state of Agent.
+            properties:
+              builtinTools:
+                description: |-
+                  Built-in tools to enable.
+                  Valid: bash, read, edit, write, grep, ls, glob, fetch.
+                  Omit for all defaults; set to empty list [] to disable all built-in tools.
+                items:
+                  type: string
+                type: array
+              concurrency:
+                description: Concurrency control for parallel AgentRun execution.
+                properties:
+                  maxRuns:
+                    default: 1
+                    description: 'Maximum concurrent runs. Default: 1.'
+                    minimum: 1
+                    type: integer
+                  policy:
+                    default: queue
+                    description: 'Policy when at max: queue, reject, or replace.'
+                    enum:
+                    - queue
+                    - reject
+                    - replace
+                    type: string
+                type: object
+              contextFiles:
+                description: Context files loaded from ConfigMaps (e.g. AGENTS.md).
+                items:
+                  description: ContextFileRef loads an AGENTS.md or similar context
+                    file from a ConfigMap.
+                  properties:
+                    configMapRef:
+                      description: ConfigMap reference (name + key).
+                      properties:
+                        key:
+                          description: Key within the Secret.
+                          type: string
+                        name:
+                          description: Name of the Secret.
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                  required:
+                  - configMapRef
+                  type: object
+                type: array
+              delegation:
+                description: |-
+                  Delegation controls how this agent delegates work to other agents.
+                  The team list IS the access control — only listed agents can be delegated to.
+                  When set, the operator generates a delegation protocol that is injected
+                  as a separate platform protocol section (never appended to systemPrompt).
+                  Omit entirely to get no delegation protocol injection.
+                properties:
+                  maxFanOut:
+                    default: 5
+                    description: |-
+                      MaxFanOut limits the number of concurrent delegations in a single
+                      run_agents call. Runtime-enforced cap on batch size.
+                      Default: 5. Hard max: 10 (existing run_agents limit).
+                    maximum: 10
+                    minimum: 1
+                    type: integer
+                  team:
+                    description: |-
+                      Explicit team roster. Only these agents can be delegated to.
+                      Each entry is an Agent CR name in the same namespace.
+                    items:
+                      type: string
+                    minItems: 1
+                    type: array
+                required:
+                - team
+                type: object
+              enableQuestionTool:
+                description: |-
+                  Enable the built-in "question" tool that lets the agent ask the user
+                  interactive questions during execution.
+                type: boolean
+              env:
+                additionalProperties:
+                  type: string
+                description: Plain-text environment variables.
+                type: object
+              fallbackModels:
+                description: |-
+                  Fallback models tried in order if the primary model fails.
+                  Each must reference a provider listed in providers.
+                items:
+                  type: string
+                type: array
+              image:
+                description: |-
+                  Container image for the Fantasy agent runtime.
+                  When omitted, the operator defaults to DefaultFantasyImage (pinned per
+                  operator release). The default is applied at reconcile time, not by the
+                  API server, so spec.image stays empty in stored objects and an operator
+                  upgrade that bumps the default takes effect on existing agents.
+                type: string
+              imagePullPolicy:
+                default: IfNotPresent
+                description: Image pull policy.
+                enum:
+                - Always
+                - IfNotPresent
+                - Never
+                type: string
+              integrations:
+                description: |-
+                  Integrations (repos, platforms, etc.) bound to this agent.
+                  Users can select bound integrations in the console UI to scope prompts.
+                items:
+                  description: IntegrationBinding references an Integration CR from
+                    an Agent.
+                  properties:
+                    autoContext:
+                      description: |-
+                        Automatically inject this integration context into every prompt
+                        without requiring manual selection in the UI.
+                      type: boolean
+                    name:
+                      description: Name of the Integration CR to bind.
+                      minLength: 1
+                      type: string
+                    readOnly:
+                      description: Mark the integration as read-only for the agent
+                        (advisory, enforced by runtime).
+                      type: boolean
+                  required:
+                  - name
+                  type: object
+                type: array
+              maxOutputTokens:
+                description: Maximum output tokens per model call.
+                format: int64
+                type: integer
+              maxRetries:
+                default: 2
+                description: |-
+                  Number of retries on provider errors (429, 500, etc.) before trying fallback models.
+                  Default: 2.
+                type: integer
+              maxSteps:
+                default: 100
+                description: Maximum agent loop steps (safety limit to prevent infinite
+                  loops).
+                type: integer
+              maxTokensBudget:
+                description: |-
+                  Maximum total tokens (input + output) consumed per agent invocation.
+                  When exceeded, the agent loop stops. Zero means no limit. Used for cost control.
+                format: int64
+                type: integer
+              memory:
+                description: |-
+                  Memory configuration for the agentops-memory shared memory system.
+                  When set, the runtime injects recent context and enables
+                  memory MCP tools (mem_save, mem_search, etc.).
+                properties:
+                  autoSave:
+                    default: true
+                    description: |-
+                      Allow the agent to autonomously save memories via mem_save after
+                      completing meaningful work. When false, only the user can create
+                      memories through the console UI.
+                    type: boolean
+                  autoSearch:
+                    default: true
+                    description: |-
+                      Allow the agent to autonomously search memories via mem_search
+                      when the user references past work. When false, the agent never
+                      searches memory on its own — the user browses/searches via the
+                      console Memory panel.
+                    type: boolean
+                  autoSummarize:
+                    default: true
+                    description: Enable auto-summarization of sessions at end.
+                    type: boolean
+                  contextLimit:
+                    default: 5
+                    description: Number of recent context entries injected per turn.
+                    maximum: 50
+                    minimum: 0
+                    type: integer
+                  project:
+                    description: |-
+                      Project name used to scope memories in agentops-memory.
+                      Defaults to the Agent CR name if unset.
+                    type: string
+                  serverRef:
+                    description: |-
+                      Reference to the memory server. A plain Kubernetes service name
+                      in the same namespace (e.g. "agentops-memory" resolves to
+                      http://agentops-memory.<ns>.svc:7437).
+                    minLength: 1
+                    type: string
+                required:
+                - serverRef
+                type: object
+              mode:
+                description: |-
+                  Mode: daemon (Deployment+PVC+Service) or task (Job template).
+                  Immutable after creation — switching mode changes the entire workload topology.
+                enum:
+                - daemon
+                - task
+                type: string
+                x-kubernetes-validations:
+                - message: mode is immutable
+                  rule: self == oldSelf
+              model:
+                description: Primary model in provider/model format (e.g. anthropic/claude-sonnet-4-20250514).
+                minLength: 1
+                type: string
+              networkPolicy:
+                description: Network policy configuration.
+                properties:
+                  enabled:
+                    description: Whether to create a NetworkPolicy.
+                    type: boolean
+                type: object
+              permissionTools:
+                description: |-
+                  Tools that require user approval before execution (permission gate).
+                  Each entry is a tool name. If empty, all tools run automatically.
+                items:
+                  type: string
+                type: array
+              podAnnotations:
+                additionalProperties:
+                  type: string
+                description: Annotations to add to the agent pod template (e.g. coil
+                  egress).
+                type: object
+              primaryProvider:
+                description: |-
+                  Preferred provider name for model resolution.
+                  When the model string does not include a provider prefix, this value
+                  is used to select which configured provider handles the request.
+                type: string
+              providerRefs:
+                description: |-
+                  Provider references. Each entry names a Provider CR in the same namespace.
+                  At least one providerRef is required.
+                items:
+                  description: ProviderBinding references a Provider CR with optional
+                    per-agent overrides.
+                  properties:
+                    name:
+                      description: Name of the Provider CR in the same namespace.
+                      minLength: 1
+                      type: string
+                    overrides:
+                      description: Override per-call defaults from the Provider CR
+                        for this agent.
+                      properties:
+                        anthropic:
+                          description: Anthropic-specific call options.
+                          properties:
+                            disableParallelToolUse:
+                              description: Disable parallel tool use.
+                              type: boolean
+                            effort:
+                              description: 'Output effort level: low, medium, high,
+                                max.'
+                              enum:
+                              - low
+                              - medium
+                              - high
+                              - max
+                              type: string
+                            thinkingBudgetTokens:
+                              description: Extended thinking budget in tokens.
+                              format: int64
+                              minimum: 1024
+                              type: integer
+                          type: object
+                        google:
+                          description: Google-specific call options.
+                          properties:
+                            safetySettings:
+                              description: Safety settings applied to all calls.
+                              items:
+                                description: GoogleSafetySetting configures a safety
+                                  threshold for a harm category.
+                                properties:
+                                  category:
+                                    description: Harm category (e.g. "HARM_CATEGORY_DANGEROUS_CONTENT").
+                                    type: string
+                                  threshold:
+                                    description: Block threshold (e.g. "BLOCK_ONLY_HIGH").
+                                    type: string
+                                required:
+                                - category
+                                - threshold
+                                type: object
+                              type: array
+                            thinkingBudgetTokens:
+                              description: Thinking budget in tokens. Mutually exclusive
+                                with ThinkingLevel.
+                              format: int64
+                              minimum: 128
+                              type: integer
+                            thinkingLevel:
+                              description: 'Thinking level: LOW, MEDIUM, HIGH, MINIMAL.'
+                              enum:
+                              - LOW
+                              - MEDIUM
+                              - HIGH
+                              - MINIMAL
+                              type: string
+                          type: object
+                        openai:
+                          description: OpenAI-specific call options.
+                          properties:
+                            reasoningEffort:
+                              description: 'Reasoning effort: none, minimal, low,
+                                medium, high, xhigh.'
+                              enum:
+                              - none
+                              - minimal
+                              - low
+                              - medium
+                              - high
+                              - xhigh
+                              type: string
+                            serviceTier:
+                              description: Service tier selection (e.g. "default",
+                                "flex").
+                              type: string
+                          type: object
+                      type: object
+                  required:
+                  - name
+                  type: object
+                minItems: 1
+                type: array
+              resources:
+                description: Compute resources for the agent container.
+                properties:
+                  claims:
+                    description: |-
+                      Claims lists the names of resources, defined in spec.resourceClaims,
+                      that are used by this container.
+
+                      This field depends on the
+                      DynamicResourceAllocation feature gate.
+
+                      This field is immutable. It can only be set for containers.
+                    items:
+                      description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                      properties:
+                        name:
+                          description: |-
+                            Name must match the name of one entry in pod.spec.resourceClaims of
+                            the Pod where this field is used. It makes that resource available
+                            inside a container.
+                          type: string
+                        request:
+                          description: |-
+                            Request is the name chosen for a request in the referenced claim.
+                            If empty, everything from the claim is made available, otherwise
+                            only the result of this request.
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - name
+                    x-kubernetes-list-type: map
+                  limits:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: |-
+                      Limits describes the maximum amount of compute resources allowed.
+                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                    type: object
+                  requests:
+                    additionalProperties:
+                      anyOf:
+                      - type: integer
+                      - type: string
+                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                      x-kubernetes-int-or-string: true
+                    description: |-
+                      Requests describes the minimum amount of compute resources required.
+                      If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                      otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                    type: object
+                type: object
+              schedule:
+                description: Cron schedule for creating periodic AgentRuns.
+                type: string
+              schedulePrompt:
+                description: Prompt used when schedule triggers an AgentRun.
+                type: string
+              secrets:
+                description: Secret-backed environment variables.
+                items:
+                  description: SecretEnvVar injects a Secret key as an environment
+                    variable.
+                  properties:
+                    name:
+                      description: Environment variable name.
+                      type: string
+                    secretRef:
+                      description: Reference to the secret key.
+                      properties:
+                        key:
+                          description: Key within the Secret.
+                          type: string
+                        name:
+                          description: Name of the Secret.
+                          type: string
+                      required:
+                      - key
+                      - name
+                      type: object
+                  required:
+                  - name
+                  - secretRef
+                  type: object
+                type: array
+              security:
+                description: |-
+                  Security overrides for the agent pod. The operator applies a
+                  restricted-by-default SecurityContext to every pod it builds; this
+                  field lets users override fields the floor permits (UID/GID, FSGroup,
+                  seccomp profile path, automount opt-in). Any override that would
+                  weaken the restricted Pod Security Standard is silently clamped and
+                  reported on .status.conditions[type=SecurityPolicyViolations].
+                properties:
+                  automountServiceAccountToken:
+                    description: |-
+                      AutomountServiceAccountToken opts the workload's pod into
+                      receiving its ServiceAccount's API token. Default false; set
+                      to true only for workloads that legitimately call the Kubernetes
+                      API at runtime.
+                    type: boolean
+                  container:
+                    description: |-
+                      Container-level overrides applied to the workload's main container
+                      only. Init containers always use the restricted defaults. Cannot
+                      enable privilege escalation, disable RO rootfs, disable RunAsNonRoot,
+                      or add capabilities.
+                    properties:
+                      allowPrivilegeEscalation:
+                        description: |-
+                          AllowPrivilegeEscalation controls whether a process can gain more
+                          privileges than its parent process. This bool directly controls if
+                          the no_new_privs flag will be set on the container process.
+                          AllowPrivilegeEscalation is true always when the container is:
+                          1) run as Privileged
+                          2) has CAP_SYS_ADMIN
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: boolean
+                      appArmorProfile:
+                        description: |-
+                          appArmorProfile is the AppArmor options to use by this container. If set, this profile
+                          overrides the pod's appArmorProfile.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          localhostProfile:
+                            description: |-
+                              localhostProfile indicates a profile loaded on the node that should be used.
+                              The profile must be preconfigured on the node to work.
+                              Must match the loaded name of the profile.
+                              Must be set if and only if type is "Localhost".
+                            type: string
+                          type:
+                            description: |-
+                              type indicates which kind of AppArmor profile will be applied.
+                              Valid options are:
+                                Localhost - a profile pre-loaded on the node.
+                                RuntimeDefault - the container runtime's default profile.
+                                Unconfined - no AppArmor enforcement.
+                            type: string
+                        required:
+                        - type
+                        type: object
+                      capabilities:
+                        description: |-
+                          The capabilities to add/drop when running containers.
+                          Defaults to the default set of capabilities granted by the container runtime.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          add:
+                            description: Added capabilities
+                            items:
+                              description: Capability represent POSIX capabilities
+                                type
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          drop:
+                            description: Removed capabilities
+                            items:
+                              description: Capability represent POSIX capabilities
+                                type
+                              type: string
+                            type: array
+                            x-kubernetes-list-type: atomic
+                        type: object
+                      privileged:
+                        description: |-
+                          Run container in privileged mode.
+                          Processes in privileged containers are essentially equivalent to root on the host.
+                          Defaults to false.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: boolean
+                      procMount:
+                        description: |-
+                          procMount denotes the type of proc mount to use for the containers.
+                          The default value is Default which uses the container runtime defaults for
+                          readonly paths and masked paths.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: string
+                      readOnlyRootFilesystem:
+                        description: |-
+                          Whether this container has a read-only root filesystem.
+                          Default is false.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: boolean
+                      runAsGroup:
+                        description: |-
+                          The GID to run the entrypoint of the container process.
+                          Uses runtime default if unset.
+                          May also be set in PodSecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        format: int64
+                        type: integer
+                      runAsNonRoot:
+                        description: |-
+                          Indicates that the container must run as a non-root user.
+                          If true, the Kubelet will validate the image at runtime to ensure that it
+                          does not run as UID 0 (root) and fail to start the container if it does.
+                          If unset or false, no such validation will be performed.
+                          May also be set in PodSecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence.
+                        type: boolean
+                      runAsUser:
+                        description: |-
+                          The UID to run the entrypoint of the container process.
+                          Defaults to user specified in image metadata if unspecified.
+                          May also be set in PodSecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        format: int64
+                        type: integer
+                      seLinuxOptions:
+                        description: |-
+                          The SELinux context to be applied to the container.
+                          If unspecified, the container runtime will allocate a random SELinux context for each
+                          container.  May also be set in PodSecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          level:
+                            description: Level is SELinux level label that applies
+                              to the container.
+                            type: string
+                          role:
+                            description: Role is a SELinux role label that applies
+                              to the container.
+                            type: string
+                          type:
+                            description: Type is a SELinux type label that applies
+                              to the container.
+                            type: string
+                          user:
+                            description: User is a SELinux user label that applies
+                              to the container.
+                            type: string
+                        type: object
+                      seccompProfile:
+                        description: |-
+                          The seccomp options to use by this container. If seccomp options are
+                          provided at both the pod & container level, the container options
+                          override the pod options.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          localhostProfile:
+                            description: |-
+                              localhostProfile indicates a profile defined in a file on the node should be used.
+                              The profile must be preconfigured on the node to work.
+                              Must be a descending path, relative to the kubelet's configured seccomp profile location.
+                              Must be set if type is "Localhost". Must NOT be set for any other type.
+                            type: string
+                          type:
+                            description: |-
+                              type indicates which kind of seccomp profile will be applied.
+                              Valid options are:
+
+                              Localhost - a profile defined in a file on the node should be used.
+                              RuntimeDefault - the container runtime default profile should be used.
+                              Unconfined - no profile should be applied.
+                            type: string
+                        required:
+                        - type
+                        type: object
+                      windowsOptions:
+                        description: |-
+                          The Windows specific settings applied to all containers.
+                          If unspecified, the options from the PodSecurityContext will be used.
+                          If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+                          Note that this field cannot be set when spec.os.name is linux.
+                        properties:
+                          gmsaCredentialSpec:
+                            description: |-
+                              GMSACredentialSpec is where the GMSA admission webhook
+                              (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+                              GMSA credential spec named by the GMSACredentialSpecName field.
+                            type: string
+                          gmsaCredentialSpecName:
+                            description: GMSACredentialSpecName is the name of the
+                              GMSA credential spec to use.
+                            type: string
+                          hostProcess:
+                            description: |-
+                              HostProcess determines if a container should be run as a 'Host Process' container.
+                              All of a Pod's containers must have the same effective HostProcess value
+                              (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+                              In addition, if HostProcess is true then HostNetwork must also be set to true.
+                            type: boolean
+                          runAsUserName:
+                            description: |-
+                              The UserName in Windows to run the entrypoint of the container process.
+                              Defaults to the user specified in image metadata if unspecified.
+                              May also be set in PodSecurityContext. If set in both SecurityContext and
+                              PodSecurityContext, the value specified in SecurityContext takes precedence.
+                            type: string
+                        type: object
+                    type: object
+                  pod:
+                    description: |-
+                      Pod-level overrides (e.g. RunAsUser, FSGroup, SupplementalGroups,
+                      custom seccomp profile path). Cannot disable RunAsNonRoot or use
+                      root UID 0.
+                    properties:
+                      appArmorProfile:
+                        description: |-
+                          appArmorProfile is the AppArmor options to use by the containers in this pod.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          localhostProfile:
+                            description: |-
+                              localhostProfile indicates a profile loaded on the node that should be used.
+                              The profile must be preconfigured on the node to work.
+                              Must match the loaded name of the profile.
+                              Must be set if and only if type is "Localhost".
+                            type: string
+                          type:
+                            description: |-
+                              type indicates which kind of AppArmor profile will be applied.
+                              Valid options are:
+                                Localhost - a profile pre-loaded on the node.
+                                RuntimeDefault - the container runtime's default profile.
+                                Unconfined - no AppArmor enforcement.
+                            type: string
+                        required:
+                        - type
+                        type: object
+                      fsGroup:
+                        description: |-
+                          A special supplemental group that applies to all containers in a pod.
+                          Some volume types allow the Kubelet to change the ownership of that volume
+                          to be owned by the pod:
+
+                          1. The owning GID will be the FSGroup
+                          2. The setgid bit is set (new files created in the volume will be owned by FSGroup)
+                          3. The permission bits are OR'd with rw-rw----
+
+                          If unset, the Kubelet will not modify the ownership and permissions of any volume.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        format: int64
+                        type: integer
+                      fsGroupChangePolicy:
+                        description: |-
+                          fsGroupChangePolicy defines behavior of changing ownership and permission of the volume
+                          before being exposed inside Pod. This field will only apply to
+                          volume types which support fsGroup based ownership(and permissions).
+                          It will have no effect on ephemeral volume types such as: secret, configmaps
+                          and emptydir.
+                          Valid values are "OnRootMismatch" and "Always". If not specified, "Always" is used.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: string
+                      runAsGroup:
+                        description: |-
+                          The GID to run the entrypoint of the container process.
+                          Uses runtime default if unset.
+                          May also be set in SecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence
+                          for that container.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        format: int64
+                        type: integer
+                      runAsNonRoot:
+                        description: |-
+                          Indicates that the container must run as a non-root user.
+                          If true, the Kubelet will validate the image at runtime to ensure that it
+                          does not run as UID 0 (root) and fail to start the container if it does.
+                          If unset or false, no such validation will be performed.
+                          May also be set in SecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence.
+                        type: boolean
+                      runAsUser:
+                        description: |-
+                          The UID to run the entrypoint of the container process.
+                          Defaults to user specified in image metadata if unspecified.
+                          May also be set in SecurityContext.  If set in both SecurityContext and
+                          PodSecurityContext, the value specified in SecurityContext takes precedence
+                          for that container.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        format: int64
+                        type: integer
+                      seLinuxChangePolicy:
+                        description: |-
+                          seLinuxChangePolicy defines how the container's SELinux label is applied to all volumes used by the Pod.
+                          It has no effect on nodes that do not support SELinux or to volumes does not support SELinux.
+                          Valid values are "MountOption" and "Recursive".
+
+                          "Recursive" means relabeling of all files on all Pod volumes by the container runtime.
+                          This may be slow for large volumes, but allows mixing privileged and unprivileged Pods sharing the same volume on the same node.
+
+                          "MountOption" mounts all eligible Pod volumes with `-o context` mount option.
+                          This requires all Pods that share the same volume to use the same SELinux label.
+                          It is not possible to share the same volume among privileged and unprivileged Pods.
+                          Eligible volumes are in-tree FibreChannel and iSCSI volumes, and all CSI volumes
+                          whose CSI driver announces SELinux support by setting spec.seLinuxMount: true in their
+                          CSIDriver instance. Other volumes are always re-labelled recursively.
+                          "MountOption" value is allowed only when SELinuxMount feature gate is enabled.
+
+                          If not specified and SELinuxMount feature gate is enabled, "MountOption" is used.
+                          If not specified and SELinuxMount feature gate is disabled, "MountOption" is used for ReadWriteOncePod volumes
+                          and "Recursive" for all other volumes.
+
+                          This field affects only Pods that have SELinux label set, either in PodSecurityContext or in SecurityContext of all containers.
+
+                          All Pods that use the same volume should use the same seLinuxChangePolicy, otherwise some pods can get stuck in ContainerCreating state.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: string
+                      seLinuxOptions:
+                        description: |-
+                          The SELinux context to be applied to all containers.
+                          If unspecified, the container runtime will allocate a random SELinux context for each
+                          container.  May also be set in SecurityContext.  If set in
+                          both SecurityContext and PodSecurityContext, the value specified in SecurityContext
+                          takes precedence for that container.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          level:
+                            description: Level is SELinux level label that applies
+                              to the container.
+                            type: string
+                          role:
+                            description: Role is a SELinux role label that applies
+                              to the container.
+                            type: string
+                          type:
+                            description: Type is a SELinux type label that applies
+                              to the container.
+                            type: string
+                          user:
+                            description: User is a SELinux user label that applies
+                              to the container.
+                            type: string
+                        type: object
+                      seccompProfile:
+                        description: |-
+                          The seccomp options to use by the containers in this pod.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        properties:
+                          localhostProfile:
+                            description: |-
+                              localhostProfile indicates a profile defined in a file on the node should be used.
+                              The profile must be preconfigured on the node to work.
+                              Must be a descending path, relative to the kubelet's configured seccomp profile location.
+                              Must be set if type is "Localhost". Must NOT be set for any other type.
+                            type: string
+                          type:
+                            description: |-
+                              type indicates which kind of seccomp profile will be applied.
+                              Valid options are:
+
+                              Localhost - a profile defined in a file on the node should be used.
+                              RuntimeDefault - the container runtime default profile should be used.
+                              Unconfined - no profile should be applied.
+                            type: string
+                        required:
+                        - type
+                        type: object
+                      supplementalGroups:
+                        description: |-
+                          A list of groups applied to the first process run in each container, in
+                          addition to the container's primary GID and fsGroup (if specified).  If
+                          the SupplementalGroupsPolicy feature is enabled, the
+                          supplementalGroupsPolicy field determines whether these are in addition
+                          to or instead of any group memberships defined in the container image.
+                          If unspecified, no additional groups are added, though group memberships
+                          defined in the container image may still be used, depending on the
+                          supplementalGroupsPolicy field.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        items:
+                          format: int64
+                          type: integer
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      supplementalGroupsPolicy:
+                        description: |-
+                          Defines how supplemental groups of the first container processes are calculated.
+                          Valid values are "Merge" and "Strict". If not specified, "Merge" is used.
+                          (Alpha) Using the field requires the SupplementalGroupsPolicy feature gate to be enabled
+                          and the container runtime must implement support for this feature.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        type: string
+                      sysctls:
+                        description: |-
+                          Sysctls hold a list of namespaced sysctls used for the pod. Pods with unsupported
+                          sysctls (by the container runtime) might fail to launch.
+                          Note that this field cannot be set when spec.os.name is windows.
+                        items:
+                          description: Sysctl defines a kernel parameter to be set
+                          properties:
+                            name:
+                              description: Name of a property to set
+                              type: string
+                            value:
+                              description: Value of a property to set
+                              type: string
+                          required:
+                          - name
+                          - value
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      windowsOptions:
+                        description: |-
+                          The Windows specific settings applied to all containers.
+                          If unspecified, the options within a container's SecurityContext will be used.
+                          If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence.
+                          Note that this field cannot be set when spec.os.name is linux.
+                        properties:
+                          gmsaCredentialSpec:
+                            description: |-
+                              GMSACredentialSpec is where the GMSA admission webhook
+                              (https://github.com/kubernetes-sigs/windows-gmsa) inlines the contents of the
+                              GMSA credential spec named by the GMSACredentialSpecName field.
+                            type: string
+                          gmsaCredentialSpecName:
+                            description: GMSACredentialSpecName is the name of the
+                              GMSA credential spec to use.
+                            type: string
+                          hostProcess:
+                            description: |-
+                              HostProcess determines if a container should be run as a 'Host Process' container.
+                              All of a Pod's containers must have the same effective HostProcess value
+                              (it is not allowed to have a mix of HostProcess containers and non-HostProcess containers).
+                              In addition, if HostProcess is true then HostNetwork must also be set to true.
+                            type: boolean
+                          runAsUserName:
+                            description: |-
+                              The UserName in Windows to run the entrypoint of the container process.
+                              Defaults to the user specified in image metadata if unspecified.
+                              May also be set in PodSecurityContext. If set in both SecurityContext and
+                              PodSecurityContext, the value specified in SecurityContext takes precedence.
+                            type: string
+                        type: object
+                    type: object
+                type: object
+              serviceAccountName:
+                description: ServiceAccount for the agent pod.
+                type: string
+              storage:
+                description: Persistent storage for daemon agents (PVC, RWO).
+                properties:
+                  size:
+                    description: PVC size (e.g. "10Gi").
+                    type: string
+                  storageClass:
+                    description: Storage class name.
+                    type: string
+                required:
+                - size
+                type: object
+              systemPrompt:
+                description: System prompt injected at the start of every session.
+                type: string
+              temperature:
+                description: Temperature for model calls (0.0 - 2.0).
+                type: number
+              timeout:
+                default: 10m
+                description: Timeout for task jobs or per-prompt timeout for daemons
+                  (e.g. "10m").
+                type: string
+              titleModel:
+                description: |-
+                  Fast/cheap model used for auto-titling sessions (e.g. openai/gpt-4o-mini).
+                  Only relevant for daemon-mode agents. If unset, the primary model is used.
+                type: string
+              toolHooks:
+                description: Runtime security hooks for tool calls.
+                properties:
+                  allowedPaths:
+                    description: Restrict file tool paths to these prefixes (absolute
+                      paths only).
+                    items:
+                      type: string
+                    type: array
+                  auditTools:
+                    description: |-
+                      Tools to audit-log via afterToolCall hook. When memory is enabled,
+                      audit events are also persisted as searchable observations.
+                    items:
+                      type: string
+                    type: array
+                  blockedCommands:
+                    description: Patterns blocked in bash commands (substring match).
+                    items:
+                      type: string
+                    type: array
+                  contextInjectTools:
+                    description: |-
+                      Pre-execution memory queries: before a matched tool runs, relevant
+                      memories are fetched and recorded in the trace for observability.
+                    items:
+                      description: ContextInjectRuleSpec describes a pre-execution
+                        memory query for a tool.
+                      properties:
+                        limit:
+                          default: 3
+                          description: 'Max number of memory items to fetch. Default:
+                            3.'
+                          maximum: 10
+                          minimum: 1
+                          type: integer
+                        query:
+                          default: from_tool_args
+                          description: |-
+                            How to derive the search query. "from_tool_args" (default) uses the tool's
+                            primary argument. Any other value is used as a static query string.
+                          type: string
+                        tool:
+                          description: Tool name to match.
+                          type: string
+                      required:
+                      - tool
+                      type: object
+                    type: array
+                  memorySaveRules:
+                    description: |-
+                      Declarative rules for auto-saving tool results as memory observations.
+                      Each rule matches a tool name and optionally filters by output/args regex.
+                    items:
+                      description: |-
+                        MemorySaveRuleSpec describes a declarative rule for auto-saving tool results
+                        as memory observations in agentops-memory.
+                      properties:
+                        matchArgs:
+                          additionalProperties:
+                            type: string
+                          description: Map of arg_name → regex pattern. All patterns
+                            must match for the rule to fire.
+                          type: object
+                        matchOutput:
+                          description: Regex pattern to match against tool output.
+                            If empty, all output is captured.
+                          type: string
+                        scope:
+                          default: project
+                          description: 'Scope for the observation. Default: "project".'
+                          enum:
+                          - project
+                          - global
+                          type: string
+                        tool:
+                          description: Tool name to match (e.g. "bash", "web_search").
+                          type: string
+                        type:
+                          default: discovery
+                          description: 'Observation type to save (e.g. "bugfix", "discovery").
+                            Default: "discovery".'
+                          type: string
+                      required:
+                      - tool
+                      type: object
+                    type: array
+                type: object
+              tools:
+                description: |-
+                  Tool bindings. Each entry is an OCI artifact containing an MCP tool
+                  server binary. The operator generates crane init-containers to pull
+                  them and the runtime discovers them via loadOCITools().
+                items:
+                  description: |-
+                    ToolBinding describes an MCP tool server to load into the agent pod.
+                    Each tool is an OCI artifact containing a binary + manifest.json.
+                    The operator generates a crane init-container to pull the artifact
+                    and the runtime discovers it via loadOCITools() (stdio MCP).
+                  properties:
+                    category:
+                      description: Category for UI grouping (e.g. "git", "kubernetes",
+                        "observability").
+                      type: string
+                    description:
+                      description: Human-readable description shown in the console
+                        UI.
+                      type: string
+                    env:
+                      description: |-
+                        Extra environment variables injected into the runtime container
+                        for this tool (e.g. HELM_REGISTRIES, KUBECONFIG).
+                      items:
+                        description: ToolEnvVar is a plain-text environment variable
+                          for a tool.
+                        properties:
+                          name:
+                            type: string
+                          value:
+                            type: string
+                        required:
+                        - name
+                        - value
+                        type: object
+                      type: array
+                    name:
+                      description: Unique name for this tool (used as directory name
+                        under /tools/).
+                      minLength: 1
+                      type: string
+                    oci:
+                      description: OCI artifact reference containing the MCP tool
+                        server binary.
+                      properties:
+                        digest:
+                          description: Optional digest for pinning (e.g. sha256:abc...).
+                          type: string
+                        pullPolicy:
+                          description: 'Pull policy: Always, IfNotPresent, Never.
+                            Defaults based on tag.'
+                          enum:
+                          - Always
+                          - IfNotPresent
+                          - Never
+                          type: string
+                        pullSecret:
+                          description: Optional pull secret for private registries.
+                          properties:
+                            key:
+                              description: Key within the Secret.
+                              type: string
+                            name:
+                              description: Name of the Secret.
+                              type: string
+                          required:
+                          - key
+                          - name
+                          type: object
+                        ref:
+                          description: Full OCI reference (e.g. ghcr.io/org/tool:1.0.0).
+                          type: string
+                      required:
+                      - ref
+                      type: object
+                    uiHint:
+                      description: UI hint for icon/styling (e.g. "gitlab", "helm",
+                        "kubectl").
+                      type: string
+                  required:
+                  - name
+                  - oci
+                  type: object
+                type: array
+            required:
+            - mode
+            - model
+            - providerRefs
+            type: object
+            x-kubernetes-validations:
+            - message: storage is not allowed for task-mode agents
+              rule: self.mode != 'task' || !has(self.storage)
+          status:
+            description: AgentStatus defines the observed state of Agent.
+            properties:
+              activeModel:
+                description: Currently active model (may differ from spec.model if
+                  fallback triggered).
+                type: string
+              conditions:
+                description: Standard conditions.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              phase:
+                description: 'Current phase: Pending, Running (daemon), Ready (task),
+                  Failed.'
+                type: string
+              readyReplicas:
+                description: Number of ready replicas (daemon only).
+                format: int32
+                type: integer
+              serviceURL:
+                description: Service URL for daemon agents (e.g. http://agent.ns.svc:4096).
+                type: string
+              storagePVC:
+                description: Name of the PVC created for daemon agents.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,10 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: anthropic
+  namespace: agents
+spec:
+  type: anthropic
+  apiKeySecret:
+    name: llm-api-keys
+    key: ANTHROPIC_API_KEY

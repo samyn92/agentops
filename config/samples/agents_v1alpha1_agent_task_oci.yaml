@@ -1,0 +1,69 @@
+# Example: Task mode agent with inline OCI tools, context, and scheduling
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: scheduled-oci-agent
+  labels:
+    app.kubernetes.io/name: agentops-core
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  mode: task
+  model: openai/gpt-4.1-mini
+
+  image: ghcr.io/samyn92/agent-runtime-fantasy:latest
+  imagePullPolicy: IfNotPresent
+  builtinTools: []
+
+  providerRefs:
+    - name: openai
+
+  systemPrompt: |
+    You triage issues, propose next actions, and keep outputs concise.
+
+  contextFiles:
+    - configMapRef:
+        name: agent-context
+        key: AGENTS.md
+
+  # Inline OCI tool bindings
+  tools:
+    - name: jira
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/jira:0.2.0
+      description: "Jira — search, create, update issues"
+      category: project-management
+    - name: gitlab
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/gitlab:0.9.7
+      description: "GitLab API — repos, MRs, pipelines"
+      category: development
+
+  env:
+    WORKSPACE_ROOT: /workspace
+    FEATURE_FLAGS: issue-triage
+
+  secrets:
+    - name: GITHUB_TOKEN
+      secretRef:
+        name: scm-credentials
+        key: github-token
+
+  schedule: "0 * * * *"
+  schedulePrompt: |
+    Check newly opened incidents and propose next actions.
+
+  toolHooks:
+    auditTools:
+      - jira
+
+  networkPolicy:
+    enabled: true
+
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+
+  timeout: "10m"

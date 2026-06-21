@@ -1,0 +1,16 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Integration
+metadata:
+  name: homecluster-repo
+  namespace: agents
+spec:
+  kind: gitlab-project
+  displayName: Homecluster
+  description: "k3s homecluster GitOps repo — Flux, Helm, infrastructure"
+  credentials:
+    name: gitlab-token
+    key: token
+  gitlab:
+    baseURL: https://gitlab.com
+    project: samyn92/homecluster
+    defaultBranch: main

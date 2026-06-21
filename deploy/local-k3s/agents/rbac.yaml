@@ -1,0 +1,268 @@
+---
+# ClusterRole: read-only access to core K8s resources + Flux/k3s Helm reconciliation
+# Bound to agents that need cluster-wide visibility (kubectl, kube-explore, flux tools).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agentops-agent-cluster-reader
+  labels:
+    app.kubernetes.io/managed-by: flux
+    agents.agentops.io/component: rbac
+rules:
+  # --- Core resources (read-only) ---
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+      - pods/log
+      - services
+      - endpoints
+      - configmaps
+      - secrets
+      - events
+      - persistentvolumeclaims
+      - persistentvolumes
+      - nodes
+      - serviceaccounts
+      - resourcequotas
+      - limitranges
+    verbs: [get, list, watch]
+
+  # --- Apps (read-only) ---
+  - apiGroups: [apps]
+    resources:
+      - deployments
+      - statefulsets
+      - daemonsets
+      - replicasets
+    verbs: [get, list, watch]
+
+  # --- Batch (read-only) ---
+  - apiGroups: [batch]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: [get, list, watch]
+
+  # --- Networking (read-only) ---
+  - apiGroups: [networking.k8s.io]
+    resources:
+      - ingresses
+      - networkpolicies
+    verbs: [get, list, watch]
+
+  # --- RBAC (read-only, for inspection) ---
+  - apiGroups: [rbac.authorization.k8s.io]
+    resources:
+      - roles
+      - rolebindings
+      - clusterroles
+      - clusterrolebindings
+    verbs: [get, list, watch]
+
+  # --- Autoscaling (read-only) ---
+  - apiGroups: [autoscaling]
+    resources:
+      - horizontalpodautoscalers
+    verbs: [get, list, watch]
+
+  # --- CRDs (read-only, for api-resources / explain) ---
+  - apiGroups: [apiextensions.k8s.io]
+    resources:
+      - customresourcedefinitions
+    verbs: [get, list, watch]
+
+  # --- AgentOps CRDs (read-only, cluster-wide) ---
+  - apiGroups: [agents.agentops.io]
+    resources:
+      - agents
+      - agentruns
+      - integrations
+      - channels
+      - providers
+    verbs: [get, list, watch]
+
+  # --- k3s Helm controller (read + reconcile) ---
+  - apiGroups: [helm.cattle.io]
+    resources:
+      - helmcharts
+      - helmchartconfigs
+    verbs: [get, list, watch, patch, update]
+
+  # --- Flux: Kustomize controller (read + reconcile) ---
+  - apiGroups: [kustomize.toolkit.fluxcd.io]
+    resources:
+      - kustomizations
+    verbs: [get, list, watch, patch, update]
+
+  # --- Flux: Helm controller (read + reconcile) ---
+  - apiGroups: [helm.toolkit.fluxcd.io]
+    resources:
+      - helmreleases
+    verbs: [get, list, watch, patch, update]
+
+  # --- Flux: Source controller (read-only) ---
+  - apiGroups: [source.toolkit.fluxcd.io]
+    resources:
+      - gitrepositories
+      - helmrepositories
+      - helmcharts
+      - ocirepositories
+      - buckets
+    verbs: [get, list, watch]
+
+  # --- Traefik IngressRoutes (read-only) ---
+  - apiGroups: [traefik.io]
+    resources:
+      - ingressroutes
+      - ingressroutetcps
+      - middlewares
+    verbs: [get, list, watch]
+
+---
+# Bind cluster-reader to agents that need cluster-wide read access.
+# SA naming convention: {agentName}-agent (auto-created by operator)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agentops-agent-cluster-reader
+  labels:
+    app.kubernetes.io/managed-by: flux
+    agents.agentops.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: agentops-agent-cluster-reader
+subjects:
+  # Platform factory
+  - kind: ServiceAccount
+    name: platform-lead-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: tester-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: observability-engineer-agent
+    namespace: agents
+  # Cluster operations
+  - kind: ServiceAccount
+    name: homecluster-manager-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: cluster-healthcheck-agent
+    namespace: agents
+  # svc-lifecycle CD side (read cluster + Flux state for rollout/verify/observe)
+  - kind: ServiceAccount
+    name: svc-release-mgr-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: svc-flux-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: svc-verifier-agent
+    namespace: agents
+  - kind: ServiceAccount
+    name: svc-observability-agent
+    namespace: agents
+
+---
+# ClusterRole: write access for agents that mutate cluster resources
+# (apply, delete, rollout, scale, exec, etc.)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agentops-agent-cluster-writer
+  labels:
+    app.kubernetes.io/managed-by: flux
+    agents.agentops.io/component: rbac
+rules:
+  # --- Core resources (mutate) ---
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/exec
+      - services
+      - configmaps
+      - secrets
+      - persistentvolumeclaims
+    verbs: [create, update, patch, delete]
+
+  # --- Apps (mutate — rollout restart, scale, apply) ---
+  - apiGroups: [apps]
+    resources:
+      - deployments
+      - deployments/scale
+      - statefulsets
+      - statefulsets/scale
+      - daemonsets
+      - replicasets
+    verbs: [create, update, patch, delete]
+
+  # --- Batch (mutate — create/delete jobs) ---
+  - apiGroups: [batch]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: [create, update, patch, delete]
+
+  # --- Networking (mutate) ---
+  - apiGroups: [networking.k8s.io]
+    resources:
+      - ingresses
+    verbs: [create, update, patch, delete]
+
+  # --- AgentOps CRDs (mutate — for applying agent manifests) ---
+  - apiGroups: [agents.agentops.io]
+    resources:
+      - agents
+      - agentruns
+      - integrations
+      - channels
+      - providers
+    verbs: [create, update, patch, delete]
+
+  # --- Flux: reconcile/suspend/resume (patch annotations) ---
+  - apiGroups: [kustomize.toolkit.fluxcd.io]
+    resources:
+      - kustomizations
+    verbs: [create, update, patch, delete]
+  - apiGroups: [helm.toolkit.fluxcd.io]
+    resources:
+      - helmreleases
+    verbs: [create, update, patch, delete]
+  - apiGroups: [source.toolkit.fluxcd.io]
+    resources:
+      - gitrepositories
+      - helmrepositories
+      - helmcharts
+      - ocirepositories
+      - buckets
+    verbs: [create, update, patch, delete]
+
+---
+# Bind cluster-writer to agents with readwrite tools only.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agentops-agent-cluster-writer
+  labels:
+    app.kubernetes.io/managed-by: flux
+    agents.agentops.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: agentops-agent-cluster-writer
+subjects:
+  # Tester needs kubectl write for E2E validation
+  - kind: ServiceAccount
+    name: tester-agent
+    namespace: agents
+  # Cluster operations (separate from factory)
+  - kind: ServiceAccount
+    name: homecluster-manager-agent
+    namespace: agents
+  # svc-lifecycle CD side: only svc-flux mutates the cluster (Flux reconcile).
+  # svc-release-mgr / svc-verifier / svc-observability stay read-only.
+  - kind: ServiceAccount
+    name: svc-flux-agent
+    namespace: agents

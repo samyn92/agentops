@@ -1,0 +1,263 @@
+# agentops local k3s dev environment
+# Usage: just <recipe>        (from workspace root or local_k3s/deploy/)
+#
+# Hot-reload strategy:
+#   - Build to a known binary path (/tmp/manager, /tmp/bff)
+#   - Track PID in a .pid file — kill by PID, never by pattern match
+#   - Never use `go run` (spawns child process, orphans on kill)
+#   - Never use `pkill -f` (matches the kubectl exec command itself)
+
+set dotenv-load := false
+
+ns          := "agent-system"
+op_deploy   := "operator-dev"
+con_deploy  := "console-dev"
+op_workdir  := "/workspace/agentops-core"
+con_workdir := "/workspace/agentops-console"
+path_export := "export PATH=/usr/local/bin:/go/bin:/usr/local/go/bin:$PATH"
+
+# Runtime dev-image: rolling :dev tag, built on the host with docker and
+# imported into k3s containerd. Agents pin spec.image to this tag with the
+# default IfNotPresent pull policy, so re-import + re-fire picks up changes
+# without ever touching a registry.
+rt_dir   := justfile_directory() / ".." / ".." / "agentops-runtime"
+rt_image := "ghcr.io/samyn92/agentops-runtime-fantasy:dev"
+rt_tar   := "/tmp/agentops-runtime-dev.tar"
+
+# Channel bridge dev-images: same rolling :dev + k3s-import strategy as the
+# runtime. Channel CRs pin spec.image to ghcr.io/samyn92/agent-channel-<type>:dev
+# with imagePullPolicy: IfNotPresent, so re-import + rollout restart picks up
+# changes without a registry round-trip.
+ch_dir   := justfile_directory() / ".." / ".." / "agent-channels"
+
+
+# ── Lifecycle ─────────────────────────────────────────────
+
+# Deploy both dev pods to the cluster
+up:
+    kubectl apply -k local_k3s/deploy/
+    @echo ""
+    @echo "Waiting for pods..."
+    @kubectl rollout status deploy/{{op_deploy}} -n {{ns}} --timeout=120s
+    @kubectl rollout status deploy/{{con_deploy}} -n {{ns}} --timeout=120s
+    @echo ""
+    @echo "Console:  http://localhost:30173"
+    @echo "BFF:      http://localhost:30080"
+    @echo ""
+    @echo "Recipes:  just op-reload | op-reload-full | op-logs | op-shell"
+    @echo "          just con-reload | con-logs | con-vite-logs | con-shell"
+
+# Tear down both dev pods
+down:
+    kubectl delete -k local_k3s/deploy/ --ignore-not-found
+
+# Show status of dev pods and dependent services
+status:
+    @echo "=== Dev Pods ==="
+    @kubectl get deploy -n {{ns}} -l 'app in ({{op_deploy}},{{con_deploy}})' 2>/dev/null || true
+    @echo ""
+    @echo "=== Services (agents) ==="
+    @kubectl get svc -n agents 2>/dev/null || true
+    @echo ""
+    @echo "=== Observability ==="
+    @kubectl get svc -n observability 2>/dev/null || true
+
+# ── Operator ──────────────────────────────────────────────
+
+# Hot-reload operator: kill → rebuild → restart (controller logic only)
+op-reload:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl exec -n {{ns}} deploy/{{op_deploy}} -- bash -c '
+      # kill old process
+      if [ -f /tmp/manager.pid ]; then
+        p=$(cat /tmp/manager.pid)
+        kill $p 2>/dev/null || true
+        for i in 1 2 3 4 5; do kill -0 $p 2>/dev/null || break; sleep 0.3; done
+        kill -9 $p 2>/dev/null || true
+        rm -f /tmp/manager.pid
+      fi
+      # build
+      cd {{op_workdir}} && {{path_export}}
+      go build -o /tmp/manager ./cmd/main.go
+      # start
+      /tmp/manager > /tmp/operator.log 2>&1 &
+      echo $! > /tmp/manager.pid
+      echo "PID: $(cat /tmp/manager.pid)"
+      sleep 2
+      tail -3 /tmp/operator.log
+    '
+
+# Full operator reload: regenerate types + CRDs + reinstall + restart
+op-reload-full:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl exec -n {{ns}} deploy/{{op_deploy}} -- bash -c '
+      # kill old process
+      if [ -f /tmp/manager.pid ]; then
+        p=$(cat /tmp/manager.pid)
+        kill $p 2>/dev/null || true
+        for i in 1 2 3 4 5; do kill -0 $p 2>/dev/null || break; sleep 0.3; done
+        kill -9 $p 2>/dev/null || true
+        rm -f /tmp/manager.pid
+      fi
+      # regenerate + build
+      cd {{op_workdir}} && {{path_export}}
+      make generate && make manifests && make install
+      go build -o /tmp/manager ./cmd/main.go
+      # start
+      /tmp/manager > /tmp/operator.log 2>&1 &
+      echo $! > /tmp/manager.pid
+      echo "PID: $(cat /tmp/manager.pid)"
+      sleep 2
+      tail -3 /tmp/operator.log
+    '
+
+# Operator logs (follow)
+op-logs:
+    kubectl exec -n {{ns}} deploy/{{op_deploy}} -- tail -f /tmp/operator.log
+
+# Operator build check (compile only, no restart)
+op-build:
+    kubectl exec -n {{ns}} deploy/{{op_deploy}} -- bash -c \
+      "cd {{op_workdir}} && go build ./..."
+
+# Stop operator process
+op-stop:
+    #!/usr/bin/env bash
+    kubectl exec -n {{ns}} deploy/{{op_deploy}} -- bash -c '
+      if [ -f /tmp/manager.pid ]; then
+        p=$(cat /tmp/manager.pid)
+        kill $p 2>/dev/null || true
+        rm -f /tmp/manager.pid
+        echo "stopped (pid $p)"
+      else
+        echo "not running"
+      fi
+    '
+
+# Shell into operator dev pod
+op-shell:
+    kubectl exec -it -n {{ns}} deploy/{{op_deploy}} -- bash
+
+# ── Runtime (agent image) ─────────────────────────────────
+
+# Build the agent runtime :dev image on the host and import it into k3s.
+# Requires the one-time passwordless import setup (see `just rt-setup`).
+# After this, re-fire affected agents (`just rt-refire <agent>`) to pick it up.
+rt-reload:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "==> building {{rt_image}}"
+    docker build --provenance=false --platform linux/amd64 \
+      --build-arg VERSION=dev -t {{rt_image}} -o type=docker {{rt_dir}}
+    echo "==> saving {{rt_tar}}"
+    docker save {{rt_image}} -o {{rt_tar}}
+    echo "==> importing into k3s containerd"
+    sudo -n /usr/local/bin/k3s-image-import {{rt_tar}}
+    echo "==> done. Re-fire agents with: just --justfile local_k3s/deploy/justfile rt-refire <agent>"
+
+# Compile-check the runtime only (no image build)
+rt-build:
+    cd {{rt_dir}} && go build ./... && go test ./... 
+
+# Re-fire a task agent on the freshly imported image by deleting its latest
+# AgentRun so the channel bridge dispatches a new pod (pull policy IfNotPresent).
+rt-refire agent:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    run=$(kubectl get ar -n agents -l agents.agentops.io/agent={{agent}} \
+      --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1:].metadata.name}')
+    if [ -n "$run" ]; then
+      echo "deleting AgentRun $run"
+      kubectl delete ar "$run" -n agents
+    else
+      echo "no AgentRun found for agent={{agent}}"
+    fi
+
+# One-time: install the passwordless k3s image-import wrapper (needs sudo once).
+rt-setup:
+    sudo install -m 0755 {{justfile_directory()}}/scripts/k3s-image-import /usr/local/bin/k3s-image-import
+    sudo install -m 0440 {{justfile_directory()}}/scripts/agentops-k3s-import.sudoers /etc/sudoers.d/agentops-k3s-import
+    sudo visudo -cf /etc/sudoers.d/agentops-k3s-import
+    @echo "passwordless k3s image import ready"
+
+# ── Channels (bridge images) ──────────────────────────────
+
+# Build a channel bridge :dev image on the host, import it into k3s, and roll
+# every bridge Deployment running that image. `channel` is the directory name
+# under agent-channels/channels (e.g. gitlab-label, gitlab-comment, webhook).
+# Requires the one-time `just rt-setup` (passwordless import) and jq.
+channel-reload channel:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    image="ghcr.io/samyn92/agent-channel-{{channel}}:dev"
+    tar="/tmp/agent-channel-{{channel}}-dev.tar"
+    echo "==> building $image"
+    docker build --provenance=false --platform linux/amd64 \
+      -f {{ch_dir}}/channels/{{channel}}/Dockerfile \
+      -t "$image" -o type=docker {{ch_dir}}
+    echo "==> saving $tar"
+    docker save "$image" -o "$tar"
+    echo "==> importing into k3s containerd"
+    sudo -n /usr/local/bin/k3s-image-import "$tar"
+    echo "==> rolling bridges on $image"
+    mapfile -t deploys < <(kubectl get deploy -n agents -o json \
+      | jq -r --arg img "$image" '.items[] | select(.spec.template.spec.containers[].image==$img) | .metadata.name')
+    if [ ${#deploys[@]} -eq 0 ]; then
+      echo "   (no Deployments in agents currently run $image)"
+    fi
+    for d in "${deploys[@]}"; do
+      echo "   rollout restart deploy/$d"
+      kubectl rollout restart deploy/"$d" -n agents
+      kubectl rollout status deploy/"$d" -n agents --timeout=120s
+    done
+    echo "==> done"
+
+# Compile-check + test the channel bridges only (no image build)
+channel-build:
+    cd {{ch_dir}} && go build ./... && go test ./...
+
+# ── Console ───────────────────────────────────────────────
+# Hot-reload console BFF: kill Go process → rebuild → restart (Vite stays up)
+con-reload:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    kubectl exec -n {{ns}} deploy/{{con_deploy}} -- bash -c '
+      # kill old process
+      if [ -f /tmp/bff.pid ]; then
+        p=$(cat /tmp/bff.pid)
+        kill $p 2>/dev/null || true
+        for i in 1 2 3 4 5; do kill -0 $p 2>/dev/null || break; sleep 0.3; done
+        kill -9 $p 2>/dev/null || true
+        rm -f /tmp/bff.pid
+      fi
+      # build
+      cd /workspace/agentops-console
+      go build -o /tmp/bff ./cmd/console/
+      # start
+      /tmp/bff --dev --namespace agents > /tmp/bff.log 2>&1 &
+      echo $! > /tmp/bff.pid
+      echo "BFF PID: $(cat /tmp/bff.pid)"
+      sleep 3
+      tail -5 /tmp/bff.log
+    '
+
+# Console BFF logs (follow)
+con-logs:
+    kubectl exec -n {{ns}} deploy/{{con_deploy}} -- tail -f /tmp/bff.log
+
+# Console Vite logs (the main process stdout)
+con-vite-logs:
+    kubectl logs -n {{ns}} deploy/{{con_deploy}} -f
+
+# Shell into console dev pod
+con-shell:
+    kubectl exec -it -n {{ns}} deploy/{{con_deploy}} -- bash
+
+# ── Cleanup ───────────────────────────────────────────────
+
+# Remove old agentops-dev resources (one-time migration)
+clean-old:
+    kubectl delete deploy/agentops-dev sa/agentops-dev -n {{ns}} --ignore-not-found
+    kubectl delete clusterrole/agentops-dev clusterrolebinding/agentops-dev --ignore-not-found

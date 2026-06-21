@@ -1,0 +1,118 @@
+# agentops-core operator dev pod
+# Runs the operator controller in-cluster with hostPath-mounted source code.
+# Edit locally, build/run inside the pod via kubectl exec.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: operator-dev
+  namespace: agent-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: operator-dev
+rules:
+  # CRDs — manage our own CRDs
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # AgentOps CRD resources
+  - apiGroups: ["agents.agentops.io"]
+    resources: ["*"]
+    verbs: ["*"]
+  # Core resources the operator manages
+  - apiGroups: [""]
+    resources: ["services", "serviceaccounts", "configmaps", "persistentvolumeclaims", "secrets", "pods", "pods/log", "events"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Deployments
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Jobs (task agents)
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # RBAC (agent pod permissions)
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Networking (ingress, netpol)
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Namespaces (read)
+  - apiGroups: [""]
+    resources: ["namespaces", "nodes"]
+    verbs: ["get", "list", "watch"]
+  # Leader election
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Webhooks
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations", "mutatingwebhookconfigurations"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: operator-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: operator-dev
+subjects:
+  - kind: ServiceAccount
+    name: operator-dev
+    namespace: agent-system
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operator-dev
+  namespace: agent-system
+  labels:
+    app: operator-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: operator-dev
+  template:
+    metadata:
+      labels:
+        app: operator-dev
+    spec:
+      serviceAccountName: operator-dev
+      containers:
+        - name: dev
+          image: golang:1.26
+          command: ["/bin/bash", "/workspace/local_k3s/deploy/scripts/operator-init.sh"]
+          workingDir: /workspace/agentops-core
+          env:
+            - name: GOPATH
+              value: /go
+            - name: GOCACHE
+              value: /go/cache
+            # OTEL tracing — export to Tempo via gRPC
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: tempo.observability.svc.cluster.local:4317
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: go-cache
+              mountPath: /go
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 500m
+            limits:
+              memory: 2Gi
+      volumes:
+        - name: workspace
+          hostPath:
+            path: /home/samy/dev/github.com/samyn92
+        - name: go-cache
+          emptyDir:
+            sizeLimit: 4Gi

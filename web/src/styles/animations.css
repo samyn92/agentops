@@ -1,0 +1,231 @@
+/* ===== Streaming Bubble — ambient left accent bar ===== */
+/* Applied to the active assistant message during streaming.
+   Gives continuous visual feedback that the agent is alive,
+   even during phase transitions (text_start→delta gap, between steps). */
+
+.streaming-bubble {
+  padding-left: 10px;
+}
+
+.streaming-bubble__accent {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 42%, transparent) 18%,
+    color-mix(in srgb, var(--accent) 58%, transparent) 50%,
+    color-mix(in srgb, var(--accent) 42%, transparent) 82%,
+    transparent
+  );
+  opacity: 0.55;
+}
+
+:root.dark .streaming-bubble__accent {
+  opacity: 0.48;
+}
+
+/* ===== Composer Processing - static active edge ===== */
+
+.composer-processing {
+  position: relative;
+}
+
+.composer-processing::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    color-mix(in srgb, var(--accent) 6%, transparent) 38%,
+    transparent 72%
+  );
+  opacity: 0.72;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+  z-index: 1;
+}
+
+:root.dark .composer-processing::before {
+  opacity: 0.56;
+}
+
+/* ===== Hydration skeleton ===== */
+
+.chat-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.chat-skeleton__line {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--bg-tertiary, rgba(128, 128, 128, 0.08));
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+/* ===== Smooth content transitions ===== */
+.fade-in {
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Resource Browser Popover — slide up from composer ===== */
+.animate-popover-in {
+  animation: popover-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: bottom left;
+}
+
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== Resource Browser Panel ===== */
+.resource-browser-panel {
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(12px);
+}
+
+/* Resource chip hover micro-interaction */
+.resource-chip {
+  transition: all 0.15s ease;
+}
+
+.resource-chip:hover {
+  transform: translateY(-1px);
+}
+
+.resource-chip:active {
+  transform: translateY(0);
+}
+
+/* Resource tab active indicator animation */
+.resource-tab {
+  transition: color 0.15s ease;
+}
+
+.resource-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Streaming text cursor — soft breathing glow */
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  background: var(--accent);
+  animation: cursor-breathe 1.2s ease-in-out infinite;
+}
+
+@keyframes cursor-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* ===== Typing Dots — subtle fade pulse ===== */
+/* Staggered opacity animation using the same ease-in-out rhythm family. */
+.typing-dot {
+  animation: typing-dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes typing-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* ===== Status Dot Glow — gentle expanding ring ===== */
+/* Replaces aggressive animate-ping with a calm scale+fade that breathes. */
+.status-dot-glow {
+  animation: status-dot-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes status-dot-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ===== Run Pipeline Spinner ===== */
+.run-spinner {
+  animation: run-spin 0.8s linear infinite;
+}
+
+@keyframes run-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Tooltip — fade + scale in ===== */
+.tooltip-enter {
+  animation: tooltip-in 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== Collapsible — height animation ===== */
+[data-scope='collapsible'][data-part='content'][data-state='open'] {
+  animation: collapsible-open 0.2s ease-out;
+}
+
+[data-scope='collapsible'][data-part='content'][data-state='closed'] {
+  animation: collapsible-close 0.15s ease-out;
+}
+
+@keyframes collapsible-open {
+  from { height: 0; opacity: 0; }
+  to { height: var(--height); opacity: 1; }
+}
+
+@keyframes collapsible-close {
+  from { height: var(--height); opacity: 1; }
+  to { height: 0; opacity: 0; }
+}
+
+/* ===== Reduced motion — disable ambient animations ===== */
+@media (prefers-reduced-motion: reduce) {
+  .streaming-bubble__accent { animation: none !important; opacity: 0.5; }
+  .chat-skeleton__line { animation: none !important; opacity: 0.5; }
+}

@@ -1,0 +1,24 @@
+/* AgentOps Console — Design System
+ * Split into logical modules for maintainability.
+ * base.css must be first (contains @import "tailwindcss" and @theme).
+ */
+@import './styles/base.css';
+@import './styles/composer.css';
+@import './styles/sidebar.css';
+@import './styles/agent-card.css';
+@import './styles/panel.css';
+@import './styles/section-header.css';
+@import './styles/markdown.css';
+@import './styles/chat-bubble.css';
+@import './styles/agent-thinking.css';
+@import './styles/hljs-theme.css';
+@import './styles/animations.css';
+@import './styles/tool-card.css';
+@import './styles/neural-trace.css';
+@import './styles/mobile.css';
+@import './styles/reduced-motion.css';
+@import './styles/material.css';
+@import './styles/git-badges.css';
+@import './styles/run-card.css';
+@import './styles/trace.css';
+@import './styles/mission.css';

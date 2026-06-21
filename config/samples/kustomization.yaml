@@ -1,0 +1,19 @@
+## Append samples of your project ##
+resources:
+- agents_v1alpha1_agent.yaml
+- agents_v1alpha1_agent_fantasy.yaml
+- agents_v1alpha1_agent_task_fantasy.yaml
+- agents_v1alpha1_agent_task_oci.yaml
+- agents_v1alpha1_agentresource_github_repo.yaml
+- agents_v1alpha1_agentresource_github_org.yaml
+- agents_v1alpha1_agentresource_gitlab_group.yaml
+- agents_v1alpha1_agentresource_gitlab_project.yaml
+- agents_v1alpha1_agentresource_documentation.yaml
+- agents_v1alpha1_channel.yaml
+- agents_v1alpha1_channel_telegram.yaml
+- agents_v1alpha1_channel_slack.yaml
+- agents_v1alpha1_channel_discord.yaml
+- agents_v1alpha1_channel_github.yaml
+- agents_v1alpha1_channel_webhook.yaml
+- agents_v1alpha1_agentrun.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

@@ -1,0 +1,406 @@
+/* Agent Thinking indicator
+   Compact phase-aware status mark for the chat window. */
+
+.agent-thinking {
+  --thinking-size: 5px;
+  --thinking-speed: 1.85s;
+  --thinking-lift: 3px;
+  --thinking-alpha-low: 0.34;
+  --thinking-alpha-high: 0.95;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 0;
+  margin-top: 8px;
+  color: var(--text-muted);
+  animation: fade-slide-in 0.15s ease-out;
+}
+
+.agent-thinking__indicator {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  flex: 0 0 34px;
+  isolation: isolate;
+}
+
+.agent-thinking__indicator::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 1px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 38%, transparent),
+    transparent
+  );
+  opacity: 0.34;
+  transform: translateY(-50%) scaleX(0.9);
+  animation: thinking-thread var(--thinking-speed) ease-in-out infinite;
+}
+
+.agent-thinking__spark {
+  position: absolute;
+  top: 50%;
+  width: var(--thinking-size);
+  height: var(--thinking-size);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 84%, var(--text-main));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 0 8px color-mix(in srgb, var(--accent) 32%, transparent);
+  transform: translate(-50%, -50%) scale(0.78);
+  opacity: var(--thinking-alpha-low);
+  animation: thinking-comet var(--thinking-speed) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.agent-thinking__spark::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 24%, transparent), transparent 68%);
+  opacity: 0;
+  transform: scale(0.7);
+  animation: thinking-halo var(--thinking-speed) ease-in-out infinite;
+}
+
+.agent-thinking__spark--lead {
+  left: 8px;
+  animation-delay: -0.24s;
+}
+
+.agent-thinking__spark--lead::after {
+  animation-delay: -0.24s;
+}
+
+.agent-thinking__spark--mid {
+  left: 17px;
+  animation-delay: -0.12s;
+}
+
+.agent-thinking__spark--mid::after {
+  animation-delay: -0.12s;
+}
+
+.agent-thinking__spark--trail {
+  left: 26px;
+}
+
+@keyframes thinking-comet {
+  0%,
+  70%,
+  100% {
+    opacity: var(--thinking-alpha-low);
+    transform: translate(-50%, -50%) scale(0.78);
+  }
+
+  35% {
+    opacity: var(--thinking-alpha-high);
+    transform: translate(-50%, calc(-50% - var(--thinking-lift))) scale(1);
+  }
+}
+
+@keyframes thinking-halo {
+  0%,
+  62%,
+  100% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  35% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+}
+
+@keyframes thinking-thread {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: translateY(-50%) scaleX(0.72);
+  }
+
+  45% {
+    opacity: 0.42;
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+.agent-thinking__label {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.agent-thinking__label--entering {
+  animation: label-swap 0.2s ease-out;
+}
+
+@keyframes label-swap {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agent-thinking__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 180px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 11%, transparent);
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  animation: fade-slide-in 0.15s ease-out;
+}
+
+.agent-thinking__reason {
+  min-width: 0;
+  color: var(--text-muted);
+  font-weight: 500;
+  opacity: 0.72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-thinking__reason::before {
+  content: "\00b7";
+  margin-right: 4px;
+  color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+}
+
+.agent-thinking__elapsed {
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+  animation: fade-slide-in 0.15s ease-out;
+}
+
+/* Phase cadence */
+
+.agent-thinking--phase-connecting {
+  --thinking-speed: 2.35s;
+  --thinking-lift: 1px;
+  --thinking-alpha-low: 0.22;
+  --thinking-alpha-high: 0.64;
+}
+
+.agent-thinking--phase-analyzing {
+  --thinking-speed: 2.05s;
+  --thinking-lift: 2px;
+  --thinking-alpha-low: 0.28;
+}
+
+.agent-thinking--phase-thinking {
+  --thinking-speed: 1.85s;
+}
+
+.agent-thinking--phase-reasoning,
+.agent-thinking--phase-planning {
+  --thinking-speed: 1.6s;
+  --thinking-lift: 4px;
+  --thinking-alpha-low: 0.32;
+}
+
+.agent-thinking--phase-generating,
+.agent-thinking--phase-executing {
+  --thinking-speed: 1.28s;
+  --thinking-lift: 4px;
+  --thinking-alpha-low: 0.38;
+}
+
+.agent-thinking--phase-delegating {
+  --thinking-speed: 1.48s;
+  --thinking-lift: 3px;
+}
+
+/* Wave variant */
+
+.agent-thinking--style-waveform .agent-thinking__indicator {
+  width: 30px;
+  flex-basis: 30px;
+}
+
+.agent-thinking--style-waveform .agent-thinking__indicator::before {
+  left: 2px;
+  right: 2px;
+  opacity: 0.18;
+}
+
+.agent-thinking--style-waveform .agent-thinking__spark {
+  top: 50%;
+  width: 3px;
+  height: 12px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%) scaleY(0.38);
+  animation-name: thinking-wave;
+}
+
+.agent-thinking--style-waveform .agent-thinking__spark::after {
+  inset: -4px -5px;
+}
+
+.agent-thinking--style-waveform .agent-thinking__spark--lead {
+  left: 7px;
+}
+
+.agent-thinking--style-waveform .agent-thinking__spark--mid {
+  left: 15px;
+}
+
+.agent-thinking--style-waveform .agent-thinking__spark--trail {
+  left: 23px;
+}
+
+@keyframes thinking-wave {
+  0%,
+  72%,
+  100% {
+    opacity: var(--thinking-alpha-low);
+    transform: translate(-50%, -50%) scaleY(0.38);
+  }
+
+  36% {
+    opacity: var(--thinking-alpha-high);
+    transform: translate(-50%, -50%) scaleY(1);
+  }
+}
+
+/* Orbit variant */
+
+.agent-thinking--style-orbital .agent-thinking__indicator {
+  width: 22px;
+  height: 22px;
+  flex-basis: 22px;
+}
+
+.agent-thinking--style-orbital .agent-thinking__indicator::before {
+  inset: 2px;
+  width: auto;
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 999px;
+  background: none;
+  opacity: 0.8;
+  transform: none;
+  animation: thinking-orbit-ring calc(var(--thinking-speed) * 1.4) ease-in-out infinite;
+}
+
+.agent-thinking--style-orbital .agent-thinking__spark {
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  transform-origin: 50% 50%;
+  animation-name: thinking-orbit;
+}
+
+.agent-thinking--style-orbital .agent-thinking__spark--lead {
+  animation-delay: -0.22s;
+}
+
+.agent-thinking--style-orbital .agent-thinking__spark--mid {
+  width: 4px;
+  height: 4px;
+  animation-delay: -0.44s;
+  opacity: 0.6;
+}
+
+.agent-thinking--style-orbital .agent-thinking__spark--trail {
+  width: 3px;
+  height: 3px;
+  animation-delay: -0.66s;
+  opacity: 0.42;
+}
+
+@keyframes thinking-orbit {
+  from {
+    opacity: 0.46;
+    transform: rotate(0deg) translateX(8px) rotate(0deg) scale(0.82);
+  }
+
+  45% {
+    opacity: 1;
+    transform: rotate(180deg) translateX(8px) rotate(-180deg) scale(1);
+  }
+
+  to {
+    opacity: 0.46;
+    transform: rotate(360deg) translateX(8px) rotate(-360deg) scale(0.82);
+  }
+}
+
+@keyframes thinking-orbit-ring {
+  0%,
+  100% {
+    opacity: 0.46;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 0.86;
+    transform: scale(1);
+  }
+}
+
+:root.dark .agent-thinking__spark {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 10px color-mix(in srgb, var(--accent) 36%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-thinking,
+  .agent-thinking__indicator::before,
+  .agent-thinking__spark,
+  .agent-thinking__spark::after,
+  .agent-thinking__label--entering,
+  .agent-thinking__step,
+  .agent-thinking__elapsed {
+    animation: none !important;
+  }
+
+  .agent-thinking__indicator::before {
+    opacity: 0.32;
+    transform: translateY(-50%) scaleX(1);
+  }
+
+  .agent-thinking__spark {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) scale(0.88);
+  }
+
+  .agent-thinking--style-waveform .agent-thinking__spark {
+    transform: translate(-50%, -50%) scaleY(0.72);
+  }
+
+  .agent-thinking--style-orbital .agent-thinking__indicator::before {
+    transform: none;
+  }
+
+  .agent-thinking--style-orbital .agent-thinking__spark {
+    transform: translate(-50%, -50%);
+  }
+}

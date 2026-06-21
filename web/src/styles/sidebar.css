@@ -1,0 +1,221 @@
+/* ===== Sidebar drag handle ===== */
+.sidebar-resize-handle {
+  transition: opacity 0.15s ease;
+  opacity: 0;
+}
+
+.sidebar-resize-handle:hover,
+.sidebar-resize-handle:active,
+.sidebar-resize-handle.active {
+  opacity: 1;
+}
+
+/* ===== Sidebar Vertical Divider (agents ↔ sessions) ===== */
+/* Hidden by default — sits right under the last agent card.
+   Only visible on hover so the user can grab it when needed. */
+.sidebar-divider {
+  position: relative;
+  cursor: row-resize;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+.sidebar-divider__track {
+  width: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-main);
+  opacity: 0;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.sidebar-divider:hover .sidebar-divider__track {
+  opacity: 1;
+  width: 32px;
+  background: var(--text-muted);
+}
+
+.sidebar-divider--active .sidebar-divider__track {
+  opacity: 1;
+  width: 48px;
+  background: var(--accent);
+}
+
+/* ===== Sidebar Agent Hierarchy ===== */
+/* Tree structure: daemons as groups with nested task agents.
+   Uses a visual tree connector (vertical line + horizontal branch)
+   to show the delegation relationship. */
+
+.sidebar-agent-group {
+  margin-bottom: 2px;
+}
+
+.sidebar-nested-tasks {
+  margin-left: 12px;
+  padding-left: 0;
+  position: relative;
+}
+
+/* Tree connector — vertical line from daemon to last child */
+.sidebar-nested-tasks::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 16px;
+  width: 1px;
+  background: var(--border-main);
+  opacity: 0.5;
+}
+
+.sidebar-nested-task {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Horizontal branch from vertical line to child card */
+.sidebar-tree-connector {
+  position: absolute;
+  left: 10px;
+  top: 18px;
+  width: 10px;
+  height: 1px;
+  background: var(--border-main);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* Nudge the nested card to make room for the connector */
+.sidebar-nested-task > .agent-card {
+  margin-left: 20px;
+  flex: 1;
+}
+
+/* Compact agent card variant — smaller padding for nested tasks */
+.agent-card--compact {
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.agent-card--compact:hover {
+  background: var(--bg-hover);
+}
+
+/* ── Sidebar Indicator Badges (channel/schedule on agent cards) ── */
+.sidebar-indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 4px;
+  border-radius: 9999px;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.sidebar-indicator-badge--channel {
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 20%, transparent);
+}
+
+
+:root.dark .sidebar-indicator-badge--channel {
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 25%, transparent);
+}
+
+/* ── Sidebar Schedule Icon (clock with hover tooltip) ── */
+.sidebar-schedule-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--info);
+  cursor: default;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.sidebar-schedule-icon:hover {
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+}
+
+.sidebar-schedule-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.sidebar-schedule-icon:hover .sidebar-schedule-tooltip {
+  display: block;
+}
+
+/* ── Sidebar Channel Pills (below agent card in Channels section) ── */
+.sidebar-channel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+  color: var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 15%, transparent);
+  max-width: 140px;
+}
+
+:root.dark .sidebar-channel-pill {
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  border-color: color-mix(in srgb, var(--warning) 20%, transparent);
+}
+
+/* Material You overrides for hierarchy */
+.material .sidebar-nested-tasks::before {
+  opacity: 0.3;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+.material .sidebar-tree-connector {
+  opacity: 0.3;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+
+.material .agent-card--compact {
+  border-radius: 12px;
+}
+
+.material .sidebar-indicator-badge {
+  border-radius: 9999px;
+}
+
+.material .sidebar-channel-pill {
+  border-radius: 9999px;
+}

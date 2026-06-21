@@ -1,0 +1,12 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Provider
+metadata:
+  name: kimi
+  namespace: agents
+spec:
+  type: openaicompat
+  apiKeySecret:
+    name: llm-api-keys
+    key: KIMI_API_KEY
+  endpoint:
+    baseURL: "https://api.moonshot.ai/v1"

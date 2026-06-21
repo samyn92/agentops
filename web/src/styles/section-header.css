@@ -1,0 +1,41 @@
+/* ===== Section Headers ===== */
+/* Cohesive section divider system used across sidebar, right panel, and memory panel.
+   A thin ruled line with an uppercase label creates clear visual hierarchy between groups. */
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Section header with ruled line — the primary visual separator */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 6px;
+}
+
+/* The ruled line that extends after the label */
+.section-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-main);
+  opacity: 0.6;
+}
+
+/* Variant: first section doesn't need top padding */
+.section-header--first {
+  padding-top: 6px;
+}
+
+/* Material You overrides */
+.material .section-header::after {
+  opacity: 0.3;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}

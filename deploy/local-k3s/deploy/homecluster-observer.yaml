@@ -1,0 +1,84 @@
+# Read-only observer for the AgentOps console (hub) to watch this cluster (spoke).
+#
+# The console runs in-cluster on the LOCAL k3s hub and cannot otherwise reach
+# this homecluster. This grants a strictly READ-ONLY view of Flux state +
+# workloads so the console's CD/Environments lens can show live rollout/health
+# (the "GitOps-only + read-only observe" model: agents/console never WRITE here;
+# homecluster's own Flux performs all deploys from the GitOps repo).
+#
+# Apply on the homecluster context:
+#   kubectl --context homecluster apply -f homecluster-observer.yaml
+#
+# Then extract the token + CA for the hub (see local_k3s/deploy/scripts or the
+# console-observer Secret wiring). Long-lived token Secret is required on k8s
+# 1.24+ (no auto-generated SA token Secrets).
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agentops-console-observer
+  namespace: flux-system
+  labels:
+    app.kubernetes.io/managed-by: agentops
+    agentops.dev/purpose: hub-observer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agentops-console-observer
+  labels:
+    app.kubernetes.io/managed-by: agentops
+    agentops.dev/purpose: hub-observer
+rules:
+  # Flux: read all GitOps state (sources, kustomizations, helmreleases).
+  - apiGroups: [source.toolkit.fluxcd.io]
+    resources: [gitrepositories, helmrepositories, helmcharts, ocirepositories, buckets]
+    verbs: [get, list, watch]
+  - apiGroups: [kustomize.toolkit.fluxcd.io]
+    resources: [kustomizations]
+    verbs: [get, list, watch]
+  - apiGroups: [helm.toolkit.fluxcd.io]
+    resources: [helmreleases]
+    verbs: [get, list, watch]
+  # Workloads + events, read-only — to show what a rollout actually did.
+  - apiGroups: [""]
+    resources: [namespaces, pods, pods/log, services, events, configmaps, persistentvolumeclaims, nodes]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [deployments, statefulsets, daemonsets, replicasets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: agentops-console-observer
+  labels:
+    app.kubernetes.io/managed-by: agentops
+    agentops.dev/purpose: hub-observer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: agentops-console-observer
+subjects:
+  - kind: ServiceAccount
+    name: agentops-console-observer
+    namespace: flux-system
+---
+# Long-lived token for the hub console (k8s 1.24+ won't auto-create one).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agentops-console-observer-token
+  namespace: flux-system
+  annotations:
+    kubernetes.io/service-account.name: agentops-console-observer
+  labels:
+    app.kubernetes.io/managed-by: agentops
+    agentops.dev/purpose: hub-observer
+type: kubernetes.io/service-account-token

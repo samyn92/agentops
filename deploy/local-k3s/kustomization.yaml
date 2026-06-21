@@ -1,0 +1,19 @@
+# AgentOps local k3s dev environment — full stack bootstrap
+# Usage: kubectl apply -k local_k3s/
+#
+# Apply order:
+#   1. infra/    — namespaces, Tempo, NATS
+#   2. secrets/  — API keys, pull secrets, tokens
+#   3. deploy/   — memory service, operator-dev, console-dev
+#   4. agents/   — CRDs instances (providers, tools, resources, agents, rbac)
+#
+# NOTE: CRDs must be installed separately before agents/ can be applied:
+#   kubectl apply -f agentops-core/config/crd/bases/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - infra/
+  - secrets/
+  - deploy/
+  - agents/

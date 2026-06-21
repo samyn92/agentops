@@ -1,0 +1,15 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Integration
+metadata:
+  name: samyn92-lab
+  namespace: agents
+spec:
+  kind: gitlab-group
+  displayName: Samyn92 Lab
+  description: "Group workspace fixture — checkout-svc + billing-svc"
+  credentials:
+    name: gitlab-token
+    key: token
+  gitlabGroup:
+    baseURL: https://gitlab.com
+    group: samyn92-lab

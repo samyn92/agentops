@@ -1,0 +1,39 @@
+/* ── Trace list items ── */
+
+.trace-item {
+  transition:
+    background-color 120ms ease;
+}
+
+.trace-item--active {
+  background: var(--accent-muted);
+}
+
+.trace-item--active:hover {
+  background: var(--accent-muted);
+}
+
+/* ── Trace badges ── */
+
+.trace-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.trace-badge--task {
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--warning);
+}
+
+.trace-badge--delegated {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}

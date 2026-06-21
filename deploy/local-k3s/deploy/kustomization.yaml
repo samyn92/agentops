@@ -1,0 +1,10 @@
+# Dev environment for local k3s cluster.
+# Apply everything:  kubectl apply -k local_k3s/deploy/
+# Apply one component: kubectl apply -f local_k3s/deploy/operator-dev.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - agentops-memory.yaml
+  - operator-dev.yaml
+  - console-dev.yaml

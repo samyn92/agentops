@@ -1,0 +1,169 @@
+/* ===== Markdown Prose ===== */
+.md-prose {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-main);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Headings */
+.md-prose h1 { font-size: 1.35em; font-weight: 600; margin: 1em 0 0.5em; color: var(--text-main); }
+.md-prose h2 { font-size: 1.2em; font-weight: 600; margin: 1em 0 0.4em; color: var(--text-main); }
+.md-prose h3 { font-size: 1.1em; font-weight: 600; margin: 0.8em 0 0.35em; color: var(--text-main); }
+.md-prose h4 { font-size: 1em; font-weight: 600; margin: 0.6em 0 0.3em; color: var(--text-main); }
+
+.md-prose h1:first-child,
+.md-prose h2:first-child,
+.md-prose h3:first-child,
+.md-prose h4:first-child {
+  margin-top: 0;
+}
+
+/* Paragraphs */
+.md-prose p {
+  margin: 0.5em 0;
+}
+
+.md-prose p:first-child { margin-top: 0; }
+.md-prose p:last-child { margin-bottom: 0; }
+
+/* Lists */
+.md-prose ul,
+.md-prose ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.md-prose ul { list-style-type: disc; }
+.md-prose ol { list-style-type: decimal; }
+
+.md-prose li {
+  margin: 0.2em 0;
+}
+
+.md-prose li > ul,
+.md-prose li > ol {
+  margin: 0.15em 0;
+}
+
+/* Inline code */
+.md-prose code:not(.hljs) {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  padding: 0.15em 0.35em;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  color: var(--text-main);
+}
+
+/* Code blocks */
+.md-code-block {
+  margin: 0.6em 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-main);
+  background: var(--bg-secondary);
+}
+
+.md-code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-main);
+}
+
+.md-code-lang {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Hide the header when there's no language label */
+.md-code-header:has(.md-code-lang:empty) {
+  display: none;
+}
+
+.md-code-block pre {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+}
+
+.md-code-block code.hljs {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  background: transparent;
+  padding: 0;
+  color: var(--text-main);
+}
+
+/* Blockquotes */
+.md-prose blockquote {
+  margin: 0.5em 0;
+  padding: 0.25em 0 0.25em 1em;
+  border-left: 3px solid var(--border-main);
+  color: var(--text-secondary);
+}
+
+.md-prose blockquote p {
+  margin: 0.25em 0;
+}
+
+/* Tables */
+.md-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.6em 0;
+  font-size: 13px;
+}
+
+.md-prose th,
+.md-prose td {
+  border: 1px solid var(--border-main);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.md-prose th {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.md-prose td {
+  color: var(--text-secondary);
+}
+
+/* Horizontal rule */
+.md-prose hr {
+  border: none;
+  border-top: 1px solid var(--border-main);
+  margin: 1em 0;
+}
+
+/* Links */
+.md-prose a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.md-prose a:hover {
+  text-decoration: underline;
+}
+
+/* Strong & Emphasis */
+.md-prose strong { font-weight: 600; color: var(--text-main); }
+.md-prose em { font-style: italic; }
+
+/* Images */
+.md-prose img {
+  max-width: 100%;
+  border-radius: 6px;
+}

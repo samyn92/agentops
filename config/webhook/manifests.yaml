@@ -1,0 +1,86 @@
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-agents-agentops-io-v1alpha1-agent
+  failurePolicy: Fail
+  name: vagent.kb.io
+  rules:
+  - apiGroups:
+    - agents.agentops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - agents
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-agents-agentops-io-v1alpha1-channel
+  failurePolicy: Fail
+  name: vchannel.kb.io
+  rules:
+  - apiGroups:
+    - agents.agentops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - channels
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-agents-agentops-io-v1alpha1-integration
+  failurePolicy: Fail
+  name: vintegration.kb.io
+  rules:
+  - apiGroups:
+    - agents.agentops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - integrations
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /validate-agents-agentops-io-v1alpha1-provider
+  failurePolicy: Fail
+  name: vprovider.kb.io
+  rules:
+  - apiGroups:
+    - agents.agentops.io
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - providers
+  sideEffects: None

@@ -1,0 +1,99 @@
+/* ===== Highlight.js Theme (adapts to light/dark via CSS vars) ===== */
+/* Based on GitHub theme — uses the app's design tokens */
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: #cf222e;
+}
+:root.dark .hljs-keyword,
+:root.dark .hljs-selector-tag,
+:root.dark .hljs-addition {
+  color: #ff7b72;
+}
+
+.hljs-string,
+.hljs-attribute,
+.hljs-meta .hljs-string,
+.hljs-regexp {
+  color: #0a3069;
+}
+:root.dark .hljs-string,
+:root.dark .hljs-attribute,
+:root.dark .hljs-meta .hljs-string,
+:root.dark .hljs-regexp {
+  color: #a5d6ff;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #0550ae;
+}
+:root.dark .hljs-number,
+:root.dark .hljs-literal,
+:root.dark .hljs-variable,
+:root.dark .hljs-template-variable,
+:root.dark .hljs-tag .hljs-attr {
+  color: #79c0ff;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #8250df;
+}
+:root.dark .hljs-title,
+:root.dark .hljs-section,
+:root.dark .hljs-selector-id {
+  color: #d2a8ff;
+}
+
+.hljs-type,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-selector-class {
+  color: #953800;
+}
+:root.dark .hljs-type,
+:root.dark .hljs-built_in,
+:root.dark .hljs-builtin-name,
+:root.dark .hljs-selector-class {
+  color: #ffa657;
+}
+
+.hljs-name,
+.hljs-tag {
+  color: #116329;
+}
+:root.dark .hljs-name,
+:root.dark .hljs-tag {
+  color: #7ee787;
+}
+
+.hljs-meta,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  color: var(--text-secondary);
+}
+
+.hljs-deletion {
+  color: #82071e;
+  background: rgba(255, 129, 130, 0.15);
+}
+:root.dark .hljs-deletion {
+  color: #ffdcd7;
+  background: rgba(248, 81, 73, 0.15);
+}
+
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }

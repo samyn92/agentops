@@ -1,0 +1,149 @@
+/* ===== Material You Design System ===== */
+/* When .material is on <html>, the full Material Design 3 language activates.
+   Colors are generated dynamically by lib/theme.ts using @material/material-color-utilities
+   and applied as inline CSS custom properties. These rules handle shape, elevation,
+   motion, and component-level refinements per the M3 spec. */
+
+/* ── M3 Shape System ──
+   MD3 shape scale: Extra Small (4dp), Small (8dp), Medium (12dp),
+   Large (16dp), Extra Large (28dp), Full (9999px).
+   We map these to component roles. */
+
+/* Small shape — inputs, buttons, chips */
+.material button,
+.material input,
+.material select,
+.material textarea {
+  border-radius: 12px;
+}
+
+/* Medium shape — cards, panels, code blocks */
+.material [class*="rounded-lg"] {
+  border-radius: 12px;
+}
+
+.material [class*="rounded-xl"] {
+  border-radius: 16px;
+}
+
+.material .md-code-block {
+  border-radius: 12px;
+}
+
+.material .md-prose code:not(.hljs) {
+  border-radius: 6px;
+}
+
+/* Large shape — composer, dialogs, sheets */
+.material .composer-input {
+  border-radius: 28px;
+}
+
+/* Full shape — pills, FABs, toggles */
+.material button[class*="rounded-full"] {
+  border-radius: 9999px;
+}
+
+/* ── M3 Elevation System ──
+   MD3 uses surface tint + shadow for elevation, creating depth through
+   both light/shadow and color layering. Shadows are softer and more diffuse. */
+
+/* Level 1 (sm), Level 3 (md), Level 5 (lg) */
+.material {
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 1px 3px 1px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 2px 6px 2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 2px 3px 0 rgba(0, 0, 0, 0.06), 0 4px 8px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode: M3 uses less shadow, more surface tint for elevation */
+.material.dark {
+  --shadow-sm: 0 1px 3px 1px rgba(0, 0, 0, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 2px 6px 2px rgba(0, 0, 0, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 4px 8px 3px rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ── M3 Motion System ──
+   MD3 uses "emphasized" easing (decelerate: 0, 0, 0, 1 / accelerate: 0.3, 0, 1, 1)
+   and standard duration of 300ms for medium transitions, 200ms for small. */
+.material {
+  --transition-default: 300ms;
+}
+
+/* State layer — M3 hover/focus uses a semi-transparent overlay.
+   This is the "state layer" concept from the M3 interaction model. */
+.material button:hover,
+.material a:hover {
+  transition: background-color 300ms cubic-bezier(0, 0, 0, 1),
+              box-shadow 300ms cubic-bezier(0, 0, 0, 1),
+              transform 150ms cubic-bezier(0, 0, 0, 1);
+}
+
+/* ── M3 Scrollbar ── */
+.material * {
+  scrollbar-width: auto;
+}
+
+.material ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.material ::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+}
+
+/* ── M3 Neural Trace — softer in Material mode ── */
+.material .neural-trace__beam {
+  opacity: 0.6;
+}
+.material .neural-trace__glow {
+  opacity: 0.12;
+}
+
+.material.dark .neural-trace__beam {
+  opacity: 0.7;
+}
+.material.dark .neural-trace__glow {
+  opacity: 0.15;
+}
+
+/* ── M3 Composer refinements ── */
+.material .composer-input {
+  box-shadow: var(--shadow-sm);
+}
+
+.material .composer-input:focus-within {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent),
+    var(--shadow-md);
+}
+
+/* ── M3 Toggle / Switch ── */
+.material .m3-toggle {
+  border-radius: 9999px;
+  transition: background-color 300ms cubic-bezier(0, 0, 0, 1);
+}
+
+.material .m3-toggle-thumb {
+  border-radius: 9999px;
+  transition: transform 300ms cubic-bezier(0, 0, 0, 1),
+              width 200ms cubic-bezier(0, 0, 0, 1),
+              height 200ms cubic-bezier(0, 0, 0, 1);
+}
+
+/* ── M3 Settings-specific styles ── */
+/* Scheme variant cards in settings */
+.material .scheme-card {
+  border-radius: 16px;
+  transition: border-color 300ms cubic-bezier(0, 0, 0, 1),
+              box-shadow 300ms cubic-bezier(0, 0, 0, 1),
+              transform 150ms cubic-bezier(0, 0, 0, 1);
+}
+
+.material .scheme-card:hover {
+  transform: translateY(-1px);
+}
+
+.material .scheme-card.selected {
+  box-shadow: 0 0 0 2px var(--accent);
+}

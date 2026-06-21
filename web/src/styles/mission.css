@@ -1,0 +1,168 @@
+/* Mission Control — bespoke motion + surfaces for the unified board/cockpit.
+ * All keyframes are guarded by prefers-reduced-motion at the bottom.
+ * Colors come from the design tokens (base.css); only motion lives here. */
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+.mc-shell {
+  /* A faint top-lit gradient so the full-bleed background reads as a "deck"
+     rather than a flat fill — fixes the old "background cuts off" feel. */
+  background:
+    radial-gradient(1200px 480px at 50% -10%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 70%),
+    var(--bg-main);
+}
+
+/* ── Lane ──────────────────────────────────────────────────────────────── */
+.mc-lane {
+  transition: border-color var(--transition-default), box-shadow var(--transition-default);
+}
+/* A lane with live work gently breathes with its state-machine color. */
+.mc-lane[data-active="true"] {
+  animation: mc-lane-breathe 3.2s ease-in-out infinite;
+}
+@keyframes mc-lane-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50%      { box-shadow: 0 0 0 1px var(--mc-accent, var(--accent)),
+                          0 0 22px -6px var(--mc-accent, var(--accent)); }
+}
+
+/* Collapsed (empty) lane rail — clickable, accent-tinted on hover. */
+.mc-rail {
+  cursor: pointer;
+  transition: background-color var(--transition-default), border-color var(--transition-default);
+}
+.mc-rail:hover {
+  background-color: var(--bg-hover);
+  border-color: color-mix(in oklab, var(--mc-accent, var(--accent)) 45%, transparent);
+}
+
+/* ── Repository switcher (pill + command palette) ──────────────────────── */
+.repo-pill {
+  transition: background-color var(--transition-default), border-color var(--transition-default);
+}
+.repo-pill:hover {
+  background-color: var(--bg-hover);
+  border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+}
+.mc-palette { animation: mc-palette-in 160ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes mc-palette-in {
+  from { opacity: 0; transform: translateY(-8px) scale(.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+.mc-card {
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  animation: mc-card-rise 320ms ease both;
+}
+.mc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.mc-card[data-selected="true"] {
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+}
+@keyframes mc-card-rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Progress fill along the state machine. */
+.mc-progress {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-hover);
+}
+.mc-progress > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--mc-accent, var(--accent)) 55%, transparent),
+    var(--mc-accent, var(--accent)));
+  transition: width 420ms cubic-bezier(.2, .8, .2, 1);
+}
+/* A travelling sheen while a run is active. */
+.mc-progress[data-active="true"] > i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .35), transparent);
+  animation: mc-progress-shimmer 1.6s linear infinite;
+}
+@keyframes mc-progress-shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* Live run dot — pulsing ring. */
+.mc-live-dot { position: relative; }
+.mc-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 1px solid var(--mc-accent, var(--accent));
+  animation: mc-pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes mc-pulse-ring {
+  0%   { transform: scale(.7); opacity: .9; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ── Cockpit dock ──────────────────────────────────────────────────────── */
+.mc-dock { animation: mc-dock-in 240ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes mc-dock-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Stepper node connecting line + states. */
+.mc-step { transition: color 200ms, background-color 200ms, border-color 200ms; }
+
+/* ── Drag & drop ───────────────────────────────────────────────────────── */
+/* Cards advertise their draggability: grab cursor, lift the grip on hover, and
+   dim + tilt while in flight so the drop target reads as the "real" position. */
+.mc-card[draggable="true"] { cursor: grab; }
+.mc-card[draggable="true"]:active { cursor: grabbing; }
+.mc-card:active { transform: scale(.99); }
+/* The browser's drag image is a snapshot taken at dragstart; we still fade the
+   source so the board doesn't look duplicated mid-drag. */
+.mc-card.mc-dragging { opacity: .4; }
+.mc-grip { cursor: grab; }
+
+/* A lane lit up as the active drop target — accent ring + tint. */
+.mc-lane[data-drop="true"] {
+  border-color: var(--mc-accent, var(--accent));
+  box-shadow: 0 0 0 1px var(--mc-accent, var(--accent)),
+              0 0 28px -8px var(--mc-accent, var(--accent));
+  background-color: color-mix(in oklab, var(--mc-accent, var(--accent)) 7%, transparent);
+}
+
+/* Per-lane "drop here" affordance, revealed only while a drag is in flight. */
+.mc-drop-hint { animation: mc-fade-in 160ms ease both; }
+@keyframes mc-fade-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Move/dispatch confirmation toast. */
+.mc-toast {
+  transform: translateX(-50%);
+  animation: mc-toast-in 200ms cubic-bezier(.2, .8, .2, 1) both;
+  backdrop-filter: blur(8px);
+}
+@keyframes mc-toast-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-lane[data-active="true"],
+  .mc-card,
+  .mc-progress[data-active="true"] > i::after,
+  .mc-live-dot::after,
+  .mc-palette,
+  .mc-drop-hint,
+  .mc-toast,
+  .mc-dock { animation: none !important; }
+  .mc-card:hover,
+  .mc-card:active { transform: none; }
+}

@@ -1,0 +1,35 @@
+# AgentOps platform version matrix.
+#
+# This first version is a draft inventory baseline for the current workspace.
+# At release time, reconcile these values into one known-good platform set.
+
+schema: agentops-platform.versions/v1
+updated: 2026-06-04
+status: draft
+
+platform_chart_version: 0.17.2
+platform_app_version: 0.17.2
+
+component_tags:
+  agentops_core_tag: v0.19.0
+  agentops_console_tag: v0.11.8
+  agentops_runtime_tag: v0.18.0
+  agentops_memory_tag: v0.4.2
+  agent_tools_tag: v0.9.9
+  agent_channels_tag: v0.2.0
+  agentops_docs_ref: main
+
+chart_dependencies:
+  agentops_operator_chart: 0.17.1
+  agentops_console_chart: 0.11.8
+  tempo_chart: 1.24.4
+  nats_chart: 2.12.6
+
+images:
+  runtime_default_image: ghcr.io/samyn92/agentops-runtime-fantasy:0.18.0
+  memory_image: ghcr.io/samyn92/agentops-memory:0.4.2
+
+contracts:
+  agent_api: agents.agentops.io/v1alpha1
+  memory_api: v1
+  fep_api: v1

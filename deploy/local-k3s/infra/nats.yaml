@@ -1,0 +1,94 @@
+# NATS — lightweight event bus for async FEP event distribution
+# Runtimes publish, console BFF subscribes. No auth, no TLS, no JetStream.
+# DNS: agentops-nats.agent-system.svc.cluster.local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentops-nats
+  namespace: agent-system
+  labels:
+    app: agentops-nats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agentops-nats
+  template:
+    metadata:
+      labels:
+        app: agentops-nats
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: nats
+          image: nats:2.11.10-alpine
+          args:
+            - "-c"
+            - "/etc/nats/nats.conf"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats
+          ports:
+            - name: client
+              containerPort: 4222
+            - name: monitor
+              containerPort: 8222
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          env:
+            - name: GOMEMLIMIT
+              value: 128MiB
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitor
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitor
+            initialDelaySeconds: 2
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: nats-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-config
+  namespace: agent-system
+data:
+  nats.conf: |
+    listen: 0.0.0.0:4222
+    http: 0.0.0.0:8222
+    max_payload: 1048576
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentops-nats
+  namespace: agent-system
+  labels:
+    app: agentops-nats
+spec:
+  selector:
+    app: agentops-nats
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+    - name: monitor
+      port: 8222
+      targetPort: 8222

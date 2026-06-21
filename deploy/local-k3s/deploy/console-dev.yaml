@@ -1,0 +1,158 @@
+# agentops-console dev pod
+# Runs Go BFF + Vite dev server in-cluster with hostPath-mounted source code.
+# No port-forwards needed — talks to Engram, Tempo, agent pods via cluster DNS.
+# Access Vite HMR at http://localhost:30173 (NodePort).
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: console-dev
+  namespace: agent-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: console-dev
+rules:
+  # AgentOps CRDs
+  - apiGroups: ["agents.agentops.io"]
+    resources: ["agents", "agentruns", "channels", "agenttools", "agentresources", "integrations", "providers"]
+    verbs: ["get", "list", "watch", "patch", "create"]
+  # Core resources the console browses
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "configmaps", "secrets", "events", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+  # Leader election (controller-runtime client may need this)
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: console-dev
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: console-dev
+subjects:
+  - kind: ServiceAccount
+    name: console-dev
+    namespace: agent-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: console-dev
+  namespace: agent-system
+  labels:
+    app: console-dev
+spec:
+  type: NodePort
+  selector:
+    app: console-dev
+  ports:
+    # Vite dev server (HMR + proxy to Go BFF)
+    - name: vite
+      port: 5173
+      targetPort: 5173
+      nodePort: 30173
+    # Go BFF (direct access if needed)
+    - name: bff
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: console-dev
+  namespace: agent-system
+  labels:
+    app: console-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: console-dev
+  template:
+    metadata:
+      labels:
+        app: console-dev
+    spec:
+      serviceAccountName: console-dev
+      containers:
+        - name: dev
+          image: golang:1.26
+          command: ["/bin/bash", "/workspace/local_k3s/deploy/scripts/console-init.sh"]
+          workingDir: /workspace/agentops-console
+          ports:
+            - name: vite
+              containerPort: 5173
+            - name: bff
+              containerPort: 8080
+          env:
+            - name: GOPATH
+              value: /go
+            - name: GOCACHE
+              value: /go/cache
+            # In-cluster DNS — no port-forwards needed
+            - name: TEMPO_URL
+              value: http://tempo.observability.svc.cluster.local:3200
+            # Memory service URL (agentops-memory in agents namespace)
+            - name: ENGRAM_URL_OVERRIDE
+              value: http://agentops-memory.agents.svc.cluster.local:7437
+            # OTEL tracing — export to Tempo via gRPC
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: tempo.observability.svc.cluster.local:4317
+            # NATS — subscribe to FEP events from agent runtimes
+            - name: NATS_URL
+              value: nats://agentops-nats.agent-system.svc.cluster.local:4222
+            # GitLab OIDC — human login for the merge gate + "acting as" identity
+            - name: GITLAB_OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth
+                  key: client-id
+            - name: GITLAB_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth
+                  key: client-secret
+            - name: GITLAB_OAUTH_SESSION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-oauth
+                  key: session-key
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: go-cache
+              mountPath: /go
+            - name: npm-cache
+              mountPath: /root/.npm
+          resources:
+            requests:
+              memory: 512Mi
+              cpu: 500m
+            limits:
+              memory: 3Gi
+      volumes:
+        - name: workspace
+          hostPath:
+            path: /home/samy/dev/github.com/samyn92
+        - name: go-cache
+          emptyDir:
+            sizeLimit: 4Gi
+        - name: npm-cache
+          emptyDir:
+            sizeLimit: 1Gi

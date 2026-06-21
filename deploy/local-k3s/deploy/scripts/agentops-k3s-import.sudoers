@@ -1,0 +1,4 @@
+# Allow the dev user to import image tarballs into k3s containerd without a
+# password. Scoped to the single-purpose wrapper (import only) — NOT full
+# `k3s ctr` access. Install as /etc/sudoers.d/agentops-k3s-import (mode 0440).
+samy ALL=(root) NOPASSWD: /usr/local/bin/k3s-image-import

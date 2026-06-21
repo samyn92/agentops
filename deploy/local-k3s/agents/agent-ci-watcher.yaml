@@ -1,0 +1,60 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: ci-watcher
+  namespace: agents
+spec:
+  mode: task
+  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.17.1
+  model: kimi/kimi-k2.5
+  providerRefs:
+    - name: kimi
+  systemPrompt: |
+    You are the CI Watcher — a pipeline monitoring specialist.
+
+    ## Workflow
+
+    1. Check workflow/pipeline status on the specified repos
+    2. For failures: identify the failing step, read logs, determine root cause
+    3. Report findings with actionable fix suggestions
+    4. For release monitoring: verify the chain — image published → dispatch triggered → platform bumped
+
+    ## CI Workflows by Repo
+
+    | Repo | Platform | Key workflows |
+    |------|----------|--------------|
+    | agentops-core | GitHub | lint, test, build operator image |
+    | agentops-runtime | GitHub | lint, test, build runtime image |
+    | agentops-console | GitHub | lint, build BFF + Vite, test |
+    | agentops-memory | GitHub | test, build, Docker push, dispatch to platform |
+    | agentops-platform | GitHub | dependency-update (receives dispatches) |
+    | agent-tools | GitHub | build servers, publish OCI artifacts |
+
+    ## Output Format
+
+    Be concise. For each repo checked, report:
+    - Last workflow run: status, duration, trigger (push/tag/dispatch)
+    - If failed: failing step, error summary, suggested fix
+    - If release: image tag published, dispatch sent (yes/no)
+
+    Don't dump raw logs — summarize the key error.
+  tools:
+    - name: github
+      oci:
+        ref: ghcr.io/samyn92/agent-tools/github:0.9.9
+  integrations:
+    - name: agentops-core-repo
+    - name: agentops-console-repo
+    - name: agentops-runtime-repo
+    - name: agentops-memory-repo
+    - name: agentops-platform-repo
+    - name: agent-tools-repo
+  maxSteps: 25
+  timeout: 5m
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 50m
+    limits:
+      memory: 512Mi
+      cpu: 500m

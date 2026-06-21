@@ -1,0 +1,47 @@
+apiVersion: agents.agentops.io/v1alpha1
+kind: Channel
+metadata:
+  name: svc-delivery-board
+  namespace: agents
+  labels:
+    agentops.dev/swarm: svc-lifecycle
+spec:
+  type: gitlab-label
+  agentRef: svc-pm
+  image: ghcr.io/samyn92/agent-channel-gitlab-label:dev
+  imagePullPolicy: IfNotPresent
+  # PM-oriented prompt (the default gitlab-label template is coder-oriented).
+  # The bridge renders this with the matched item's gitlab.* fields. Note: for
+  # group-scoped polling gitlab.project is the numeric project id, so the PM
+  # derives the project PATH from web_url.
+  prompt: |
+    A GitLab issue on the samyn92-lab delivery board needs attention.
+
+    - Issue: #{{.gitlab.iid}} — {{.gitlab.title}}
+    - URL: {{.gitlab.web_url}}
+    - Trigger label: {{.gitlab.label}}
+
+    Parse the project path and issue iid from the URL, then read the issue
+    (gitlab_get_issue) AND its discussion notes (gitlab_list_issue_notes).
+    Decide whether the work is code-only, chart-only, or both, and sequence your
+    delegations accordingly (svc-coder for code, svc-chart-author for the Helm
+    chart on the same branch).
+    {{if eq .gitlab.label "agent::changes-requested"}}
+    THIS IS A REWORK. A merge request already exists for this issue and a human
+    has requested changes (read their feedback in the issue notes above). Delegate
+    ONE rework task on the SAME feature branch: svc-ci-fixer if the request is
+    about a red pipeline / failing tests, otherwise svc-coder. Instruct it to find
+    the existing open MR, read the review feedback (gitlab_list_mr_notes) and the
+    current diff, address every requested change, and push to the SAME branch — it
+    must NOT open a new merge request. Pass the reviewer feedback verbatim.
+    {{else}}
+    Delegate fresh implementation per your instructions.
+    {{end}}
+  gitlabLabel:
+    integrationRef: samyn92-lab
+    labels:
+      - agent::todo
+      - agent::changes-requested
+    state: opened
+    target: issues
+    pollInterval: 30s

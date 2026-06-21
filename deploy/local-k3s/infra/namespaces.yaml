@@ -1,0 +1,22 @@
+# Namespaces for the AgentOps dev environment
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agent-system
+  labels:
+    app.kubernetes.io/part-of: agentops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agents
+  labels:
+    app.kubernetes.io/part-of: agentops
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    app.kubernetes.io/part-of: agentops
