@@ -1,6 +1,0 @@
-{
-  "name": "tempo",
-  "command": "mcp-tempo",
-  "transport": "stdio",
-  "description": "Tempo trace analysis — search, inspect, aggregate, and compare agent execution traces"
-}
