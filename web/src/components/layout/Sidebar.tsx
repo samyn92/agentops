@@ -494,7 +494,6 @@ export default function Sidebar(props: SidebarProps) {
               </div>
             </div>
           </div>
-          </Show>
         </div>
         <div class="border-t border-border px-2 py-2 flex-shrink-0">
           <A
