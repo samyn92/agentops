@@ -8,6 +8,7 @@ import AppErrorBoundary from './components/shared/ErrorBoundary'
 import { startEventStream, stopEventStream } from './stores/events'
 import { isAuthenticated, isAuthDisabled, currentUser, providers, login } from './stores/auth'
 import { GitLabIcon } from './components/shared/Icons'
+import AppHeader from './components/layout/AppHeader'
 
 function AppShell(props: { children?: any }) {
   const navigate = useNavigate()
@@ -30,7 +31,12 @@ function AppShell(props: { children?: any }) {
     <AppErrorBoundary name="Application">
       {/* Show login screen when not authenticated; show app when authenticated or auth disabled */}
       <Show when={isAuthenticated() || isAuthDisabled()} fallback={<LoginScreen />}>
-        {props.children}
+        <div class="h-dvh flex flex-col">
+          <AppHeader />
+          <div class="flex-1 min-h-0">
+            {props.children}
+          </div>
+        </div>
       </Show>
     </AppErrorBoundary>
   )

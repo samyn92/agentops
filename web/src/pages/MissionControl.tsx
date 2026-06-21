@@ -568,7 +568,7 @@ export default function MissionControl() {
   const activeRuns = createMemo(() => (joins() ?? []).filter((j) => joinActive(j)).length);
 
   return (
-    <div class="mc-shell h-dvh flex flex-col text-text overflow-hidden">
+    <div class="mc-shell h-full flex flex-col text-text overflow-hidden">
       <TopBar
         groups={groups}
         selected={selected}
@@ -778,15 +778,8 @@ function TopBar(props: {
 }) {
   return (
     <>
-    <header class="flex items-center gap-3 px-4 h-14 flex-shrink-0 border-b border-border bg-surface/70 backdrop-blur">
-      <div class="flex items-center gap-2 font-semibold">
-        <span class="w-7 h-7 rounded-lg grid place-items-center text-white bg-gradient-to-br from-indigo-500 to-purple-500 text-[13px] shadow">◆</span>
-        <span class="tracking-tight">Mission Control</span>
-      </div>
-
-      <div class="h-5 w-px bg-border mx-1" />
-
-      {/* Unified scope selector: workspace + project in one pill */}
+    <header class="flex items-center gap-3 px-4 h-11 flex-shrink-0 border-b border-border-subtle bg-surface/50">
+      {/* Workspace selector */}
       <WorkspaceBrowser
         workspaces={props.groups}
         selected={props.selected}
