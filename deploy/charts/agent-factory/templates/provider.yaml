@@ -1,7 +1,7 @@
 apiVersion: agents.agentops.io/v1alpha1
 kind: Provider
 metadata:
-  name: {{ include "agent-factory.fullname" . }}-{{ .Values.provider.name }}
+  name: {{ .Values.provider.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "agent-factory.labels" . | nindent 4 }}

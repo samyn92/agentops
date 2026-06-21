@@ -1,5 +1,5 @@
 {{- $fullname := include "agent-factory.fullname" . }}
-{{- $provider := printf "%s-%s" $fullname .Values.provider.name }}
+{{- $provider := .Values.provider.name }}
 {{- $plannerIntg := printf "%s-planner" $fullname }}
 {{- $coderIntg := printf "%s-coder" $fullname }}
 
