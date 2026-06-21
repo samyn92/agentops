@@ -406,6 +406,13 @@ export default function MissionControl() {
       const ns = c.metadata.namespace;
       if (ref && isDaemon(ns, ref)) return { ns, name: ref };
     }
+    // Fallback: find a daemon agent whose name ends with "-planner"
+    // (factory naming convention: {scope}-planner).
+    const planner = list.find((a) => a.mode === 'daemon' && a.name.endsWith('-planner'));
+    if (planner) return { ns: planner.namespace, name: planner.name };
+    // Last resort: any daemon agent
+    const anyDaemon = list.find((a) => a.mode === 'daemon');
+    if (anyDaemon) return { ns: anyDaemon.namespace, name: anyDaemon.name };
     return null;
   });
 

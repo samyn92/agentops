@@ -93,7 +93,7 @@ export default function PlanRefinement(props: PlanRefinementProps) {
       // 2. Prompt the PM agent with full context — BFF orchestrates:
       //    fetch issue → prompt agent → update description → return.
       const daemon = pm();
-      const agentName = daemon?.name ?? 'svc-pm';
+      const agentName = daemon?.name ?? 'samyn92-lab-planner';
       setStreaming(true);
 
       await gitlabGroup.refineIssue(
