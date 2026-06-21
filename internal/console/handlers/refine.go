@@ -142,9 +142,35 @@ func (h *Handlers) GroupProjectIssueRefine(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// 4. Post the agent's response as a GitLab note on the issue.
-	// Uses the bot token so it appears as the bot service account in GitLab.
-	noteBody, _ := json.Marshal(map[string]string{"body": agentOutput.Output})
+	// 4. Update the issue DESCRIPTION with the agent's refined plan.
+	// The description IS the authoritative plan document.
+	updateBody, _ := json.Marshal(map[string]string{"description": agentOutput.Output})
+	updatePath := fmt.Sprintf("/api/v4/projects/%s/issues/%s", url.PathEscape(pid), url.PathEscape(iid))
+
+	updateReq, err := http.NewRequestWithContext(r.Context(), "PUT", baseURL+updatePath, bytes.NewReader(updateBody))
+	if err != nil {
+		slog.Error("refine: failed to create update request", "error", err)
+		writeJSON(w, http.StatusOK, RefineResponse{Output: agentOutput.Output})
+		return
+	}
+	if noteToken == botToken && botToken != "" {
+		updateReq.Header.Set("PRIVATE-TOKEN", noteToken)
+	} else {
+		updateReq.Header.Set("Authorization", "Bearer "+noteToken)
+	}
+	updateReq.Header.Set("Content-Type", "application/json")
+
+	updateResp, err := client.Do(updateReq)
+	if err != nil {
+		slog.Error("refine: failed to update issue description", "error", err)
+	} else {
+		updateResp.Body.Close()
+	}
+
+	// 5. Post a note summarizing what was changed (for audit trail).
+	noteText := fmt.Sprintf("**Plan updated** based on feedback:\n\n> %s\n\nThe issue description has been updated with the refined plan.",
+		req.Feedback)
+	noteBody, _ := json.Marshal(map[string]string{"body": noteText})
 	notePath := fmt.Sprintf("/api/v4/projects/%s/issues/%s/notes", url.PathEscape(pid), url.PathEscape(iid))
 
 	noteReq, err := http.NewRequestWithContext(r.Context(), "POST", baseURL+notePath, bytes.NewReader(noteBody))
@@ -153,7 +179,6 @@ func (h *Handlers) GroupProjectIssueRefine(w http.ResponseWriter, r *http.Reques
 		writeJSON(w, http.StatusOK, RefineResponse{Output: agentOutput.Output})
 		return
 	}
-	// Use PRIVATE-TOKEN for bot tokens (PAT), Bearer for OIDC tokens.
 	if noteToken == botToken && botToken != "" {
 		noteReq.Header.Set("PRIVATE-TOKEN", noteToken)
 	} else {
@@ -186,8 +211,8 @@ func (h *Handlers) GroupProjectIssueRefine(w http.ResponseWriter, r *http.Reques
 
 func buildRefinePrompt(title, description string, iid int, feedback string) string {
 	var b bytes.Buffer
-	b.WriteString("You are helping refine a plan for a work item. ")
-	b.WriteString("Review the current plan and the human's feedback, then provide an improved version or answer their question.\n\n")
+	b.WriteString("You are refining a plan for a work item. Your output will REPLACE the issue description (the authoritative plan document).\n\n")
+	b.WriteString("Write a complete, self-contained plan in markdown. Do NOT include conversational text — only the plan itself.\n\n")
 
 	if iid > 0 {
 		fmt.Fprintf(&b, "## Issue #%d: %s\n\n", iid, title)
@@ -201,7 +226,8 @@ func buildRefinePrompt(title, description string, iid int, feedback string) stri
 	b.WriteString(feedback)
 	b.WriteString("\n\n")
 	b.WriteString("## Instructions\n\n")
-	b.WriteString("Respond with your refined analysis, suggestions, or updated plan. ")
-	b.WriteString("Be concise and actionable. Use markdown formatting.")
+	b.WriteString("Output ONLY the updated plan document in markdown. Include:\n")
+	b.WriteString("- Objective\n- Technical approach\n- Files to create/modify\n- Acceptance criteria (as checkboxes)\n- Estimated effort\n\n")
+	b.WriteString("Your entire response becomes the new issue description. Be structured and actionable.")
 	return b.String()
 }
