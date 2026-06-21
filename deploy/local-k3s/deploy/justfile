@@ -1,5 +1,5 @@
 # agentops local k3s dev environment
-# Usage: just <recipe>        (from workspace root or local_k3s/deploy/)
+# Usage: just <recipe>        (from workspace root or deploy/local-k3s/deploy/)
 #
 # Hot-reload strategy:
 #   - Build to a known binary path (/tmp/manager, /tmp/bff)
@@ -12,15 +12,15 @@ set dotenv-load := false
 ns          := "agent-system"
 op_deploy   := "operator-dev"
 con_deploy  := "console-dev"
-op_workdir  := "/workspace/agentops-core"
-con_workdir := "/workspace/agentops-console"
+op_workdir  := "/workspace"
+con_workdir := "/workspace"
 path_export := "export PATH=/usr/local/bin:/go/bin:/usr/local/go/bin:$PATH"
 
 # Runtime dev-image: rolling :dev tag, built on the host with docker and
 # imported into k3s containerd. Agents pin spec.image to this tag with the
 # default IfNotPresent pull policy, so re-import + re-fire picks up changes
 # without ever touching a registry.
-rt_dir   := justfile_directory() / ".." / ".." / "agentops-runtime"
+rt_dir   := justfile_directory() / ".." / ".."
 rt_image := "ghcr.io/samyn92/agentops-runtime-fantasy:dev"
 rt_tar   := "/tmp/agentops-runtime-dev.tar"
 
@@ -28,14 +28,14 @@ rt_tar   := "/tmp/agentops-runtime-dev.tar"
 # runtime. Channel CRs pin spec.image to ghcr.io/samyn92/agent-channel-<type>:dev
 # with imagePullPolicy: IfNotPresent, so re-import + rollout restart picks up
 # changes without a registry round-trip.
-ch_dir   := justfile_directory() / ".." / ".." / "agent-channels"
+ch_dir   := justfile_directory() / ".." / ".."
 
 
 # ── Lifecycle ─────────────────────────────────────────────
 
 # Deploy both dev pods to the cluster
 up:
-    kubectl apply -k local_k3s/deploy/
+    kubectl apply -k deploy/local-k3s/deploy/
     @echo ""
     @echo "Waiting for pods..."
     @kubectl rollout status deploy/{{op_deploy}} -n {{ns}} --timeout=120s
@@ -49,7 +49,7 @@ up:
 
 # Tear down both dev pods
 down:
-    kubectl delete -k local_k3s/deploy/ --ignore-not-found
+    kubectl delete -k deploy/local-k3s/deploy/ --ignore-not-found
 
 # Show status of dev pods and dependent services
 status:
@@ -79,7 +79,7 @@ op-reload:
       fi
       # build
       cd {{op_workdir}} && {{path_export}}
-      go build -o /tmp/manager ./cmd/main.go
+      go build -o /tmp/manager ./cmd/operator/
       # start
       /tmp/manager > /tmp/operator.log 2>&1 &
       echo $! > /tmp/manager.pid
@@ -104,7 +104,7 @@ op-reload-full:
       # regenerate + build
       cd {{op_workdir}} && {{path_export}}
       make generate && make manifests && make install
-      go build -o /tmp/manager ./cmd/main.go
+      go build -o /tmp/manager ./cmd/operator/
       # start
       /tmp/manager > /tmp/operator.log 2>&1 &
       echo $! > /tmp/manager.pid
@@ -155,11 +155,11 @@ rt-reload:
     docker save {{rt_image}} -o {{rt_tar}}
     echo "==> importing into k3s containerd"
     sudo -n /usr/local/bin/k3s-image-import {{rt_tar}}
-    echo "==> done. Re-fire agents with: just --justfile local_k3s/deploy/justfile rt-refire <agent>"
+    echo "==> done. Re-fire agents with: just --justfile deploy/local-k3s/deploy/justfile rt-refire <agent>"
 
 # Compile-check the runtime only (no image build)
 rt-build:
-    cd {{rt_dir}} && go build ./... && go test ./... 
+    cd {{rt_dir}} && go build ./cmd/runtime/ && go test ./cmd/runtime/...
 
 # Re-fire a task agent on the freshly imported image by deleting its latest
 # AgentRun so the channel bridge dispatches a new pod (pull policy IfNotPresent).
@@ -216,7 +216,7 @@ channel-reload channel:
 
 # Compile-check + test the channel bridges only (no image build)
 channel-build:
-    cd {{ch_dir}} && go build ./... && go test ./...
+    cd {{ch_dir}} && go build ./channels/... && go test ./channels/...
 
 # ── Console ───────────────────────────────────────────────
 # Hot-reload console BFF: kill Go process → rebuild → restart (Vite stays up)
@@ -233,7 +233,7 @@ con-reload:
         rm -f /tmp/bff.pid
       fi
       # build
-      cd /workspace/agentops-console
+      cd /workspace
       go build -o /tmp/bff ./cmd/console/
       # start
       /tmp/bff --dev --namespace agents > /tmp/bff.log 2>&1 &

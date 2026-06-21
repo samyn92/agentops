@@ -17,7 +17,7 @@ apt-get update -qq && apt-get install -y -qq \
   && rm -rf /var/lib/apt/lists/*
 
 # Mark hostPath as safe for git
-git config --global --add safe.directory /workspace/agentops-console
+git config --global --add safe.directory /workspace
 
 echo "=== Dev pod ready ==="
 echo "Go:      $(go version)"
@@ -27,13 +27,13 @@ echo "npm:     $(npm --version)"
 # Install npm deps
 echo ""
 echo "Installing npm dependencies..."
-cd /workspace/agentops-console/web
+cd /workspace/web
 npm install
 
 # Build and start Go BFF in background (binary, not go run — avoids orphan child processes)
 echo ""
 echo "Building Go BFF..."
-cd /workspace/agentops-console
+cd /workspace
 go build -o /tmp/bff ./cmd/console/
 echo "Starting Go BFF on :8080..."
 /tmp/bff --dev --namespace agents > /tmp/bff.log 2>&1 &
@@ -46,5 +46,5 @@ sleep 3
 
 # Start Vite dev server (foreground — keeps the container alive)
 echo "Starting Vite dev server on :5173..."
-cd /workspace/agentops-console/web
+cd /workspace/web
 exec npx vite --host 0.0.0.0

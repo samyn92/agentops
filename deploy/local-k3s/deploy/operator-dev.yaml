@@ -88,8 +88,8 @@ spec:
       containers:
         - name: dev
           image: golang:1.26
-          command: ["/bin/bash", "/workspace/local_k3s/deploy/scripts/operator-init.sh"]
-          workingDir: /workspace/agentops-core
+          command: ["/bin/bash", "/workspace/deploy/local-k3s/deploy/scripts/operator-init.sh"]
+          workingDir: /workspace
           env:
             - name: GOPATH
               value: /go
@@ -112,7 +112,7 @@ spec:
       volumes:
         - name: workspace
           hostPath:
-            path: /home/samy/dev/github.com/samyn92
+            path: /home/samy/dev/github.com/samyn92/agentops
         - name: go-cache
           emptyDir:
             sizeLimit: 4Gi

@@ -24,7 +24,7 @@ if ! command -v kubectl &>/dev/null; then
 fi
 
 # Mark hostPath as safe for git
-git config --global --add safe.directory /workspace/agentops-core
+git config --global --add safe.directory /workspace
 
 echo "=== Dev pod ready ==="
 echo "Go:      $(go version)"
@@ -32,9 +32,9 @@ echo "Node:    $(node --version)"
 echo "npm:     $(npm --version)"
 echo "kubectl: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
 echo ""
-echo "Source code at /workspace/agentops-core"
+echo "Source code at /workspace"
 echo "Run: make generate && make manifests && make install"
-echo "Run: go build -o /tmp/manager ./cmd/main.go && /tmp/manager"
+echo "Run: go build -o /tmp/manager ./cmd/operator/ && /tmp/manager"
 
 # Keep the pod alive
 exec sleep infinity

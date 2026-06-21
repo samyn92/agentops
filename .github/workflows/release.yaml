@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/samyn92
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - component: operator
+            dockerfile: Dockerfile.operator
+            image: agentops-operator
+          - component: console
+            dockerfile: Dockerfile.console
+            image: agentops-console
+          - component: runtime
+            dockerfile: Dockerfile.runtime
+            image: agentops-runtime
+          - component: memory
+            dockerfile: Dockerfile.memory
+            image: agentops-memory
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.image }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-tools:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tool: [kubectl, flux, git, github, gitlab, helm, tempo, kube-explore]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+      - name: Build tool server
+        run: |
+          CGO_ENABLED=0 go build -o tools/${{ matrix.tool }}/dist/bin/mcp-${{ matrix.tool }} ./tools/${{ matrix.tool }}/
+      # TODO: Package as OCI artifact and push to ghcr.io
+
+  build-channels:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        channel: [webhook, gitlab, gitlab-label, gitlab-comment]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: channels/${{ matrix.channel }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/agent-channel-${{ matrix.channel }}:${{ github.ref_name }}
+            ${{ env.IMAGE_PREFIX }}/agent-channel-${{ matrix.channel }}:latest
+
+  package-chart:
+    runs-on: ubuntu-latest
+    needs: [build-images]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Package and push chart
+        run: |
+          helm package deploy/charts/agentops
+          helm push agentops-*.tgz oci://ghcr.io/samyn92/charts
+
+  github-release:
+    runs-on: ubuntu-latest
+    needs: [build-images, build-channels]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

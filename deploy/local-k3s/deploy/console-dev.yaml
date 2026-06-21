@@ -93,8 +93,8 @@ spec:
       containers:
         - name: dev
           image: golang:1.26
-          command: ["/bin/bash", "/workspace/local_k3s/deploy/scripts/console-init.sh"]
-          workingDir: /workspace/agentops-console
+          command: ["/bin/bash", "/workspace/deploy/local-k3s/deploy/scripts/console-init.sh"]
+          workingDir: /workspace
           ports:
             - name: vite
               containerPort: 5173
@@ -149,7 +149,7 @@ spec:
       volumes:
         - name: workspace
           hostPath:
-            path: /home/samy/dev/github.com/samyn92
+            path: /home/samy/dev/github.com/samyn92/agentops
         - name: go-cache
           emptyDir:
             sizeLimit: 4Gi

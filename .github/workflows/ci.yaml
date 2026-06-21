@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, monorepo]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.changes.outputs.go }}
+      web: ${{ steps.changes.outputs.web }}
+      operator: ${{ steps.changes.outputs.operator }}
+      console: ${{ steps.changes.outputs.console }}
+      runtime: ${{ steps.changes.outputs.runtime }}
+      memory: ${{ steps.changes.outputs.memory }}
+      tools: ${{ steps.changes.outputs.tools }}
+      channels: ${{ steps.changes.outputs.channels }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            go:
+              - '**/*.go'
+              - 'go.mod'
+              - 'go.sum'
+            web:
+              - 'web/**'
+            operator:
+              - 'cmd/operator/**'
+              - 'internal/operator/**'
+              - 'api/**'
+              - 'config/**'
+            console:
+              - 'cmd/console/**'
+              - 'internal/console/**'
+              - 'api/**'
+            runtime:
+              - 'cmd/runtime/**'
+            memory:
+              - 'cmd/memory/**'
+            tools:
+              - 'tools/**'
+              - 'cmd/tools-cli/**'
+            channels:
+              - 'channels/**'
+
+  go-lint-test:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test ./...
+      - name: Build all binaries
+        run: |
+          go build ./cmd/operator/
+          go build ./cmd/console/
+          go build ./cmd/runtime/
+          go build ./cmd/memory/
+          go build ./cmd/tools-cli/
+          go build ./tools/...
+          go build ./channels/...
+
+  web-check:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npx tsc --noEmit
+        working-directory: web
+      - run: npx vite build
+        working-directory: web
