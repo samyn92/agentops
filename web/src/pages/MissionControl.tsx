@@ -739,9 +739,29 @@ function TopBar(props: {
 
       <div class="h-5 w-px bg-border mx-1" />
 
-      {/* GitLab-native workspace browser — replaces the old Integration
-          <select> + RepoSwitcher with a proper tree of groups/subgroups/
-          projects from the user's GitLab access. */}
+      {/* Workspace switcher — selects which Integration backs the board */}
+      <select
+        class="bg-surface-2 border border-border-subtle rounded-lg px-2.5 py-1.5 text-[12px] max-w-[14rem]"
+        value={props.selected() ? `${props.selected()!.metadata.namespace}/${props.selected()!.metadata.name}` : ''}
+        onChange={(e) => {
+          const v = e.currentTarget.value;
+          if (!v) { props.onSelectGroup(null); return; }
+          const [ns, ...rest] = v.split('/');
+          const name = rest.join('/');
+          props.onSelectGroup((props.groups() ?? []).find((g) => g.metadata.namespace === ns && g.metadata.name === name) ?? null);
+        }}
+      >
+        <For each={props.groups()}>
+          {(g) => (
+            <option value={`${g.metadata.namespace}/${g.metadata.name}`}>
+              {g.spec.displayName || g.spec.gitlabGroup?.group || g.spec.gitlab?.project || g.metadata.name}
+              {g.status?.phase && g.status.phase !== 'Ready' ? ` (${g.status.phase})` : ''}
+            </option>
+          )}
+        </For>
+      </select>
+
+      {/* Project filter within the active workspace */}
       <WorkspaceBrowser
         projectFilter={props.projectFilter}
         onSelectProject={props.onProjectFilter}
