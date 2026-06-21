@@ -144,9 +144,9 @@ export default function PlanRefinement(props: PlanRefinementProps) {
   // ── Render ──
   return (
     <div class="flex flex-col h-full">
-      {/* Plan body */}
-      <div class="flex-shrink-0 px-4 pt-4 pb-2">
-        <div class="flex items-center justify-between mb-2">
+      {/* Plan body — scrollable, max 60% height */}
+      <div class="flex-shrink-0 px-4 pt-4 pb-2 max-h-[60%] flex flex-col">
+        <div class="flex items-center justify-between mb-2 flex-shrink-0">
           <h3 class="text-[12px] font-semibold uppercase tracking-wider text-text-muted">Plan</h3>
           <Show when={!editing()}>
             <button
@@ -159,7 +159,7 @@ export default function PlanRefinement(props: PlanRefinementProps) {
         </div>
 
         <Show when={editing()} fallback={
-          <div class="text-[12.5px] bg-surface-2 border border-border-subtle rounded-lg p-3 overflow-auto">
+          <div class="text-[12.5px] bg-surface-2 border border-border-subtle rounded-lg p-3 overflow-auto flex-1 min-h-0">
             <Show when={detail()?.description ?? props.issue.description} fallback={
               <p class="text-text-muted italic">No plan description yet. Click "Edit plan" to add one.</p>
             }>
