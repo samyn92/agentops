@@ -1,25 +1,21 @@
-# Agent Factory — DevOps/GitOps Domain Expert Preset
+# Agent Factory — Clean 2-Agent Model
 #
-# Deploys a team of domain experts, each with deep context about their area:
-#   - Cluster Engineer: GitOps structure, Flux, HelmReleases, namespaces
-#   - Chart Engineer: Helm charts, values schemas, chart CI/CD
-#   - Software Engineer: Service code, APIs, tests, dependencies
-#   - Observability Engineer: Monitoring, alerts, SLOs, traces
-#   - Release Manager: Versioning, changelogs, cross-repo coordination
+# Two domain leads:
+#   - Project Manager: plans, refines, coordinates (daemon, always on)
+#   - Engineering Lead: implements, reviews, fixes (daemon + task dispatch)
 #
-# Deploy: helm install samyn92-lab ./deploy/charts/agent-factory -n agents
+# All domain-specific knowledge comes from context injection at plan time,
+# NOT from separate agent instances.
 
 factory:
   domain: devops-gitops
-  version: "0.2"
+  version: "1.0"
 
-# Scope: what GitLab group/project this factory manages
 scope:
   gitlab:
-    group: samyn92/lab
+    group: samyn92-lab
     baseURL: https://gitlab.com
 
-# LLM Provider
 provider:
   name: anthropic
   type: anthropic
@@ -29,7 +25,6 @@ provider:
     name: llm-api-keys
     key: ANTHROPIC_API_KEY
 
-# GitLab bot tokens (pre-created K8s Secrets)
 tokens:
   planner:
     secretName: gitlab-bot-planner
@@ -38,134 +33,58 @@ tokens:
     secretName: gitlab-bot-coder
     secretKey: token
 
-# Runtime image
 runtime:
-  image: ghcr.io/samyn92/agentops-runtime:latest
+  image: ghcr.io/samyn92/agentops-runtime-fantasy:dev
 
-# Memory service
 memory:
   enabled: true
   serverRef: agentops-memory
 
-# ── Domain Experts (daemon agents — you consult them in Explore) ──
-
 agents:
-  # The Planner: cross-cutting coordinator that breaks down work
-  planner:
+  # Project Manager — the brain. Plans, refines, coordinates.
+  pm:
     enabled: true
     mode: daemon
-    role: "Platform Planner"
-    description: "Coordinates work across repos, refines plans, assigns to domain experts"
+    role: "Project Manager"
+    description: "Plans work, refines specs, coordinates execution, reviews outcomes"
     tools: [git, gitlab]
-    contextFiles: []  # Cross-cutting — reads from all repos dynamically
     systemPrompt: |
-      You are the Platform Planner for a DevOps/GitOps infrastructure team.
+      You are the Project Manager for a DevOps/GitOps infrastructure team.
 
-      Your role:
-      - Break down high-level requests into actionable work items
-      - Assign work to the right domain expert (cluster, chart, software, observability)
-      - Ensure plans are complete, scoped, and have clear acceptance criteria
-      - Coordinate multi-repo changes that span multiple domains
+      Your responsibilities:
+      - Break down requests into clear, actionable plans
+      - Write structured plans with objectives, approach, and acceptance criteria
+      - Coordinate multi-repo changes
+      - Review agent execution outcomes
+      - Refine plans based on human feedback
 
-      You can read all repos in the group but cannot push code.
-      Work items are GitLab issues with agent:: labels.
+      You read code and documentation to understand context, but you never
+      push code directly. You plan, the Engineering Lead implements.
+
+      Always be structured: use markdown headings, bullet points, and checkboxes.
     temperature: 0.3
     maxSteps: 50
 
-  # Cluster Engineer: GitOps infrastructure expert
-  clusterEngineer:
-    enabled: true
-    mode: daemon
-    role: "Cluster Engineer"
-    description: "GitOps structure, Flux kustomizations, HelmReleases, namespace config"
-    tools: [git, gitlab, kubectl, flux]
-    contextFiles:
-      - name: gitops-conventions
-        content: |
-          # GitOps Repository Structure
-          - Each cluster has its own directory under clusters/
-          - Flux Kustomizations define the reconciliation tree
-          - HelmReleases reference charts from the internal registry
-          - Namespaces are managed via kustomize overlays
-          - Sealed secrets for sensitive values
-    systemPrompt: |
-      You are the Cluster Engineer — expert in GitOps infrastructure.
-
-      Your domain:
-      - Flux CD reconciliation (Kustomizations, HelmReleases, GitRepositories)
-      - Cluster namespace structure and RBAC
-      - Infrastructure-as-code patterns (kustomize overlays, patches)
-      - Sealed secrets and config management
-      - Multi-cluster topology and promotion flows
-
-      When implementing changes:
-      - Follow the existing GitOps directory structure
-      - Use kustomize overlays for environment-specific config
-      - Ensure HelmReleases have proper health checks
-      - Validate manifests before committing
-    temperature: 0.2
-    maxSteps: 80
-
-  # Chart Engineer: Helm chart specialist
-  chartEngineer:
-    enabled: true
-    mode: daemon
-    role: "Chart Engineer"
-    description: "Helm charts, values schemas, chart testing, OCI registry publishing"
-    tools: [git, gitlab, helm]
-    contextFiles:
-      - name: chart-standards
-        content: |
-          # Helm Chart Standards
-          - All charts use apiVersion: v2
-          - Values follow the Bitnami naming convention
-          - Required: values.schema.json for validation
-          - CI: helm lint + helm template + kubeconform
-          - Charts published to OCI registry (ghcr.io)
-          - Semantic versioning (major = breaking values change)
-    systemPrompt: |
-      You are the Chart Engineer — expert in Helm chart development.
-
-      Your domain:
-      - Chart scaffolding (Chart.yaml, values.yaml, templates/)
-      - Helper templates (_helpers.tpl) and library charts
-      - Values schema design (values.schema.json)
-      - Chart testing (helm unittest, ct lint, ct install)
-      - OCI packaging and registry publishing
-      - Dependency management and sub-charts
-
-      When implementing:
-      - Follow the team's chart standards
-      - Always include a values.schema.json
-      - Test with helm template + kubeconform
-      - Semantic versioning for releases
-    temperature: 0.2
-    maxSteps: 80
-
-  # Software Engineer: service code implementer
-  softwareEngineer:
+  # Engineering Lead — the hands. Implements, reviews, fixes.
+  engineer:
     enabled: true
     mode: task
-    role: "Software Engineer"
-    description: "Service code, APIs, tests, dependencies, CI pipelines"
-    tools: [git, gitlab, bash]
-    contextFiles: []
+    role: "Engineering Lead"
+    description: "Implements plans, opens MRs, reviews code, fixes CI failures"
+    tools: [git, gitlab]
     systemPrompt: |
-      You are the Software Engineer — expert in service implementation.
+      You are the Engineering Lead for a DevOps/GitOps infrastructure team.
 
-      Your domain:
-      - Backend service code (Go, Node.js, Python as needed)
-      - REST/gRPC API design and implementation
-      - Unit and integration testing
-      - Dependency management (go.mod, package.json)
-      - CI pipeline configuration (.gitlab-ci.yml)
-      - Dockerfile and container best practices
-
-      When implementing:
-      - Follow existing code patterns in the repo
+      Your responsibilities:
+      - Implement plans by writing code and opening merge requests
+      - Follow existing patterns in the repository
       - Write tests for new functionality
       - Keep changes minimal and focused
-      - Open a merge request with clear description
+      - Fix CI failures when pipelines break
+
+      Read the issue description carefully — it IS the plan. Implement exactly
+      what's specified. If something is unclear, make a reasonable decision and
+      document it in the MR description.
     temperature: 0.2
     maxSteps: 100
     timeout: "20m"
@@ -173,82 +92,14 @@ agents:
       maxRuns: 3
       policy: queue
 
-  # Observability Engineer
-  observabilityEngineer:
-    enabled: false  # Enable when monitoring stack is in scope
-    mode: daemon
-    role: "Observability Engineer"
-    description: "Monitoring, alerting, SLOs, distributed tracing, dashboards"
-    tools: [git, gitlab, kubectl, tempo]
-    contextFiles:
-      - name: observability-stack
-        content: |
-          # Observability Stack
-          - Metrics: Prometheus + Grafana
-          - Traces: Tempo (OTLP gRPC ingest)
-          - Logs: Loki
-          - Alerts: AlertManager rules in monitoring/ directory
-          - SLOs defined per service in slo/ directory
-    systemPrompt: |
-      You are the Observability Engineer — expert in monitoring and alerting.
-
-      Your domain:
-      - Prometheus recording/alerting rules
-      - Grafana dashboards (as code)
-      - SLO definitions and error budgets
-      - Distributed tracing instrumentation (OpenTelemetry)
-      - Log aggregation and structured logging
-      - Incident response runbooks
-
-  # Release Manager
-  releaseManager:
-    enabled: false  # Enable for multi-repo release coordination
-    mode: daemon
-    role: "Release Manager"
-    description: "Versioning, changelogs, cross-repo release coordination"
-    tools: [git, gitlab]
-    contextFiles: []
-    systemPrompt: |
-      You are the Release Manager — expert in release coordination.
-
-      Your domain:
-      - Semantic versioning across repos
-      - Changelog generation from MR history
-      - Cross-repo dependency bumps
-      - Release tagging and promotion flows
-      - Coordinating breaking changes across teams
-
-  # CI Fixer: automated pipeline repair
-  ciFixer:
-    enabled: true
-    mode: task
-    role: "CI Fixer"
-    description: "Automated CI/CD pipeline failure repair"
-    tools: [git, gitlab, bash]
-    contextFiles: []
-    systemPrompt: |
-      You are the CI Fixer — expert in fixing broken pipelines.
-
-      Read the failing job logs, understand the error, and push a fix.
-      Common issues: lint errors, test failures, build errors, missing deps.
-      Always fix on the same branch. Keep changes minimal.
-    temperature: 0.2
-    maxSteps: 50
-    timeout: "15m"
-    concurrency:
-      maxRuns: 2
-      policy: reject
-
-# ── Channels (event-driven dispatch) ──
-
 channels:
   labelBridge:
     enabled: true
     type: gitlab-label
-    image: ghcr.io/samyn92/agent-channel-gitlab-label:latest
+    image: ghcr.io/samyn92/agent-channel-gitlab-label:dev
     targets:
       - label: "agent::todo"
-        agent: softwareEngineer
+        agent: engineer
       - label: "agent::changes-requested"
-        agent: softwareEngineer
+        agent: engineer
     pollInterval: "30s"
