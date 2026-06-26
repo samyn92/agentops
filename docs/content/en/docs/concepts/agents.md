@@ -171,11 +171,11 @@ metadata:
   namespace: agents
 spec:
   agentRef: code-reviewer        # references an Agent CR (task mode)
-  prompt: "Review PR #42 on samyn92/agentops-core"
+  prompt: "Review PR #42 on samyn92/agentops"
   source: channel                # who created this: channel, agent, schedule, console
   sourceRef: github-prs
   git:
-    resourceRef: agentops-core   # AgentResource CR (github-repo)
+    resourceRef: agentops-repo   # AgentResource CR (github-repo)
     branch: feature/new-crd
     baseBranch: main
 ```
@@ -209,7 +209,7 @@ status:
     artifacts:
       - kind: pr
         provider: github
-        url: https://github.com/samyn92/agentops-core/pull/42
+        url: https://github.com/samyn92/agentops/pull/42
         ref: feature/nats-env
         title: "feat: inject NATS_URL env var"
       - kind: commit

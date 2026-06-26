@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "=== agentops-core operator dev pod init ==="
+echo "=== agentops operator dev pod init ==="
 
 # Install Node.js 22 if not present
 if ! command -v node &>/dev/null; then

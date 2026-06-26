@@ -42,7 +42,7 @@
   </g>
   <rect x="60" y="40" rx="8" ry="8" width="580" height="4" fill="url(#platformGrad)"/>
   <text x="350" y="72" text-anchor="middle" fill="#a5b4fc" font-size="14" font-weight="700">Platform</text>
-  <text x="350" y="90" text-anchor="middle" fill="#64748b" font-size="10">Operator-managed  |  agentops-platform Helm chart</text>
+  <text x="350" y="90" text-anchor="middle" fill="#64748b" font-size="10">Operator-managed  |  agentops Helm chart</text>
 
   <!-- Component pills -->
   <rect x="90" y="105" rx="4" ry="4" width="80" height="24" fill="#111827" stroke="#3b82f6" stroke-width="0.75"/>

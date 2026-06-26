@@ -73,15 +73,15 @@ defaultContentLanguageInSubdir = false
     icon = "fab fa-github"
     desc = "Source code"
   [[params.links.developer]]
-    name = "agentops-core"
-    url = "https://github.com/samyn92/agentops-core"
+    name = "AgentOps repository"
+    url = "https://github.com/samyn92/agentops"
     icon = "fas fa-cogs"
-    desc = "Kubernetes Operator"
+    desc = "Monorepo source"
   [[params.links.developer]]
-    name = "agentops-runtime"
-    url = "https://github.com/samyn92/agentops-runtime"
+    name = "AgentOps releases"
+    url = "https://github.com/samyn92/agentops"
     icon = "fas fa-robot"
-    desc = "Fantasy Agent Runtime"
+    desc = "Runtime, charts, tools, and docs"
 
 [menus]
   [[menus.main]]

@@ -26,7 +26,7 @@ This guide covers installation from prerequisites through custom configuration, 
 The default install deploys the operator, console, memory service, and Tempo:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops-platform \
+helm install agentops oci://ghcr.io/samyn92/charts/agentops \
   --namespace agent-system --create-namespace
 ```
 
@@ -42,7 +42,7 @@ This creates two namespaces:
 If you only need the operator and will run agents without the console, memory, or tracing:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops-platform \
+helm install agentops oci://ghcr.io/samyn92/charts/agentops \
   --namespace agent-system --create-namespace \
   --set agentops-console.enabled=false \
   --set memory.enabled=false \
@@ -58,7 +58,7 @@ The operator installs the CRDs and watches for Agent, AgentRun, AgentTool, Agent
 Create a `values-override.yaml` and pass it at install time:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops-platform \
+helm install agentops oci://ghcr.io/samyn92/charts/agentops \
   --namespace agent-system --create-namespace \
   -f values-override.yaml
 ```
@@ -176,9 +176,9 @@ The console BFF needs to know where Tempo and the memory service live. These dep
 agentops-console:
   env:
     - name: TEMPO_URL
-      value: "http://agentops-agentops-platform-tempo.agent-system.svc.cluster.local:3200"
+      value: "http://agentops-agentops-tempo.agent-system.svc.cluster.local:3200"
     - name: ENGRAM_URL_OVERRIDE
-      value: "http://agentops-agentops-platform-memory.agents.svc.cluster.local:7437"
+      value: "http://agentops-agentops-memory.agents.svc.cluster.local:7437"
 ```
 
 ### Memory service
@@ -281,7 +281,7 @@ kubectl port-forward svc/agentops-agentops-console -n agent-system 8080:80
 ## Upgrading
 
 ```bash
-helm upgrade agentops oci://ghcr.io/samyn92/charts/agentops-platform \
+helm upgrade agentops oci://ghcr.io/samyn92/charts/agentops \
   --namespace agent-system \
   -f values-override.yaml
 ```

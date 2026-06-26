@@ -4,7 +4,7 @@ kind: Channel
 metadata:
   name: slack-chat
   labels:
-    app.kubernetes.io/name: agentops-core
+    app.kubernetes.io/name: agentops
     app.kubernetes.io/managed-by: kustomize
 spec:
   type: slack

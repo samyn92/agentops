@@ -26,7 +26,7 @@ AgentOps is a Kubernetes-native platform for deploying and operating AI agents a
 
 ## What you get
 
-The `agentops-platform` Helm chart deploys:
+The `agentops` Helm chart deploys:
 
 | Component | Description |
 |-----------|-------------|

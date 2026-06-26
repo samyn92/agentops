@@ -186,7 +186,7 @@ rt-setup:
 
 # Build a channel bridge :dev image on the host, import it into k3s, and roll
 # every bridge Deployment running that image. `channel` is the directory name
-# under agent-channels/channels (e.g. gitlab-label, gitlab-comment, webhook).
+# under channels (e.g. gitlab-label, gitlab-comment, webhook).
 # Requires the one-time `just rt-setup` (passwordless import) and jq.
 channel-reload channel:
     #!/usr/bin/env bash

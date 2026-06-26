@@ -258,7 +258,7 @@ Requires `TEMPO_URL` environment variable pointing to the Tempo HTTP API.
 
 ## mcputil SDK
 
-All built-in tool servers are built on the shared `mcputil` SDK (`servers/pkg/mcputil/` in the agent-tools repository). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.
+All built-in tool servers are built on the shared `mcputil` SDK (`tools/pkg/mcputil/` in the agent-tools repository). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.
 
 Key features:
 - **Session-level root span** — `NewServer()` + `Run()` creates an `mcp.session` span for the server lifecycle
@@ -294,7 +294,7 @@ import (
     "os"
 
     "github.com/modelcontextprotocol/go-sdk/mcp"
-    "github.com/samyn92/agent-tools/servers/pkg/mcputil"
+    "github.com/samyn92/agentops/tools/pkg/mcputil"
 )
 
 type searchInput struct {

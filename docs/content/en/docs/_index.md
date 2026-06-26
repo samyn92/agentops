@@ -40,7 +40,7 @@ API and specification details:
 - **Runtime Configuration** -- environment variables, flags, and runtime behavior.
 - **Memory API** -- REST endpoints for the agentops-memory service.
 - **FEP Protocol** -- event types, payloads, and SSE stream format.
-- **Helm Values** -- all configurable values for the agentops-platform chart.
+- **Helm Values** -- all configurable values for the agentops chart.
 
 ## Project
 

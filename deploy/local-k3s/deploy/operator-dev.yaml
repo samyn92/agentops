@@ -1,4 +1,4 @@
-# agentops-core operator dev pod
+# agentops operator dev pod
 # Runs the operator controller in-cluster with hostPath-mounted source code.
 # Edit locally, build/run inside the pod via kubectl exec.
 ---

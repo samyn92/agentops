@@ -2,10 +2,10 @@
 title: "Helm Values Reference"
 linkTitle: "Helm Values"
 weight: 4
-description: "Complete reference for the agentops-platform umbrella Helm chart values."
+description: "Complete reference for the agentops umbrella Helm chart values."
 ---
 
-The `agentops-platform` chart is an umbrella chart that deploys all AgentOps platform components. This page documents every configurable value.
+The `agentops` chart is an umbrella chart that deploys all AgentOps platform components. This page documents every configurable value.
 
 ## Global
 
@@ -30,7 +30,7 @@ The Kubernetes operator that reconciles Agent, AgentTool, and related CRDs.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `agentops-operator.enabled` | bool | `true` | Deploy the operator. |
-| `agentops-operator.image.repository` | string | `ghcr.io/samyn92/agentops-core` | Operator container image. |
+| `agentops-operator.image.repository` | string | `ghcr.io/samyn92/agentops-operator` | Operator container image. |
 | `agentops-operator.image.tag` | string | Chart appVersion | Image tag. |
 | `agentops-operator.resources.requests.cpu` | string | `10m` | CPU request. |
 | `agentops-operator.resources.requests.memory` | string | `64Mi` | Memory request. |
@@ -41,8 +41,8 @@ The Kubernetes operator that reconciles Agent, AgentTool, and related CRDs.
 agentops-operator:
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-core
-    tag: "0.5.0"
+    repository: ghcr.io/samyn92/agentops-operator
+    tag: "v0.17.3"
   resources:
     requests:
       cpu: 10m
@@ -120,6 +120,7 @@ The AgentOps memory service — SQLite + FTS5 BM25 relevance-ranked context inje
 |-----|------|---------|-------------|
 | `memory.enabled` | bool | `true` | Deploy agentops-memory. |
 | `memory.image.repository` | string | `ghcr.io/samyn92/agentops-memory` | Memory service container image. |
+| `memory.image.tag` | string | `v0.17.3` | Memory service image tag. |
 | `memory.image.tag` | string | `0.2.0` | Image tag. |
 | `memory.persistence.size` | string | `1Gi` | PVC size for the SQLite database. |
 | `memory.persistence.storageClass` | string | `""` | Storage class for the PVC. Empty string uses the cluster default. |

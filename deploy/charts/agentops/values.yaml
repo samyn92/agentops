@@ -1,5 +1,5 @@
 # =============================================================================
-# AgentOps Platform — Umbrella Values
+# AgentOps — Umbrella Values
 # =============================================================================
 # Override subchart values by nesting under the subchart name.
 # e.g. agentops-operator.image.tag or tempo.tempo.storage.trace.backend
@@ -88,13 +88,13 @@ agentops-console:
     seccompProfile:
       type: RuntimeDefault
   # -- Console BFF environment variables
-  # Tempo and Memory URLs are auto-wired via the agentops-platform-console-env ConfigMap.
+  # Tempo and Memory URLs are auto-wired via the agentops-console-env ConfigMap.
   # Add any extra env vars here:
   env: []
   # -- Load auto-wired service URLs from the platform ConfigMap
   envFrom:
     - configMapRef:
-        name: agentops-platform-console-env
+        name: agentops-console-env
   # -- Console settings
   console:
     # -- Restrict to a single namespace (empty = all)
@@ -140,8 +140,8 @@ memory:
   image:
     # -- Memory service container image
     repository: ghcr.io/samyn92/agentops-memory
-    # -- Image tag (updated automatically by dependency-update workflow)
-    tag: "0.4.2"
+    # -- Image tag (defaults to the monorepo release tag)
+    tag: "v0.17.3"
     # -- Image pull policy
     pullPolicy: IfNotPresent
   # -- Persistence for SQLite database

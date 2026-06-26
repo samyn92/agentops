@@ -18,15 +18,15 @@ This guide walks through creating a custom MCP tool server from scratch using th
 
 ```bash
 mkdir servers/my-tool && cd servers/my-tool
-go mod init github.com/myorg/agent-tools/servers/my-tool
+go mod init github.com/myorg/agentops/tools/my-tool
 go get github.com/modelcontextprotocol/go-sdk@v0.8.0
 ```
 
 Add the shared `mcputil` SDK as a local dependency:
 
 ```
-require github.com/samyn92/agent-tools/servers/pkg/mcputil v0.0.0
-replace github.com/samyn92/agent-tools/servers/pkg/mcputil => ../pkg/mcputil
+require github.com/samyn92/agentops/tools/pkg/mcputil v0.0.0
+replace github.com/samyn92/agentops/tools/pkg/mcputil => ../pkg/mcputil
 ```
 
 ## 2. Implement the Tool Server
@@ -42,7 +42,7 @@ import (
 	"os"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/samyn92/agent-tools/servers/pkg/mcputil"
+	"github.com/samyn92/agentops/tools/pkg/mcputil"
 )
 
 type lookupInput struct {
@@ -222,6 +222,6 @@ kubectl apply -f my-agent.yaml
 
 ## Next Steps
 
-- See existing tool servers in `agent-tools/servers/` for more patterns (CLI wrappers, API clients, in-cluster Kubernetes access).
-- Read the `mcputil` SDK source in `servers/pkg/mcputil/` for all available helpers (`DoJSON`, `RunCommand`, `K8sClientset`).
+- See existing tool servers in `agentops/tools/` for more patterns (CLI wrappers, API clients, in-cluster Kubernetes access).
+- Read the `mcputil` SDK source in `tools/pkg/mcputil/` for all available helpers (`DoJSON`, `RunCommand`, `K8sClientset`).
 - Read the [Multi-Agent Orchestration](../multi-agent/) guide to combine tools with delegation.

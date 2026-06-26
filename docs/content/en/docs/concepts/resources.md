@@ -13,7 +13,7 @@ Resources are separate from agents by design. You declare a resource once, then 
 
 Without AgentResource, every agent that needs access to a repository would duplicate the owner, repo name, branch, and credential reference in its own spec. AgentResource centralizes that:
 
-- **One resource, many agents.** A single `agentops-core-repo` AgentResource can be bound to a platform engineer, a code reviewer, and a security scanner.
+- **One resource, many agents.** A single `agentops-repo` AgentResource can be bound to a platform engineer, a code reviewer, and a security scanner.
 - **Credential isolation.** The resource holds the secret reference. Agents only see a binding name — they never declare credentials directly.
 - **Console integration.** The AgentOps Console uses AgentResource metadata to power the resource browser (files, commits, branches, MRs, issues) and resource context chips in the composer.
 - **Git workspace provisioning.** AgentRuns reference an AgentResource to clone a repo, check out a branch, and give the task agent a ready-to-use `/workspace`.
@@ -40,18 +40,18 @@ Each kind has its own configuration block. Exactly one must be set, matching the
 apiVersion: agents.agentops.io/v1alpha1
 kind: AgentResource
 metadata:
-  name: agentops-core-repo
+  name: agentops-repo
   namespace: agents
 spec:
   kind: github-repo
-  displayName: AgentOps Core
-  description: "AgentOps Kubernetes operator — CRDs, controllers, resource management"
+  displayName: AgentOps
+  description: "AgentOps monorepo — operator, console, runtime, memory, tools, channels, charts, and docs"
   credentials:
     name: github-token
     key: GITHUB_TOKEN
   github:
     owner: samyn92
-    repo: agentops-core
+    repo: agentops
     defaultBranch: main
 ```
 
@@ -89,7 +89,7 @@ metadata:
 spec:
   # ... model, tools, memory, etc.
   resourceBindings:
-    - name: agentops-core-repo
+    - name: agentops-repo
     - name: homecluster-repo
       readOnly: true
     - name: platform-docs
@@ -118,11 +118,11 @@ metadata:
   namespace: agents
 spec:
   agentRef: code-reviewer
-  prompt: "Review PR #42 on samyn92/agentops-core"
+  prompt: "Review PR #42 on samyn92/agentops"
   source: channel
   sourceRef: github-prs
   git:
-    resourceRef: agentops-core-repo   # AgentResource CR name
+    resourceRef: agentops-repo   # AgentResource CR name
     branch: feature/new-crd
     baseBranch: main
 ```
@@ -170,12 +170,7 @@ The controller validates that the kind-specific config block matches the `kind` 
 ```
 $ kubectl get agentresources -n agents
 NAME                       KIND              DISPLAY NAME       PHASE   AGE
-agentops-core-repo         github-repo       AgentOps Core      Ready   5d
-agentops-console-repo      github-repo       AgentOps Console   Ready   5d
-agentops-runtime-repo      github-repo       AgentOps Runtime   Ready   5d
-agentops-memory-repo       github-repo       AgentOps Memory    Ready   5d
-agentops-platform-repo     github-repo       AgentOps Platform  Ready   5d
-agent-tools-repo           github-repo       Agent Tools        Ready   5d
+agentops-repo              github-repo       AgentOps           Ready   5d
 homecluster-repo           gitlab-project    Homecluster        Ready   5d
 ```
 

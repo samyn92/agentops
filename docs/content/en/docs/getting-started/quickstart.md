@@ -17,7 +17,7 @@ This guide gets you from zero to a running AI agent on Kubernetes in three steps
 ## Step 1: Install the platform
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops-platform \
+helm install agentops oci://ghcr.io/samyn92/charts/agentops \
   --namespace agent-system --create-namespace
 ```
 
@@ -35,8 +35,8 @@ Expected output (all `Running` / `1/1`):
 NAME                                  READY   STATUS    RESTARTS   AGE
 agentops-agentops-operator-...        1/1     Running   0          30s
 agentops-agentops-console-...         1/1     Running   0          30s
-agentops-agentops-platform-memory-... 1/1     Running   0          30s
-agentops-agentops-platform-tempo-...  1/1     Running   0          30s
+agentops-agentops-memory-... 1/1     Running   0          30s
+agentops-agentops-tempo-...  1/1     Running   0          30s
 ```
 
 ## Step 2: Deploy an agent
@@ -255,4 +255,4 @@ The console connects to agents via the Fantasy Event Protocol (FEP) over Server-
 
 - [Installation guide](../installation/) — customize model providers, enable ingress, tune resource limits
 - [Architecture overview](../architecture/) — understand how components connect
-- Explore presets in the [`agentops-platform`](https://github.com/samyn92/agentops-platform) repo under `presets/` for more agent configurations
+- Explore presets in the `agentops` repo under `presets/` for more agent configurations

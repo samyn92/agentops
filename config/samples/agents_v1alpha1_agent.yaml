@@ -4,7 +4,7 @@ kind: Agent
 metadata:
   name: code-review-agent
   labels:
-    app.kubernetes.io/name: agentops-core
+    app.kubernetes.io/name: agentops
     app.kubernetes.io/managed-by: kustomize
 spec:
   mode: daemon

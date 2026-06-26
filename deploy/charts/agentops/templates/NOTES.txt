@@ -33,36 +33,36 @@ Console access:
 {{- if .Values.memory.enabled }}
 
 Memory service (in-cluster):
-  URL:  {{ include "agentops-platform.memory.url" . }}
-  Agents reference it via: memory.serverRef: {{ include "agentops-platform.memory.serviceName" . }}
+  URL:  {{ include "agentops.memory.url" . }}
+  Agents reference it via: memory.serverRef: {{ include "agentops.memory.serviceName" . }}
 {{- end }}
 
 {{- if and (index .Values "agentops-console" "enabled") (or .Values.memory.enabled .Values.tempo.enabled) }}
 
 Console env wiring (set these if auto-resolution shows empty values):
 {{- if .Values.tempo.enabled }}
-  --set 'agentops-console.env[0].name=TEMPO_URL,agentops-console.env[0].value={{ include "agentops-platform.tempo.url" . }}'
+  --set 'agentops-console.env[0].name=TEMPO_URL,agentops-console.env[0].value={{ include "agentops.tempo.url" . }}'
 {{- end }}
 {{- if .Values.memory.enabled }}
-  --set 'agentops-console.env[1].name=ENGRAM_URL_OVERRIDE,agentops-console.env[1].value={{ include "agentops-platform.memory.url" . }}'
+  --set 'agentops-console.env[1].name=ENGRAM_URL_OVERRIDE,agentops-console.env[1].value={{ include "agentops.memory.url" . }}'
 {{- end }}
 {{- end }}
 
 {{- if .Values.tempo.enabled }}
 
 Tempo endpoints (in-cluster):
-  OTLP gRPC:  {{ include "agentops-platform.tempo.otlpEndpoint" . }}
-  HTTP Query: {{ include "agentops-platform.tempo.url" . }}
+  OTLP gRPC:  {{ include "agentops.tempo.otlpEndpoint" . }}
+  HTTP Query: {{ include "agentops.tempo.url" . }}
 
 The operator automatically injects into agent pods:
-  OTEL_EXPORTER_OTLP_ENDPOINT={{ include "agentops-platform.tempo.otlpEndpoint" . }}
+  OTEL_EXPORTER_OTLP_ENDPOINT={{ include "agentops.tempo.otlpEndpoint" . }}
   OTEL_SERVICE_NAME=<agent-name>
 {{- end }}
 
 {{- if .Values.nats.enabled }}
 
 NATS endpoint (in-cluster):
-  URL: {{ include "agentops-platform.nats.url" . }}
+  URL: {{ include "agentops.nats.url" . }}
   The operator injects NATS_URL into agent runtime pods.
   The console subscribes to agents.> for real-time FEP events.
 {{- end }}

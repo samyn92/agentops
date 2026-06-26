@@ -8,7 +8,7 @@
 #   4. agents/   — CRDs instances (providers, tools, resources, agents, rbac)
 #
 # NOTE: CRDs must be installed separately before agents/ can be applied:
-#   kubectl apply -f agentops-core/config/crd/bases/
+#   kubectl apply -f agentops/config/crd/bases/
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 

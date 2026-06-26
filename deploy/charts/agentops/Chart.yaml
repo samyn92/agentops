@@ -1,17 +1,14 @@
 apiVersion: v2
-name: agentops-platform
+name: agentops
 description: >-
-  Umbrella Helm chart for the AgentOps platform — operator, console, memory (Engram), and observability (Tempo). One install, full stack.
+  Umbrella Helm chart for AgentOps: operator, console, memory, NATS, and observability. One install, full stack.
 type: application
-version: 0.17.2
-appVersion: "0.17.2"
+version: 0.17.3
+appVersion: "0.17.3"
 kubeVersion: ">=1.28.0-0"
-home: https://github.com/samyn92/agentops-platform
+home: https://github.com/samyn92/agentops
 sources:
-  - https://github.com/samyn92/agentops-platform
-  - https://github.com/samyn92/agentops-core
-  - https://github.com/samyn92/agentops-console
-  - https://github.com/samyn92/agentops-runtime
+  - https://github.com/samyn92/agentops
 maintainers:
   - name: samyn92
 keywords:

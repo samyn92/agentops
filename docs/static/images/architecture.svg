@@ -159,7 +159,7 @@
     <rect x="70" y="162" rx="8" ry="8" width="220" height="115" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
   </g>
   <rect x="70" y="162" rx="8" ry="8" width="220" height="4" fill="url(#operatorGrad)"/>
-  <text x="180" y="196" text-anchor="middle" fill="#93c5fd" font-size="15" font-weight="700">agentops-core</text>
+  <text x="180" y="196" text-anchor="middle" fill="#93c5fd" font-size="15" font-weight="700">agentops</text>
   <text x="180" y="216" text-anchor="middle" fill="#64748b" font-size="11">Kubernetes Operator</text>
   <text x="180" y="238" text-anchor="middle" fill="#475569" font-size="10">5 CRDs  |  RBAC  |  NetworkPolicy</text>
   <text x="180" y="256" text-anchor="middle" fill="#475569" font-size="10">MCP Gateway  |  Concurrency</text>

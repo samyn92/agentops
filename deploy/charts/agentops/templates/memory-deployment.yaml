@@ -2,10 +2,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "agentops-platform.fullname" . }}-memory
+  name: {{ include "agentops.fullname" . }}-memory
   namespace: {{ .Values.agentNamespace }}
   labels:
-    {{- include "agentops-platform.labels" . | nindent 4 }}
+    {{- include "agentops.labels" . | nindent 4 }}
     app.kubernetes.io/component: memory
     app.kubernetes.io/name: agentops-memory
 spec:
@@ -44,7 +44,7 @@ spec:
               value: ":7437"
             {{- if $.Values.tempo.enabled }}
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: {{ include "agentops-platform.tempo.otlpEndpoint" $ }}
+              value: {{ include "agentops.tempo.otlpEndpoint" $ }}
             {{- end }}
           ports:
             - name: http
@@ -79,7 +79,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "agentops-platform.fullname" . }}-memory-data
+            claimName: {{ include "agentops.fullname" . }}-memory-data
       {{- with .Values.memory.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
