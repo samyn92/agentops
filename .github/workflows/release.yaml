@@ -17,7 +17,7 @@ env:
   NODE_VERSION: "22"
   REGISTRY: ghcr.io
   OWNER: samyn92
-  PACKAGE_TOKEN: ${{ secrets.GHCR_TOKEN }}
+  PACKAGE_TOKEN: ${{ secrets.GHCR_TOKEN || github.token }}
 
 jobs:
   preflight:
@@ -37,14 +37,6 @@ jobs:
             exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
-      - name: Require GHCR_TOKEN
-        run: |
-          set -euo pipefail
-          if [[ -z "${PACKAGE_TOKEN}" ]]; then
-            echo "GHCR_TOKEN is required for release publishing." >&2
-            echo "Use a classic PAT or fine-grained token that can write GitHub Packages for existing AgentOps packages." >&2
-            exit 1
-          fi
       - name: Check GHCR login
         run: echo "${PACKAGE_TOKEN}" | docker login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
       - name: Check release metadata
