@@ -3,9 +3,9 @@ ARG TARGETOS
 ARG TARGETARCH
 
 WORKDIR /workspace
-COPY go.mod ./
-COPY internal/ internal/
-COPY channels/gitlab-comment/ channels/gitlab-comment/
+COPY go.mod go.sum ./
+RUN go mod download
+COPY channels/ channels/
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o channel-gitlab-comment ./channels/gitlab-comment/cmd/
 
