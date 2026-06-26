@@ -216,7 +216,7 @@ The memory service is a standalone Go binary (~1300 lines of code) with the foll
 | Database | SQLite with FTS5 extension |
 | Tokenizer | Porter stemmer + unicode61 |
 | Connection pools | Split read/write (WAL mode) |
-| Container image | `ghcr.io/samyn92/agentops-memory` (distroless) |
+| Container image | `ghcr.io/samyn92/agentops/memory` (distroless) |
 | Port | 7437 |
 | Cluster DNS | `agentops-memory.agents.svc.cluster.local` |
 

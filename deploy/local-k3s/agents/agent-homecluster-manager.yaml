@@ -5,7 +5,7 @@ metadata:
   namespace: agents
 spec:
   mode: daemon
-  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.17.1
+  image: ghcr.io/samyn92/agentops/runtime:0.17.1
   model: kimi/kimi-k2.5
   providerRefs:
     - name: kimi
@@ -56,10 +56,10 @@ spec:
   tools:
     - name: kubectl
       oci:
-        ref: ghcr.io/samyn92/agent-tools/kubectl:0.9.9
+        ref: ghcr.io/samyn92/agentops/tools/kubectl:0.9.9
     - name: flux
       oci:
-        ref: ghcr.io/samyn92/agent-tools/flux:0.9.9
+        ref: ghcr.io/samyn92/agentops/tools/flux:0.9.9
   env:
     MODE: readwrite
   integrations:

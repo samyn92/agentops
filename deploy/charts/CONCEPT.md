@@ -9,7 +9,7 @@ The source is centralized, but the release still publishes multiple artifacts be
 The umbrella chart lives at:
 
 - Source: `deploy/charts/agentops/`
-- OCI chart: `oci://ghcr.io/samyn92/charts/agentops`
+- OCI chart: `oci://ghcr.io/samyn92/agentops/charts/agentops`
 
 It installs the AgentOps platform:
 
@@ -24,7 +24,7 @@ It installs the AgentOps platform:
 The agent factory chart lives at:
 
 - Source: `deploy/charts/agent-factory/`
-- OCI chart: `oci://ghcr.io/samyn92/charts/agent-factory`
+- OCI chart: `oci://ghcr.io/samyn92/agentops/charts/agent-factory`
 
 It provides reusable agent team definitions and presets. It is separate from the platform chart because agent definitions can change independently from infrastructure.
 
@@ -32,13 +32,13 @@ It provides reusable agent team definitions and presets. It is separate from the
 
 | Artifact | Registry |
 |----------|----------|
-| Operator image | `ghcr.io/samyn92/agentops-operator` |
-| Console image | `ghcr.io/samyn92/agentops-console` |
-| Runtime image | `ghcr.io/samyn92/agentops-runtime-fantasy` |
-| Memory image | `ghcr.io/samyn92/agentops-memory` |
-| Tool OCI artifacts | `ghcr.io/samyn92/agent-tools/<server>` |
-| Channel images | `ghcr.io/samyn92/agent-channel-<type>` |
-| Platform chart | `oci://ghcr.io/samyn92/charts/agentops` |
+| Operator image | `ghcr.io/samyn92/agentops/operator` |
+| Console image | `ghcr.io/samyn92/agentops/console` |
+| Runtime image | `ghcr.io/samyn92/agentops/runtime` |
+| Memory image | `ghcr.io/samyn92/agentops/memory` |
+| Tool OCI artifacts | `ghcr.io/samyn92/agentops/tools/<server>` |
+| Channel images | `ghcr.io/samyn92/agentops/channels/<type>` |
+| Platform chart | `oci://ghcr.io/samyn92/agentops/charts/agentops` |
 
 The artifact package names stay stable for compatibility with existing clusters and Helm values.
 

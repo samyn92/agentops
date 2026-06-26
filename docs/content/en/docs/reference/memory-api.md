@@ -7,7 +7,7 @@ description: "REST API reference for the agentops-memory service."
 
 The agentops-memory service provides a REST API for managing sessions, observations, search, and context injection. It runs as a standalone Go binary backed by SQLite with FTS5 for BM25 relevance-ranked full-text search.
 
-**Image:** `ghcr.io/samyn92/agentops-memory`
+**Image:** `ghcr.io/samyn92/agentops/memory`
 **Default port:** `7437`
 **In-cluster DNS:** `agentops-memory.agents.svc.cluster.local:7437`
 

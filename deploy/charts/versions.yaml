@@ -15,13 +15,13 @@ source:
   ref: v0.17.3
 
 packages:
-  operator_image: ghcr.io/samyn92/agentops-operator:v0.17.3
-  console_image: ghcr.io/samyn92/agentops-console:v0.17.3
-  runtime_image: ghcr.io/samyn92/agentops-runtime-fantasy:v0.17.3
-  memory_image: ghcr.io/samyn92/agentops-memory:v0.17.3
-  tool_artifacts: ghcr.io/samyn92/agent-tools/*:v0.17.3
-  channel_images: ghcr.io/samyn92/agent-channel-*:v0.17.3
-  chart: oci://ghcr.io/samyn92/charts/agentops:v0.17.3
+  operator_image: ghcr.io/samyn92/agentops/operator:v0.17.3
+  console_image: ghcr.io/samyn92/agentops/console:v0.17.3
+  runtime_image: ghcr.io/samyn92/agentops/runtime:v0.17.3
+  memory_image: ghcr.io/samyn92/agentops/memory:v0.17.3
+  tool_artifacts: ghcr.io/samyn92/agentops/tools/*:v0.17.3
+  channel_images: ghcr.io/samyn92/agentops/channels/*:v0.17.3
+  chart: oci://ghcr.io/samyn92/agentops/charts/agentops:v0.17.3
 
 chart_dependencies:
   agentops_operator_chart: 0.17.1
@@ -30,8 +30,8 @@ chart_dependencies:
   nats_chart: 2.12.6
 
 images:
-  runtime_default_image: ghcr.io/samyn92/agentops-runtime-fantasy:0.18.0
-  memory_image: ghcr.io/samyn92/agentops-memory:v0.17.3
+  runtime_default_image: ghcr.io/samyn92/agentops/runtime:0.18.0
+  memory_image: ghcr.io/samyn92/agentops/memory:v0.17.3
 
 contracts:
   agent_api: agents.agentops.io/v1alpha1

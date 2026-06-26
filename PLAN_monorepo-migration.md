@@ -215,7 +215,7 @@ jobs:
       - uses: docker/build-push-action@v5
         with:
           file: Dockerfile.${{ matrix.component }}
-          tags: ghcr.io/samyn92/agentops-${{ matrix.component }}:${{ github.ref_name }}
+          tags: ghcr.io/samyn92/agentops/${{ matrix.component }}:${{ github.ref_name }}
 
   build-tools:
     strategy:
@@ -232,18 +232,18 @@ jobs:
   package-charts:
     steps:
       - run: helm package deploy/charts/agentops
-      - run: helm push agentops-*.tgz oci://ghcr.io/samyn92/charts
+      - run: helm push agentops-*.tgz oci://ghcr.io/samyn92/agentops/charts
 ```
 
 ## Image Naming (after migration)
 
 | Component | Image | Notes |
 |-----------|-------|-------|
-| Operator | `ghcr.io/samyn92/agentops-operator:vX.Y.Z` | unchanged |
-| Console | `ghcr.io/samyn92/agentops-console:vX.Y.Z` | unchanged |
-| Runtime | `ghcr.io/samyn92/agentops-runtime:vX.Y.Z` | drop `-fantasy` suffix |
-| Memory | `ghcr.io/samyn92/agentops-memory:vX.Y.Z` | unchanged |
-| Tools | `ghcr.io/samyn92/agent-tools/{name}:vX.Y.Z` | unchanged (OCI artifacts) |
+| Operator | `ghcr.io/samyn92/agentops/operator:vX.Y.Z` | unchanged |
+| Console | `ghcr.io/samyn92/agentops/console:vX.Y.Z` | unchanged |
+| Runtime | `ghcr.io/samyn92/agentops/runtime:vX.Y.Z` | drop `-fantasy` suffix |
+| Memory | `ghcr.io/samyn92/agentops/memory:vX.Y.Z` | unchanged |
+| Tools | `ghcr.io/samyn92/agentops/tools/{name}:vX.Y.Z` | unchanged (OCI artifacts) |
 | Channels | `ghcr.io/samyn92/agent-channels/{name}:vX.Y.Z` | unchanged |
 
 ## Local Dev Environment Updates

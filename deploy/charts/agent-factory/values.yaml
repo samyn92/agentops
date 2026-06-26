@@ -34,7 +34,7 @@ tokens:
     secretKey: token
 
 runtime:
-  image: ghcr.io/samyn92/agentops-runtime-fantasy:dev
+  image: ghcr.io/samyn92/agentops/runtime:dev
 
 memory:
   enabled: true
@@ -96,7 +96,7 @@ channels:
   labelBridge:
     enabled: true
     type: gitlab-label
-    image: ghcr.io/samyn92/agent-channel-gitlab-label:dev
+    image: ghcr.io/samyn92/agentops/channels/gitlab-label:dev
     targets:
       - label: "agent::todo"
         agent: engineer

@@ -117,7 +117,7 @@ metadata:
 spec:
   mode: daemon
   model: anthropic/claude-sonnet-4-20250514
-  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.7.3
+  image: ghcr.io/samyn92/agentops/runtime:0.7.3
 
   builtinTools:
     - bash

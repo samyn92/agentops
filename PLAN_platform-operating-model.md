@@ -18,13 +18,13 @@ The monorepo contains the operator, console, runtime, memory service, MCP tool s
 
 One repo owns the source of truth. Releases still publish multiple artifacts because the platform is deployed as multiple Kubernetes components:
 
-- Operator image: `ghcr.io/samyn92/agentops-operator`
-- Console image: `ghcr.io/samyn92/agentops-console`
-- Runtime image: `ghcr.io/samyn92/agentops-runtime-fantasy`
-- Memory image: `ghcr.io/samyn92/agentops-memory`
-- Tool OCI artifacts: `ghcr.io/samyn92/agent-tools/<server>`
-- Channel images: `ghcr.io/samyn92/agent-channel-<type>`
-- Helm chart: `oci://ghcr.io/samyn92/charts/agentops`
+- Operator image: `ghcr.io/samyn92/agentops/operator`
+- Console image: `ghcr.io/samyn92/agentops/console`
+- Runtime image: `ghcr.io/samyn92/agentops/runtime`
+- Memory image: `ghcr.io/samyn92/agentops/memory`
+- Tool OCI artifacts: `ghcr.io/samyn92/agentops/tools/<server>`
+- Channel images: `ghcr.io/samyn92/agentops/channels/<type>`
+- Helm chart: `oci://ghcr.io/samyn92/agentops/charts/agentops`
 
 Artifact names remain stable for compatibility. Source ownership is centralized in `agentops`.
 

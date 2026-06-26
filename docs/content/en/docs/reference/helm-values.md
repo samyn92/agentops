@@ -30,7 +30,7 @@ The Kubernetes operator that reconciles Agent, AgentTool, and related CRDs.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `agentops-operator.enabled` | bool | `true` | Deploy the operator. |
-| `agentops-operator.image.repository` | string | `ghcr.io/samyn92/agentops-operator` | Operator container image. |
+| `agentops-operator.image.repository` | string | `ghcr.io/samyn92/agentops/operator` | Operator container image. |
 | `agentops-operator.image.tag` | string | Chart appVersion | Image tag. |
 | `agentops-operator.resources.requests.cpu` | string | `10m` | CPU request. |
 | `agentops-operator.resources.requests.memory` | string | `64Mi` | Memory request. |
@@ -41,7 +41,7 @@ The Kubernetes operator that reconciles Agent, AgentTool, and related CRDs.
 agentops-operator:
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-operator
+    repository: ghcr.io/samyn92/agentops/operator
     tag: "v0.17.3"
   resources:
     requests:
@@ -59,7 +59,7 @@ The web console: a Go BFF proxying Kubernetes and agent runtime APIs, paired wit
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `agentops-console.enabled` | bool | `true` | Deploy the console. |
-| `agentops-console.image.repository` | string | `ghcr.io/samyn92/agentops-console` | Console container image. |
+| `agentops-console.image.repository` | string | `ghcr.io/samyn92/agentops/console` | Console container image. |
 | `agentops-console.image.tag` | string | Chart appVersion | Image tag. |
 | `agentops-console.env.TEMPO_URL` | string | `http://tempo.observability.svc.cluster.local:3200` | Tempo query endpoint for trace lookups. |
 | `agentops-console.env.ENGRAM_URL_OVERRIDE` | string | `http://agentops-memory.agents.svc.cluster.local:7437` | Memory service endpoint. Overrides the default discovery. |
@@ -80,7 +80,7 @@ The web console: a Go BFF proxying Kubernetes and agent runtime APIs, paired wit
 agentops-console:
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-console
+    repository: ghcr.io/samyn92/agentops/console
     tag: "0.5.0"
   env:
     TEMPO_URL: http://tempo.observability.svc.cluster.local:3200
@@ -119,7 +119,7 @@ The AgentOps memory service — SQLite + FTS5 BM25 relevance-ranked context inje
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `memory.enabled` | bool | `true` | Deploy agentops-memory. |
-| `memory.image.repository` | string | `ghcr.io/samyn92/agentops-memory` | Memory service container image. |
+| `memory.image.repository` | string | `ghcr.io/samyn92/agentops/memory` | Memory service container image. |
 | `memory.image.tag` | string | `v0.17.3` | Memory service image tag. |
 | `memory.image.tag` | string | `0.2.0` | Image tag. |
 | `memory.persistence.size` | string | `1Gi` | PVC size for the SQLite database. |
@@ -136,7 +136,7 @@ The AgentOps memory service — SQLite + FTS5 BM25 relevance-ranked context inje
 memory:
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-memory
+    repository: ghcr.io/samyn92/agentops/memory
     tag: "0.2.0"
   persistence:
     size: 1Gi

@@ -138,9 +138,9 @@ spec:
     propose remediation. Delegate deep-dives to specialist agents.
   toolRefs:
     - name: kubectl-tool
-      registry: ghcr.io/samyn92/agent-tools/kubectl:v0.3.0
+      registry: ghcr.io/samyn92/agentops/tools/kubectl:v0.3.0
     - name: prometheus-tool
-      registry: ghcr.io/samyn92/agent-tools/prometheus:v0.2.1
+      registry: ghcr.io/samyn92/agentops/tools/prometheus:v0.2.1
   memory:
     workingMemory: {}
     shortTerm:

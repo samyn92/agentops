@@ -26,7 +26,7 @@ This guide covers installation from prerequisites through custom configuration, 
 The default install deploys the operator, console, memory service, and Tempo:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops \
+helm install agentops oci://ghcr.io/samyn92/agentops/charts/agentops \
   --namespace agent-system --create-namespace
 ```
 
@@ -42,7 +42,7 @@ This creates two namespaces:
 If you only need the operator and will run agents without the console, memory, or tracing:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops \
+helm install agentops oci://ghcr.io/samyn92/agentops/charts/agentops \
   --namespace agent-system --create-namespace \
   --set agentops-console.enabled=false \
   --set memory.enabled=false \
@@ -58,7 +58,7 @@ The operator installs the CRDs and watches for Agent, AgentRun, AgentTool, Agent
 Create a `values-override.yaml` and pass it at install time:
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops \
+helm install agentops oci://ghcr.io/samyn92/agentops/charts/agentops \
   --namespace agent-system --create-namespace \
   -f values-override.yaml
 ```
@@ -216,11 +216,11 @@ Key values for the umbrella chart:
 | `global.imagePullSecrets` | `[]` | Image pull secrets for all components |
 | **Operator** | | |
 | `agentops-operator.enabled` | `true` | Deploy the operator |
-| `agentops-operator.image.repository` | `ghcr.io/samyn92/agentops-operator` | Operator image |
+| `agentops-operator.image.repository` | `ghcr.io/samyn92/agentops/operator` | Operator image |
 | `agentops-operator.image.tag` | `""` (chart appVersion) | Operator image tag |
 | **Console** | | |
 | `agentops-console.enabled` | `true` | Deploy the console |
-| `agentops-console.image.repository` | `ghcr.io/samyn92/agentops-console` | Console image |
+| `agentops-console.image.repository` | `ghcr.io/samyn92/agentops/console` | Console image |
 | `agentops-console.image.tag` | `""` (chart appVersion) | Console image tag |
 | `agentops-console.ingress.enabled` | `false` | Enable console ingress |
 | `agentops-console.ingress.className` | `""` | Ingress class name |
@@ -230,7 +230,7 @@ Key values for the umbrella chart:
 | `agentops-console.console.namespace` | `""` | Restrict console to single namespace |
 | **Memory** | | |
 | `memory.enabled` | `true` | Deploy the memory service |
-| `memory.image.repository` | `ghcr.io/samyn92/agentops-memory` | Memory image |
+| `memory.image.repository` | `ghcr.io/samyn92/agentops/memory` | Memory image |
 | `memory.image.tag` | `0.2.0` | Memory image tag |
 | `memory.persistence.size` | `1Gi` | SQLite PVC size |
 | `memory.persistence.storageClassName` | `""` (cluster default) | Storage class |
@@ -281,7 +281,7 @@ kubectl port-forward svc/agentops-agentops-console -n agent-system 8080:80
 ## Upgrading
 
 ```bash
-helm upgrade agentops oci://ghcr.io/samyn92/charts/agentops \
+helm upgrade agentops oci://ghcr.io/samyn92/agentops/charts/agentops \
   --namespace agent-system \
   -f values-override.yaml
 ```

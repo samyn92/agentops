@@ -25,7 +25,7 @@ agentops-operator:
   # -- Enable the AgentOps operator subchart
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-operator
+    repository: ghcr.io/samyn92/agentops/operator
     pullPolicy: IfNotPresent
     # -- Override tag (defaults to chart appVersion)
     tag: ""
@@ -66,7 +66,7 @@ agentops-console:
   # -- Enable the AgentOps console subchart
   enabled: true
   image:
-    repository: ghcr.io/samyn92/agentops-console
+    repository: ghcr.io/samyn92/agentops/console
     pullPolicy: IfNotPresent
     # -- Override tag (defaults to chart appVersion)
     tag: ""
@@ -139,7 +139,7 @@ memory:
   enabled: true
   image:
     # -- Memory service container image
-    repository: ghcr.io/samyn92/agentops-memory
+    repository: ghcr.io/samyn92/agentops/memory
     # -- Image tag (defaults to the monorepo release tag)
     tag: "v0.17.3"
     # -- Image pull policy

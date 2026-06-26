@@ -68,13 +68,13 @@ All components export OpenTelemetry traces via OTLP to Tempo. The console BFF qu
 
 | Component | Image | Responsibilities |
 |-----------|-------|------------------|
-| **Operator** | `ghcr.io/samyn92/agentops-operator` | Reconciles 6 CRDs. Creates Deployments/Jobs/Services/PVCs for agents. Pulls OCI tools via crane init containers. Deploys channel bridges. Manages concurrency and scheduling. Validates Provider secrets and wires enriched provider config into agent pods. |
-| **Console** | `ghcr.io/samyn92/agentops-console` | Go BFF proxying Kubernetes API and agent runtime APIs. SolidJS PWA for agent interaction, memory management, trace viewing. Connects to agents via FEP/SSE. |
-| **Memory** | `ghcr.io/samyn92/agentops-memory` | ~1300 lines of Go. SQLite + FTS5 BM25 relevance-ranked context injection. Three-tier write dedup. Deterministic session summaries. REST API on port 7437. Full OTEL tracing. |
+| **Operator** | `ghcr.io/samyn92/agentops/operator` | Reconciles 6 CRDs. Creates Deployments/Jobs/Services/PVCs for agents. Pulls OCI tools via crane init containers. Deploys channel bridges. Manages concurrency and scheduling. Validates Provider secrets and wires enriched provider config into agent pods. |
+| **Console** | `ghcr.io/samyn92/agentops/console` | Go BFF proxying Kubernetes API and agent runtime APIs. SolidJS PWA for agent interaction, memory management, trace viewing. Connects to agents via FEP/SSE. |
+| **Memory** | `ghcr.io/samyn92/agentops/memory` | ~1300 lines of Go. SQLite + FTS5 BM25 relevance-ranked context injection. Three-tier write dedup. Deterministic session summaries. REST API on port 7437. Full OTEL tracing. |
 | **Tempo** | `grafana/tempo` | Trace storage and query. Receives OTLP on gRPC :4317 and HTTP :4318. Search API on :3200. |
-| **Runtime** | `ghcr.io/samyn92/agentops-runtime-fantasy` | Go binary built on the Charm Fantasy SDK. Runs inside agent pods. Handles LLM calls, built-in tools (bash, read, edit, write, grep, ls, glob, fetch), MCP tool client, memory integration, FEP streaming, OTLP export. |
+| **Runtime** | `ghcr.io/samyn92/agentops/runtime` | Go binary built on the Charm Fantasy SDK. Runs inside agent pods. Handles LLM calls, built-in tools (bash, read, edit, write, grep, ls, glob, fetch), MCP tool client, memory integration, FEP streaming, OTLP export. |
 | **MCP Gateway** | `ghcr.io/samyn92/mcp-gateway` | Sidecar for `mcpServer`/`mcpEndpoint` tool sources. Proxies MCP protocol between agent runtime and remote MCP servers. Handles spawn and proxy modes. |
-| **Tool Servers** | `ghcr.io/samyn92/agent-tools/*` | OCI artifacts containing compiled Go MCP tool server binaries (kubectl, kube-explore, git, github, gitlab, flux). Pulled via crane init container, launched as stdio MCP servers. |
+| **Tool Servers** | `ghcr.io/samyn92/agentops/tools/*` | OCI artifacts containing compiled Go MCP tool server binaries (kubectl, kube-explore, git, github, gitlab, flux). Pulled via crane init container, launched as stdio MCP servers. |
 
 ## Platform vs. user ecosystem
 

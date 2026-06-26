@@ -75,7 +75,7 @@ Each factory is a Helm chart that deploys a coordinated set of agents, channels,
 
 ```bash
 # Deploy a complete DevOps/GitOps agent team for your infrastructure group
-helm install infra-agents oci://ghcr.io/samyn92/charts/agent-factory \
+helm install infra-agents oci://ghcr.io/samyn92/agentops/charts/agent-factory \
   -n agents \
   -f presets/devops-gitops.yaml \
   --set scope.gitlab.group=company/infra \

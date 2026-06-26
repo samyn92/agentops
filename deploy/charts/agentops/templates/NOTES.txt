@@ -68,7 +68,7 @@ NATS endpoint (in-cluster):
 {{- end }}
 
 Compatible runtime images:
-  ghcr.io/samyn92/agentops-runtime-fantasy:{{ .Chart.AppVersion }}
+  ghcr.io/samyn92/agentops/runtime:{{ .Chart.AppVersion }}
 
 Verify the installation:
   kubectl get pods -n {{ .Release.Namespace }}

@@ -86,7 +86,7 @@ spec:
   timeout: "10m"                       # per-prompt timeout
 
   # ── Infrastructure ──
-  image: ghcr.io/samyn92/agent-runtime-fantasy:latest
+  image: ghcr.io/samyn92/agentops/runtime:latest
   resources:
     requests:
       memory: "256Mi"
@@ -125,7 +125,7 @@ spec:
 | `toolHooks` | ToolHooksSpec | nil | Blocked commands, allowed paths, audit tools, memory save rules. |
 | `maxSteps` | int | `100` | Maximum agent loop iterations (prevents infinite loops). |
 | `timeout` | string | `"10m"` | Per-prompt timeout for daemons, job timeout for tasks. |
-| `image` | string | `ghcr.io/samyn92/agent-runtime-fantasy:latest` | Runtime container image. |
+| `image` | string | `ghcr.io/samyn92/agentops/runtime:latest` | Runtime container image. |
 | `resources` | ResourceRequirements | nil | CPU/memory requests and limits. |
 | `storage` | StorageSpec | nil | PVC config for daemon agents (ignored for tasks). |
 | `concurrency` | ConcurrencySpec | nil | Controls parallel AgentRun execution. |

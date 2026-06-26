@@ -162,16 +162,16 @@ jobs:
         include:
           - name: operator
             dockerfile: Dockerfile.operator
-            image: ghcr.io/samyn92/agentops-operator
+            image: ghcr.io/samyn92/agentops/operator
           - name: console
             dockerfile: Dockerfile.console
-            image: ghcr.io/samyn92/agentops-console
+            image: ghcr.io/samyn92/agentops/console
           - name: runtime
             dockerfile: Dockerfile.runtime
-            image: ghcr.io/samyn92/agentops-runtime-fantasy
+            image: ghcr.io/samyn92/agentops/runtime
           - name: memory
             dockerfile: Dockerfile.memory
-            image: ghcr.io/samyn92/agentops-memory
+            image: ghcr.io/samyn92/agentops/memory
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -201,16 +201,16 @@ jobs:
         include:
           - name: webhook
             dockerfile: channels/webhook/Dockerfile
-            image: ghcr.io/samyn92/agent-channel-webhook
+            image: ghcr.io/samyn92/agentops/channels/webhook
           - name: gitlab
             dockerfile: channels/gitlab/Dockerfile
-            image: ghcr.io/samyn92/agent-channel-gitlab
+            image: ghcr.io/samyn92/agentops/channels/gitlab
           - name: gitlab-label
             dockerfile: channels/gitlab-label/Dockerfile
-            image: ghcr.io/samyn92/agent-channel-gitlab-label
+            image: ghcr.io/samyn92/agentops/channels/gitlab-label
           - name: gitlab-comment
             dockerfile: channels/gitlab-comment/Dockerfile
-            image: ghcr.io/samyn92/agent-channel-gitlab-comment
+            image: ghcr.io/samyn92/agentops/channels/gitlab-comment
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -257,9 +257,9 @@ jobs:
         run: |
           set -euo pipefail
           /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
-            -t ghcr.io/samyn92/agent-tools/${{ matrix.tool }}:${{ github.ref_name }}
+            -t ghcr.io/samyn92/agentops/tools/${{ matrix.tool }}:${{ github.ref_name }}
           /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
-            -t ghcr.io/samyn92/agent-tools/${{ matrix.tool }}:latest
+            -t ghcr.io/samyn92/agentops/tools/${{ matrix.tool }}:latest
 
   publish-chart:
     name: Publish Chart
@@ -274,7 +274,7 @@ jobs:
         run: |
           set -euo pipefail
           helm package deploy/charts/agentops
-          helm push agentops-*.tgz oci://ghcr.io/samyn92/charts
+          helm push agentops-*.tgz oci://ghcr.io/samyn92/agentops/charts
 
   github-release:
     name: GitHub Release

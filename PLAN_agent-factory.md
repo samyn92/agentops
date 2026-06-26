@@ -118,7 +118,7 @@ The agent-factory chart is a **library chart** that generates CRDs from values. 
 
 ```bash
 # Deploy the DevOps/GitOps factory for your infra group
-helm install infra-agents oci://ghcr.io/samyn92/charts/agent-factory \
+helm install infra-agents oci://ghcr.io/samyn92/agentops/charts/agent-factory \
   -n agents \
   -f factory-devops-gitops.yaml \
   --set scope.gitlab.group=company/infra \
@@ -295,7 +295,7 @@ memory:
 2. **Deploy per-role Secrets** — `gitlab-bot-planner` + `gitlab-bot-coder` in `agents` namespace
 3. **Split the Integration** — `homecluster-repo` → two Integrations (one per token scope)
 4. **Consolidate agents** — current 6 daemons → factory-generated composition (planner, implementer, reviewer, observer)
-5. **Build the factory Helm chart** — `agent-factory` library chart at `oci://ghcr.io/samyn92/charts/agent-factory`
+5. **Build the factory Helm chart** — `agent-factory` library chart at `oci://ghcr.io/samyn92/agentops/charts/agent-factory`
 6. **Console uses bot token for agent notes** — already done (refine endpoint)
 
 ## Implementation Phases

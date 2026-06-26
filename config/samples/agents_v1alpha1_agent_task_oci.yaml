@@ -10,7 +10,7 @@ spec:
   mode: task
   model: openai/gpt-4.1-mini
 
-  image: ghcr.io/samyn92/agent-runtime-fantasy:latest
+  image: ghcr.io/samyn92/agentops/runtime:latest
   imagePullPolicy: IfNotPresent
   builtinTools: []
 
@@ -29,12 +29,12 @@ spec:
   tools:
     - name: jira
       oci:
-        ref: ghcr.io/samyn92/agent-tools/jira:0.2.0
+        ref: ghcr.io/samyn92/agentops/tools/jira:0.2.0
       description: "Jira — search, create, update issues"
       category: project-management
     - name: gitlab
       oci:
-        ref: ghcr.io/samyn92/agent-tools/gitlab:0.9.7
+        ref: ghcr.io/samyn92/agentops/tools/gitlab:0.9.7
       description: "GitLab API — repos, MRs, pipelines"
       category: development
 

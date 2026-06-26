@@ -35,7 +35,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agent-tools/kubectl:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:1.0.0
     pullPolicy: IfNotPresent
   defaultPermissions:
     mode: deny
@@ -195,7 +195,7 @@ metadata:
 spec:
   category: infrastructure
   oci:
-    ref: ghcr.io/samyn92/agent-tools/kubectl:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:1.0.0
 ```
 
 ### kube-explore (8 tools)
@@ -217,7 +217,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agent-tools/kube-explore:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kube-explore:1.0.0
 ```
 
 ### git (12 tools)

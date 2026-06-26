@@ -34,7 +34,7 @@ spec:
   tools:
     - name: gitlab
       oci:
-        ref: ghcr.io/samyn92/agent-tools/gitlab:0.9.7
+        ref: ghcr.io/samyn92/agentops/tools/gitlab:0.9.7
       description: "GitLab API — MRs, issues, pipelines"
       category: development
       uiHint: gitlab

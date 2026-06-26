@@ -34,13 +34,13 @@ The monorepo still publishes separate runtime artifacts because Kubernetes deplo
 
 | Component | Artifact |
 |-----------|----------|
-| Operator image | `ghcr.io/samyn92/agentops-operator` |
-| Console image | `ghcr.io/samyn92/agentops-console` |
-| Runtime image | `ghcr.io/samyn92/agentops-runtime-fantasy` |
-| Memory image | `ghcr.io/samyn92/agentops-memory` |
-| Tool artifacts | `ghcr.io/samyn92/agent-tools/<server>` |
-| Channel images | `ghcr.io/samyn92/agent-channel-<type>` |
-| Helm chart | `oci://ghcr.io/samyn92/charts/agentops` |
+| Operator image | `ghcr.io/samyn92/agentops/operator` |
+| Console image | `ghcr.io/samyn92/agentops/console` |
+| Runtime image | `ghcr.io/samyn92/agentops/runtime` |
+| Memory image | `ghcr.io/samyn92/agentops/memory` |
+| Tool artifacts | `ghcr.io/samyn92/agentops/tools/<server>` |
+| Channel images | `ghcr.io/samyn92/agentops/channels/<type>` |
+| Helm chart | `oci://ghcr.io/samyn92/agentops/charts/agentops` |
 
 The version matrix for a release lives at `deploy/charts/versions.yaml`.
 

@@ -44,7 +44,7 @@ metadata:
 | `model` | string | Yes | -- | Primary model in `provider/model` format (e.g. `anthropic/claude-sonnet-4-20250514`). |
 | `providerRefs` | []ProviderBinding | Yes (min 1) | -- | References to Provider CRs. See [Provider](#provider). |
 | `providers` | []ProviderRef | No | -- | **Deprecated.** Inline LLM providers with API key secret references. Use `providerRefs` instead. |
-| `image` | string | No | `ghcr.io/samyn92/agent-runtime-fantasy:latest` | Container image for the Fantasy agent runtime. |
+| `image` | string | No | `ghcr.io/samyn92/agentops/runtime:latest` | Container image for the Fantasy agent runtime. |
 | `imagePullPolicy` | `Always` \| `IfNotPresent` \| `Never` | No | `IfNotPresent` | Image pull policy. |
 | `primaryProvider` | string | No | -- | Preferred provider name when the model string has no provider prefix. |
 | `titleModel` | string | No | -- | Fast/cheap model for auto-titling sessions (daemon only). |
@@ -242,7 +242,7 @@ OCI artifact containing an MCP tool server binary. Pulled via crane init contain
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `ref` | string | Yes | Full OCI reference (e.g. `ghcr.io/samyn92/agent-tools/kubectl:0.3.3`). |
+| `ref` | string | Yes | Full OCI reference (e.g. `ghcr.io/samyn92/agentops/tools/kubectl:0.3.3`). |
 | `digest` | string | No | Optional digest for pinning. |
 | `pullPolicy` | `Always` \| `IfNotPresent` \| `Never` | No | Pull policy. |
 | `pullSecret` | SecretKeyRef | No | Pull secret for private registries. |

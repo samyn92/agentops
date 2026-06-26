@@ -8,7 +8,7 @@ spec:
   mode: daemon
   model: anthropic/claude-sonnet-4-20250514
 
-  image: ghcr.io/samyn92/agent-runtime-fantasy:latest
+  image: ghcr.io/samyn92/agentops/runtime:latest
   builtinTools:
     - bash
     - read
@@ -27,7 +27,7 @@ spec:
   tools:
     - name: kubectl
       oci:
-        ref: ghcr.io/samyn92/agent-tools/kubectl:0.3.3
+        ref: ghcr.io/samyn92/agentops/tools/kubectl:0.3.3
       description: "Kubernetes read-only — get, list, describe, logs"
       category: infrastructure
       uiHint: kubernetes-resources

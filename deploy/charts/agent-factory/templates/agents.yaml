@@ -43,7 +43,7 @@ spec:
     {{- range $agent.tools }}
     - name: {{ . }}
       oci:
-        ref: ghcr.io/samyn92/agent-tools/{{ . }}:latest
+        ref: ghcr.io/samyn92/agentops/tools/{{ . }}:latest
     {{- end }}
   {{- end }}
   integrations:

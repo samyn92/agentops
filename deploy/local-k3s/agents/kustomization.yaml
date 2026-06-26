@@ -13,5 +13,5 @@ resources:
   # Factory-managed agents are deployed via Helm:
   #   helm install samyn92-lab deploy/charts/agent-factory -n agents \
   #     --set scope.gitlab.group=samyn92-lab \
-  #     --set runtime.image=ghcr.io/samyn92/agentops-runtime-fantasy:dev \
-  #     --set channels.labelBridge.image=ghcr.io/samyn92/agent-channel-gitlab-label:dev
+  #     --set runtime.image=ghcr.io/samyn92/agentops/runtime:dev \
+  #     --set channels.labelBridge.image=ghcr.io/samyn92/agentops/channels/gitlab-label:dev

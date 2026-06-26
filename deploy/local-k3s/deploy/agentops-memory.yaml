@@ -36,7 +36,7 @@ spec:
     spec:
       containers:
         - name: memory
-          image: ghcr.io/samyn92/agentops-memory:0.3.0
+          image: ghcr.io/samyn92/agentops/memory:0.3.0
           ports:
             - name: http
               containerPort: 7437

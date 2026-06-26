@@ -15,7 +15,7 @@ spec:
   model: anthropic/claude-sonnet-4-20250514
 
   # Runtime
-  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.16.2
+  image: ghcr.io/samyn92/agentops/runtime:0.16.2
   builtinTools:
     - bash
     - read
@@ -42,17 +42,17 @@ spec:
   tools:
     - name: git
       oci:
-        ref: ghcr.io/samyn92/agent-tools/git:0.0.8
+        ref: ghcr.io/samyn92/agentops/tools/git:0.0.8
       description: "Git operations — clone, commit, push, branch, diff, log, blame"
       category: development
     - name: github
       oci:
-        ref: ghcr.io/samyn92/agent-tools/github:0.3.1
+        ref: ghcr.io/samyn92/agentops/tools/github:0.3.1
       description: "GitHub API — create/review PRs, manage issues, search code"
       category: development
     - name: kubectl
       oci:
-        ref: ghcr.io/samyn92/agent-tools/kubectl:0.3.3
+        ref: ghcr.io/samyn92/agentops/tools/kubectl:0.3.3
       description: "Kubernetes read-only — get, list, describe, logs across namespaces"
       category: infrastructure
       uiHint: kubernetes-resources

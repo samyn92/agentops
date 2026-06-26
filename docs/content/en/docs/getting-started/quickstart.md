@@ -17,7 +17,7 @@ This guide gets you from zero to a running AI agent on Kubernetes in three steps
 ## Step 1: Install the platform
 
 ```bash
-helm install agentops oci://ghcr.io/samyn92/charts/agentops \
+helm install agentops oci://ghcr.io/samyn92/agentops/charts/agentops \
   --namespace agent-system --create-namespace
 ```
 
@@ -97,7 +97,7 @@ spec:
   description: "Git operations — clone, commit, push, branch, diff, log, blame"
   category: development
   oci:
-    ref: ghcr.io/samyn92/agent-tools/git:0.0.8
+    ref: ghcr.io/samyn92/agentops/tools/git:0.0.8
     pullPolicy: IfNotPresent
 ---
 apiVersion: agents.agentops.io/v1alpha1
@@ -109,7 +109,7 @@ spec:
   description: "GitHub API — create/review PRs, manage issues, search code"
   category: development
   oci:
-    ref: ghcr.io/samyn92/agent-tools/github:0.3.1
+    ref: ghcr.io/samyn92/agentops/tools/github:0.3.1
     pullPolicy: IfNotPresent
 ---
 apiVersion: agents.agentops.io/v1alpha1
@@ -121,7 +121,7 @@ spec:
   description: "Kubernetes read-only — get, list, describe, logs across namespaces"
   category: infrastructure
   oci:
-    ref: ghcr.io/samyn92/agent-tools/kubectl:0.3.3
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:0.3.3
     pullPolicy: IfNotPresent
 ```
 
@@ -143,7 +143,7 @@ spec:
   model: anthropic/claude-sonnet-4-20250514
 
   # Runtime
-  image: ghcr.io/samyn92/agentops-runtime-fantasy:0.7.3
+  image: ghcr.io/samyn92/agentops/runtime:0.7.3
   builtinTools:
     - bash
     - read
