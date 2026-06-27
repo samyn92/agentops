@@ -38,7 +38,7 @@ just --justfile deploy/test-clusters/justfile up
 just --justfile deploy/test-clusters/justfile deploy-platform
 
 # Create required GitLab/LLM secrets from environment variables
-export ANTHROPIC_API_KEY=...
+export KIMI_API_KEY=...
 export GITLAB_PLANNER_TOKEN=...
 export GITLAB_CODER_TOKEN=...
 just --justfile deploy/test-clusters/justfile prepare-secrets
@@ -91,11 +91,14 @@ data:
   kubeconfig: <base64-encoded kubeconfig for prod cluster>
 ```
 
-The factory injects the secret as the agent env var `KUBECONFIG_DATA`. At
-runtime, the agent writes that value to a temporary kubeconfig file and exports
-`KUBECONFIG` before launching OCI tool servers. Existing `kubectl` and `flux`
-tool binaries then use the remote cluster kubeconfig without needing secret
-volume mounts.
+The current harness injects the secret as the agent env var `KUBECONFIG_DATA`.
+At runtime, the agent writes that value to a temporary kubeconfig file and
+exports `KUBECONFIG` before launching OCI tool adapters.
+
+The target architecture is to model Kubernetes access as an `Integration`
+(`kubernetes-cluster`) so cluster identity, namespace scope, and read-only policy
+are controlled by the platform instead of by shelling out to binaries from
+`$PATH`.
 
 ## Current E2E Target
 
@@ -103,9 +106,9 @@ The prepared E2E path deploys three observer daemons:
 
 | Agent | Cluster access | Kubernetes tools |
 |-------|----------------|------------------|
-| `infra-observer-mgmt` | In-cluster service account | `kubectl`, `flux`, `kube-explore`, `tempo` |
-| `infra-observer-prod` | `kubeconfig-agentops-prod` secret | `kubectl`, `flux`, `tempo` |
-| `infra-observer-staging` | `kubeconfig-agentops-staging` secret | `kubectl`, `flux`, `tempo` |
+| `infra-observer-mgmt` | In-cluster service account | Kubernetes/Flux/Tempo inspection |
+| `infra-observer-prod` | `kubeconfig-agentops-prod` secret | Kubernetes/Flux inspection |
+| `infra-observer-staging` | `kubeconfig-agentops-staging` secret | Kubernetes/Flux inspection |
 
 All three observers can use native GitLab tools from the coder Integration to
 create planning issues when they find actionable failures.

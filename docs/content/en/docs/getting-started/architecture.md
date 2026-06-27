@@ -56,7 +56,7 @@ The memory system operates on three layers:
 |-------|-------|---------|------------|
 | **Working memory** | Current session | In-process (Go runtime) | Token-budget trimmed. Before each LLM call, oldest messages are trimmed to fit the conversation token budget. Checkpointed to PVC for crash recovery. |
 | **Short-term memory** | Session summaries | agentops-memory (SQLite) | Deterministic extraction at session end (no LLM call). Injected on each turn. |
-| **Long-term memory** | Decisions, discoveries, lessons | agentops-memory (SQLite + FTS5) | User-managed via console Memory panel. Agent can save/search via `mem_save`, `mem_search` MCP tools. |
+| **Long-term memory** | Decisions, discoveries, lessons | agentops-memory (SQLite + FTS5) | User-managed via console Memory panel. Agent can save/search via native memory tools. |
 
 Context injection is **relevance-ranked** using BM25 when a query is provided (`GET /context?query=...`). Falls back to recency ordering when no query is supplied.
 
@@ -74,7 +74,7 @@ All components export OpenTelemetry traces via OTLP to Tempo. The console BFF qu
 | **Tempo** | `grafana/tempo` | Trace storage and query. Receives OTLP on gRPC :4317 and HTTP :4318. Search API on :3200. |
 | **Runtime** | `ghcr.io/samyn92/agentops/runtime` | Go binary built on the Charm Fantasy SDK. Runs inside agent pods. Handles LLM calls, built-in tools (bash, read, edit, write, grep, ls, glob, fetch), MCP tool client, memory integration, FEP streaming, OTLP export. |
 | **MCP Gateway** | `ghcr.io/samyn92/mcp-gateway` | Sidecar for `mcpServer`/`mcpEndpoint` tool sources. Proxies MCP protocol between agent runtime and remote MCP servers. Handles spawn and proxy modes. |
-| **Tool Artifacts** | `ghcr.io/samyn92/agentops/tools/*` | OCI artifacts containing compiled Go MCP stdio server binaries plus `manifest.json` (`kubectl`, `git`, `github`, `helm`, `flux`, `kube-explore`, `tempo`). Pulled via `crane` init container and launched by the runtime over stdio. |
+| **Tool Artifacts** | `ghcr.io/samyn92/agentops/tools/*` | OCI artifacts containing compiled Go tool binaries plus `manifest.json` (`kubectl`, `git`, `github`, `helm`, `flux`, `kube-explore`, `tempo`). Current artifacts use MCP stdio as an adapter. Pulled via `crane` init container and launched by the runtime. |
 
 ## Platform vs. user ecosystem
 

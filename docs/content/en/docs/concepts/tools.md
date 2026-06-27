@@ -2,10 +2,14 @@
 title: "Tools"
 linkTitle: "Tools"
 weight: 3
-description: "MCP tool servers, OCI artifact distribution, gateway sidecar, and built-in tool servers."
+description: "OCI tool artifacts, platform-native tools, MCP adapters, and built-in tool servers."
 ---
 
-Tools extend what an agent can do beyond generating text. AgentOps uses the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) for tool integration. MCP tools are compiled Go binaries that communicate over stdio — no HTTP servers, no network hops for tool calls within the pod.
+Tools extend what an agent can do beyond generating text. AgentOps separates tool packaging from identity:
+
+- **Integrations** provide access, credentials, target scope, and policy.
+- **Platform-native tools** use Integrations directly for first-class systems such as GitLab and Kubernetes.
+- **OCI tool artifacts** package optional/custom tools. Current built-in OCI tools use the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) over stdio, but MCP is an adapter, not the platform boundary.
 
 The **AgentTool** CRD (`agents.agents.agentops.io/agenttools`, short name `agtool`) defines the tool catalog. The operator provisions tools based on their source type, and the Fantasy runtime spawns them at startup.
 
@@ -122,7 +126,7 @@ spec:
 
 ## OCI artifact format
 
-MCP tool servers are packaged as OCI artifacts using the `agent-tools` CLI. The artifact structure:
+OCI tool artifacts are packaged using the `agent-tools` CLI. Current MCP-backed artifacts use this structure:
 
 | Component | Value |
 |-----------|-------|
@@ -175,7 +179,7 @@ The gateway image is `ghcr.io/samyn92/mcp-gateway`. It supports two modes:
 
 ## Built-in tool servers
 
-AgentOps ships seven MCP tool artifacts in this monorepo, all compiled as static Go binaries and distributed as OCI artifacts. Each artifact is an OCI interface to an MCP stdio server: agents declare the artifact ref, the operator pulls it into the pod, and the runtime starts the binary and discovers its MCP tools. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
+AgentOps ships OCI tool artifacts in this monorepo, all compiled as static Go binaries. Current artifacts expose MCP stdio servers: agents declare the artifact ref, the operator pulls it into the pod, and the runtime starts the binary and discovers its tools. All current servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
 
 ### kubectl (16 tools)
 
@@ -260,7 +264,7 @@ Requires `TEMPO_URL` environment variable pointing to the Tempo HTTP API.
 
 ## Platform-native GitLab tools
 
-GitLab is not distributed as an OCI MCP artifact. GitLab tools are runtime-native platform tools enabled when the operator injects a GitLab Integration identity into the agent environment (`GITLAB_TOKEN`, `GITLAB_URL`, scope variables, and optional `GITLAB_READONLY=true`). This keeps GitLab access tied to AgentOps Integration scoping, project allow-lists, and read-only enforcement instead of a separately declared MCP package.
+GitLab is not distributed as an OCI MCP artifact. GitLab tools are runtime-native platform tools enabled when the operator injects a GitLab Integration identity into the agent environment (`GITLAB_TOKEN`, `GITLAB_URL`, scope variables, optional `GITLAB_READONLY=true`, and optional `GITLAB_WRITE_SCOPE=issues`). This keeps GitLab access tied to AgentOps Integration scoping, project allow-lists, and write-scope enforcement instead of a separately declared MCP package.
 
 Native GitLab tools include project, group, merge request, issue, pipeline, and note operations. Mutating tools are registered only when the injected GitLab client is not read-only.
 

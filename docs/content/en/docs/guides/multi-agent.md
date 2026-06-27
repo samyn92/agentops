@@ -288,5 +288,5 @@ Then interact with the orchestrator through the AgentOps console. Ask it to revi
 
 ## Next Steps
 
-- See the [Building Custom MCP Tools](../building-tools/) guide to create tools for your task agents.
+- See the [Building Custom OCI Tools](../building-tools/) guide to create tools for your task agents.
 - Check the [Helm Values Reference](../../reference/helm-values/) for platform configuration.

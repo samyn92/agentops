@@ -84,7 +84,7 @@ anthropic   anthropic   Ready   0        5s
 
 ### Apply the AgentTool CRs
 
-AgentTools define the MCP tool servers your agent can use. Each tool is pulled as an OCI artifact at pod startup.
+AgentTools define optional OCI tool artifacts your agent can use. Current built-in artifacts use an MCP stdio adapter and are pulled at pod startup.
 
 ```yaml
 # tools.yaml

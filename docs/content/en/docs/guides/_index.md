@@ -9,5 +9,5 @@ This section contains practical, step-by-step guides for building on the AgentOp
 
 ## Available Guides
 
-- **[Building Custom MCP Tools](building-tools/)** — Create a custom MCP tool server in Go, package it as an OCI artifact, and wire it into your agents.
+- **[Building Custom OCI Tools](building-tools/)** — Create a custom tool in Go, package it as an OCI artifact, and wire it into your agents.
 - **[Multi-Agent Orchestration](multi-agent/)** — Set up an orchestrator that delegates work to task agents using the built-in delegation system.

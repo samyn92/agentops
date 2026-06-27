@@ -1,11 +1,11 @@
 ---
-title: "Building Custom MCP Tools"
+title: "Building Custom OCI Tools"
 linkTitle: "Building Tools"
 weight: 1
-description: "Create a custom MCP tool server in Go using the mcputil SDK, package it as an OCI artifact, and deploy it to your agents."
+description: "Create a custom tool in Go, package it as an OCI artifact, and deploy it to your agents."
 ---
 
-This guide walks through creating a custom MCP tool server from scratch using the `mcputil` SDK, packaging it, and deploying it into an AgentOps-managed agent.
+This guide walks through creating a custom OCI tool artifact from scratch. The current implementation uses the `mcputil` SDK and MCP stdio adapter, then packages the binary for deployment into an AgentOps-managed agent.
 
 ## Prerequisites
 

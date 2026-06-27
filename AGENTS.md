@@ -1,113 +1,158 @@
-# AgentOps — Kubernetes-Native AI Agent Orchestration
+# AgentOps Agent Guide
 
-## What This Is
+This repo is the AgentOps monorepo. Keep work scoped, verify with the local
+k3d harness when behavior touches runtime/operator/factory, and do not revive
+old multi-repo assumptions.
 
-A monorepo containing the full AgentOps platform: operator, console, runtime, memory, tools, channels, and deployment charts. One module, one repo, one CI pipeline.
+## Repo Shape
 
-## Architecture
+- Single Go module: `github.com/samyn92/agentops`.
+- Main binaries:
+  - `cmd/operator`
+  - `cmd/console`
+  - `cmd/runtime`
+  - `cmd/memory`
+  - `cmd/tools-cli`
+- Core packages:
+  - `api/v1alpha1`: CRD types.
+  - `internal/operator`: reconciliation.
+  - `internal/console`: BFF, auth, handlers, Kubernetes client.
+  - `web`: SolidJS console.
+  - `tools`: OCI-packaged optional tools. Current artifacts use MCP stdio, but MCP is an adapter, not the platform boundary.
+  - `channels`: bridge binaries such as `gitlab-label`.
+  - `deploy/charts`: Helm charts.
+  - `deploy/test-clusters`: k3d E2E harness.
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  PLATFORM (this repo)                                            │
-├─────────────────────────────────────────────────────────────────┤
-│  Operator    │ K8s controller for Agent/AgentRun/Channel/etc CRDs│
-│  Console     │ Go BFF + SolidJS PWA (GitLab OIDC multi-tenant)  │
-│  Runtime     │ Fantasy SDK agent binary (powers agent pods)      │
-│  Memory      │ SQLite FTS5 context service (BM25 relevance)     │
-│  Tools       │ MCP tool servers (kubectl, git, gitlab, helm...)  │
-│  Channels    │ Bridge binaries (gitlab-label, webhook, etc.)     │
-│  Charts      │ Helm: agentops (platform) + agent-factory         │
-└─────────────────────────────────────────────────────────────────┘
-```
+## Architecture Rules
 
-## Directory Layout
+- `Integration` is the boundary for identity, access, policy, and target.
+- Tools consume Integrations; tools should not own long-lived identity policy.
+- GitLab is platform-native, not an OCI MCP tool.
+- Kubernetes should become a platform Integration rather than depending on `kubectl` or `flux` being available in `$PATH`.
+- OCI artifacts remain the packaging model for optional/custom tools.
+- MCP compatibility is useful, but do not describe the product as an MCP-first platform.
 
-```
-api/v1alpha1/          CRD types (Agent, AgentRun, Channel, Integration, Provider)
-cmd/
-  operator/            Operator binary entrypoint
-  console/             Console BFF binary entrypoint  
-  runtime/             Agent runtime binary (all code here, package main)
-  memory/              Memory service binary (all code here, package main)
-  tools-cli/           OCI tool packager CLI
-internal/
-  operator/            Controller reconciliation logic
-  console/             BFF: auth, handlers, k8s client, server, multiplexer
-web/                   SolidJS Progressive Web App (Vite + Tailwind)
-tools/                 MCP tool servers (8 servers + shared mcputil SDK)
-channels/              Channel bridge binaries (4 bridges)
-deploy/
-  charts/agentops/     Umbrella Helm chart (operator + console + memory + tempo + nats)
-  charts/agent-factory/  Agent factory chart (planned)
-  local-k3s/           Local k3s dev environment
-  presets/             Agent factory presets
-config/                Operator kustomize (CRDs, RBAC, manager)
-docs/                  Hugo documentation site
-```
+## Local Harness
 
-## Go Module
-
-Single module: `github.com/samyn92/agentops` — no replace directives, no cross-repo imports.
-
-## Dev Environment
-
-All development runs in-cluster on local k3s (`pc-omarchy`). Dev pods mount the monorepo via hostPath.
-
-### Quick Start
+Use the k3d harness for end-to-end validation:
 
 ```sh
-just --justfile deploy/local-k3s/deploy/justfile up       # deploy dev pods
-just --justfile deploy/local-k3s/deploy/justfile con-reload  # hot-reload console
-just --justfile deploy/local-k3s/deploy/justfile op-reload   # hot-reload operator
+just --justfile deploy/test-clusters/justfile up
+just --justfile deploy/test-clusters/justfile prepare-secrets
+just --justfile deploy/test-clusters/justfile e2e-setup
+just --justfile deploy/test-clusters/justfile ui
 ```
 
-### Key Recipes
+Required secrets for `prepare-secrets`:
 
-| Recipe | What |
-|--------|------|
-| `just up` | Deploy both dev pods, wait for ready |
-| `just down` | Tear down dev pods |
-| `just con-reload` | Kill → rebuild → restart BFF (Vite stays up) |
-| `just op-reload` | Kill → rebuild → restart operator |
-| `just op-reload-full` | Regenerate CRDs + rebuild + restart |
-| `just rt-reload` | Build runtime :dev image + import into k3s |
-| `just rt-refire <agent>` | Delete latest AgentRun → new pod |
+```sh
+export KIMI_API_KEY=...
+export GITLAB_PLANNER_TOKEN=...
+export GITLAB_CODER_TOKEN=...
+```
 
-### Browser Access
+Do not read or print secret values. It is fine to verify secret names, keys, and
+Deployment env wiring.
 
-| URL | What |
-|-----|------|
-| `http://localhost:30173` | Console (Vite HMR + BFF proxy) |
-| `http://localhost:30080` | BFF directly |
+Cluster contexts:
 
-## CI/CD
+- `k3d-agentops-mgmt`: platform, agents, console.
+- `k3d-agentops-prod`: simulated workload cluster.
+- `k3d-agentops-staging`: simulated workload cluster.
 
-- **CI** (`.github/workflows/ci.yaml`): Path-filtered — only builds what changed. Go vet/test/build + web typecheck/build.
-- **Release** (`.github/workflows/release.yaml`): On `v*` tag — matrix Docker builds (operator, console, runtime, memory), channel images, tool binaries, Helm chart packaging.
+UI:
 
-## Key Concepts
+```sh
+just --justfile deploy/test-clusters/justfile ui
+```
 
-### Multi-Tenant OIDC
-The console authenticates users via GitLab OIDC. All GitLab API reads use the human's token (sees only what they have access to). Agent writes use scoped bot tokens (from Integration credentials).
+Open `http://localhost:8080`.
 
-### Agent Factories
-Pre-composed agent teams deployed as Helm charts. DevOps/GitOps factory: planner + implementer + reviewer + observer + CI fixer. Scoped to a GitLab group or project.
+## Dev Iteration
 
-### Three-Layer Memory
-1. Working Memory (ephemeral, in-process)
-2. Short-term Memory (session summaries, auto-managed)
-3. Long-term Memory (decisions, lessons learned, user-managed)
+After code changes:
 
-### Fantasy Event Protocol (FEP)
-Streaming protocol over SSE for real-time agent activity. Events flow: Runtime → NATS → Console BFF → Browser.
+```sh
+go test ./cmd/runtime ./cmd/runtime/gitlab
+helm lint deploy/charts/agent-factory -f deploy/test-clusters/factory-e2e-values.yaml
+```
 
-## Plans
+When runtime/operator/console/channel images change:
 
-| Plan | Status | Description |
-|------|--------|-------------|
-| `PLAN_multi-tenant-oidc.md` | Implemented | GitLab OIDC, login wall, user-scoped reads |
-| `PLAN_agent-factory.md` | Design | Agent factory Helm chart, identity tiers, DevOps preset |
-| `PLAN_monorepo-migration.md` | Done | This migration |
-| `PLAN_legacy-cleanup.md` | Pending E2E test | Archive old repos |
-| `PLAN_platform-operating-model.md` | Active | Versioning, release hygiene |
-| `PLAN_eval.md` | Draft | Agent evaluation via OTEL traces |
+```sh
+just --justfile deploy/test-clusters/justfile deploy-platform
+```
+
+When factory values/templates change:
+
+```sh
+just --justfile deploy/test-clusters/justfile deploy-factory
+```
+
+Because dev images use `:dev` and `imagePullPolicy: Never`, restart affected
+agent deployments after rebuilding/importing runtime:
+
+```sh
+kubectl --context k3d-agentops-mgmt -n agents rollout restart deploy/infra-pm
+kubectl --context k3d-agentops-mgmt -n agents rollout status deploy/infra-pm --timeout=120s
+```
+
+Validation:
+
+```sh
+just --justfile deploy/test-clusters/justfile e2e-test
+just --justfile deploy/test-clusters/justfile verify
+```
+
+## GitLab Factory Contract
+
+- Factory scope is one GitLab group: `scope.gitlab.group`.
+- Workboard inventory is group-wide.
+- PM creates/updates issues, labels, and issue notes only.
+- Engineering Lead handles code, branches, commits, pushes, and MRs.
+- PM issue writes are enabled with `GITLAB_WRITE_SCOPE=issues`.
+- Agents should use explicit project paths from issue/repo/user context when creating or updating work.
+
+## Docs
+
+- Keep root docs small:
+  - `README.md`: GitHub landing page.
+  - `PLAN.md`: current architecture and next work.
+  - `AGENTS.md`: this operational guide.
+- Do not add new `PLAN_*.md` files.
+- If a decision matters, fold it into `PLAN.md` briefly.
+- Hugo docs live under `docs/` and should stay product-facing.
+
+## Release
+
+CI:
+
+```sh
+gh workflow run ci.yaml
+```
+
+Release is tag-driven:
+
+```sh
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+The release workflow builds and publishes:
+
+- operator, console, runtime, memory images
+- channel images
+- OCI tool artifacts
+- Helm charts
+- GitHub release notes
+
+Before tagging:
+
+```sh
+git status --short
+go test ./...
+helm lint deploy/charts/agentops
+helm lint deploy/charts/agent-factory
+```
+
+Only release from a clean tree after the relevant k3d path has passed.

@@ -51,7 +51,7 @@ One `helm install` gives you a coordinated team of AI agents — planners, imple
 │                              │                                           │
 │  ┌─────────────── Runtime ───────────────┐  ┌──────── Memory ────────┐  │
 │  │  Fantasy SDK (Charm)                  │  │  SQLite + FTS5         │  │
-│  │  MCP tool servers (stdio transport)   │  │  BM25 relevance        │  │
+│  │  Native tools + OCI tool adapters     │  │  BM25 relevance        │  │
 │  │  Three-layer memory integration       │  │  Three-tier write dedup│  │
 │  │  FEP streaming + OTEL tracing         │  │  Context injection     │  │
 │  └───────────────────────────────────────┘  └────────────────────────┘  │
@@ -123,7 +123,9 @@ Protected branches prevent agents from merging — human approval is always requ
 
 - **Three-layer memory** — Working memory (ephemeral, token-budgeted), short-term memory (auto-generated session summaries), and long-term memory (user-managed decisions and lessons learned). BM25 relevance-ranked context injection.
 
-- **OCI tool interface for MCP** — Tools are declared as OCI artifact refs and loaded into agent pods at startup. Each artifact contains an MCP stdio server binary plus `manifest.json`; the operator pulls it with `crane`, and the runtime discovers its MCP tools automatically. Built-in artifacts include `kubectl`, `git`, `github`, `helm`, `flux`, `kube-explore`, and `tempo`.
+- **Integrations as identity boundaries** — GitLab, Kubernetes, and future platform systems are modeled as Integrations: access, identity, policy, and target. Tools consume Integrations instead of owning credentials.
+
+- **OCI-distributed tools** — Optional tools are packaged as OCI artifacts with a small manifest and loaded into agent pods at startup. MCP is supported as an adapter for current stdio tool artifacts, but the platform contract is OCI tool delivery plus Integration-scoped access.
 
 - **Plan refinement** — Human-in-the-loop via GitLab issue threads. Planners propose, humans refine, implementers execute. Full audit trail in GitLab.
 
@@ -211,7 +213,7 @@ agentops/
 │   ├── operator/              Controller reconciliation logic
 │   └── console/               BFF: auth, handlers, k8s client, multiplexer
 ├── web/                       SolidJS Progressive Web App (Vite + Tailwind)
-├── tools/                     MCP tool servers
+├── tools/                     OCI-packaged optional tools
 │   ├── kubectl/               Kubernetes operations
 │   ├── git/                   Git operations
 │   ├── github/                GitHub API
@@ -223,7 +225,6 @@ agentops/
 ├── channels/                  Channel bridge binaries
 │   ├── gitlab-label/          Label-based event routing
 │   ├── gitlab-comment/        Comment-based event routing
-│   ├── gitlab/                GitLab integration (legacy)
 │   └── webhook/               Generic webhook bridge
 ├── deploy/
 │   ├── charts/agentops/       Platform Helm chart (operator + console + deps)

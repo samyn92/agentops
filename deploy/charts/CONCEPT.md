@@ -2,7 +2,7 @@
 
 AgentOps is released from the `github.com/samyn92/agentops` monorepo.
 
-The source is centralized, but the release still publishes multiple artifacts because the deployed platform has separate runtime boundaries: operator, console, runtime, memory, MCP tools, channel bridges, and Helm charts.
+The source is centralized, but the release still publishes multiple artifacts because the deployed platform has separate runtime boundaries: operator, console, runtime, memory, OCI tool artifacts, channel bridges, and Helm charts.
 
 ## Core Chart
 
@@ -57,7 +57,7 @@ A release is cut by pushing a `v*` tag from the monorepo.
 The GitHub release workflow:
 
 1. Builds and pushes component images.
-2. Builds and pushes MCP tool OCI artifacts.
+2. Builds and pushes OCI tool artifacts.
 3. Builds and pushes channel images.
 4. Packages and pushes the `agentops` Helm chart.
 5. Creates GitHub release notes.

@@ -2,10 +2,10 @@
 title: "Tool Catalog"
 linkTitle: "Tool Catalog"
 weight: 3
-description: "Complete catalog of built-in MCP tool servers with tool names and OCI references."
+description: "Complete catalog of built-in OCI tool artifacts and platform-native tools."
 ---
 
-AgentOps ships seven packaged MCP tool artifacts. Each artifact is an OCI reference containing a compiled Go MCP stdio server binary plus `manifest.json`, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents declare tool refs in their specs, the operator pulls each artifact at pod startup with a `crane` init container, and the runtime starts the binary over MCP stdio.
+AgentOps ships packaged OCI tool artifacts. Current artifacts contain compiled Go MCP stdio server binaries plus `manifest.json`, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents declare tool refs in their specs, the operator pulls each artifact at pod startup with a `crane` init container, and the runtime starts the binary through the adapter declared by the artifact.
 
 All tool servers are published to `ghcr.io/samyn92/agentops/tools/`. Binaries follow the `mcp-{server}` naming convention.
 
@@ -267,7 +267,7 @@ spec:
 
 ## Platform-native GitLab tools
 
-GitLab is not an OCI MCP artifact. GitLab operations are provided by runtime-native platform tools that are enabled when the operator injects a GitLab Integration identity into the agent environment. The runtime uses `GITLAB_TOKEN`, `GITLAB_URL`, scope variables, project allow-lists, and `GITLAB_READONLY=true` to decide which `gitlab_*` tools are registered and whether mutating operations are available.
+GitLab is not an OCI MCP artifact. GitLab operations are provided by runtime-native platform tools that are enabled when the operator injects a GitLab Integration identity into the agent environment. The runtime uses `GITLAB_TOKEN`, `GITLAB_URL`, scope variables, project allow-lists, `GITLAB_READONLY=true`, and `GITLAB_WRITE_SCOPE=issues` to decide which `gitlab_*` tools are registered and whether mutating operations are available.
 
 Standard read tools: `gitlab_get_project`, `gitlab_list_group_projects`, `gitlab_search`, `gitlab_list_mrs`, `gitlab_get_mr`, `gitlab_get_mr_diff`, `gitlab_list_mr_notes`, `gitlab_list_issues`, `gitlab_get_issue`, `gitlab_list_issue_notes`, `gitlab_list_pipelines`, `gitlab_get_pipeline`.
 

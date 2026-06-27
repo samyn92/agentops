@@ -30,7 +30,7 @@ The operator reconciles these CRDs into standard Kubernetes primitives — Deplo
 
 **Three-layer memory.** Working memory (in-process), short-term session summaries (deterministic, no LLM call), and long-term observations (FTS5 BM25-ranked). All backed by agentops-memory, a ~1300 LOC Go service with SQLite.
 
-**Tools as OCI artifacts.** MCP tool servers are compiled Go binaries packaged as OCI artifacts. The operator pulls them via init containers and the runtime spawns them on stdio. No network hops for tool calls.
+**Tools as OCI artifacts.** Optional tools are packaged as OCI artifacts. Current built-in artifacts use MCP stdio, but Integrations remain the boundary for credentials, scope, and policy.
 
 **Real-time streaming.** The Fantasy Event Protocol (FEP) over Server-Sent Events connects the AgentOps Console to live agent sessions for token-by-token streaming, tool call visualization, and memory inspection.
 
@@ -38,6 +38,6 @@ Read on for deep dives into each concept:
 
 - [Agents]({{< relref "agents" >}}) — CRD spec, lifecycle modes, delegation, concurrency control
 - [Providers]({{< relref "providers" >}}) — shared LLM provider configuration, type-based SDK wiring, per-call defaults
-- [Memory]({{< relref "memory" >}}) — three-layer model, context injection, write dedup, MCP tools
-- [Tools]({{< relref "tools" >}}) — MCP tool servers, OCI distribution, gateway sidecar, built-in servers
+- [Memory]({{< relref "memory" >}}) — three-layer model, context injection, write dedup, native memory tools
+- [Tools]({{< relref "tools" >}}) — platform-native tools, OCI distribution, MCP adapters, built-in servers
 - [Resources]({{< relref "resources" >}}) — external resource catalog, agent bindings, git workspaces, console integration

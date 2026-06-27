@@ -80,8 +80,8 @@ Every component designed for production. Every integration first-party.
 <div class="col-lg-4 col-md-6">
 <div class="agentops-feature-card">
 <div class="agentops-feature-icon"><i class="fas fa-tools"></i></div>
-<h3>MCP Tools as OCI</h3>
-<p>Tool servers are compiled Go binaries with MCP stdio transport. Package as OCI artifacts, push to any registry, reference in your Agent CR. Pulled at reconcile time by init containers.</p>
+<h3>OCI Tool Artifacts</h3>
+<p>Optional tools are compiled Go binaries packaged as OCI artifacts. MCP stdio is supported as an adapter, while Integrations provide credentials, scope, and policy.</p>
 <a href="docs/concepts/tools/" class="agentops-feature-link">Learn more &rarr;</a>
 </div>
 </div>

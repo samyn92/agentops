@@ -17,7 +17,7 @@ How things work under the hood:
 - **Agent Lifecycle** -- how the operator reconciles Agent CRs into running pods with sidecars, storage, and networking.
 - **Three-Layer Memory** -- working memory, short-term session summaries, and long-term observations. BM25 relevance ranking, three-tier write dedup, deterministic summarization.
 - **Delegation** -- parallel sub-agent spawning via Kubernetes Jobs, structured result aggregation, concurrency control.
-- **MCP Tools** -- tool servers as OCI artifacts, stdio transport, registry resolution, and sidecar injection.
+- **Tools and Integrations** -- platform-native tools, OCI artifacts, MCP adapters, registry resolution, and Integration-scoped access.
 - **Channels** -- Slack, webhook, and custom channel bridges for agent I/O.
 - **FEP Streaming** -- the Fantasy Event Protocol over SSE, how the console connects to live agent sessions.
 
@@ -25,7 +25,7 @@ How things work under the hood:
 
 Task-oriented walkthroughs:
 
-- Writing a custom MCP tool server
+- Packaging custom OCI tools
 - Configuring agent memory for your use case
 - Setting up agent delegation chains
 - Connecting agents to Slack channels
