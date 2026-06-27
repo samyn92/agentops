@@ -29,13 +29,15 @@ runtime:
   imagePullPolicy: Never
 
 provider:
-  name: anthropic
-  type: anthropic
-  model: anthropic/claude-haiku-4-5-20251001
-  fallbackModel: anthropic/claude-haiku-4-5-20251001
+  name: kimi
+  type: openaicompat
+  model: kimi/kimi-k2.5
+  fallbackModel: kimi/kimi-k2.5
   apiKeySecret:
     name: llm-api-keys
-    key: ANTHROPIC_API_KEY
+    key: KIMI_API_KEY
+  endpoint:
+    baseURL: https://api.moonshot.ai/v1
 
 tokens:
   planner:

@@ -155,18 +155,18 @@ ui:
     kubectl --context k3d-{{mgmt_cluster}} -n agent-system port-forward svc/{{release}}-agentops-console 8080:80
 
 # Create secrets required by the E2E factory.
-# Requires: ANTHROPIC_API_KEY, GITLAB_PLANNER_TOKEN, GITLAB_CODER_TOKEN
+# Requires: KIMI_API_KEY, GITLAB_PLANNER_TOKEN, GITLAB_CODER_TOKEN
 prepare-secrets:
     #!/usr/bin/env bash
     set -euo pipefail
     ctx="k3d-{{mgmt_cluster}}"
-    : "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY}"
+    : "${KIMI_API_KEY:?set KIMI_API_KEY}"
     : "${GITLAB_PLANNER_TOKEN:?set GITLAB_PLANNER_TOKEN}"
     : "${GITLAB_CODER_TOKEN:?set GITLAB_CODER_TOKEN}"
 
     kubectl --context "$ctx" create namespace agents 2>/dev/null || true
     kubectl --context "$ctx" -n agents create secret generic llm-api-keys \
-      --from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
+      --from-literal=KIMI_API_KEY="$KIMI_API_KEY" \
       --dry-run=client -o yaml | kubectl --context "$ctx" apply -f -
     kubectl --context "$ctx" -n agents create secret generic gitlab-bot-planner \
       --from-literal=token="$GITLAB_PLANNER_TOKEN" \

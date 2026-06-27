@@ -12,6 +12,18 @@ spec:
   apiKeySecret:
     name: {{ .Values.provider.apiKeySecret.name }}
     key: {{ .Values.provider.apiKeySecret.key }}
+  {{- with .Values.provider.endpoint }}
+  endpoint:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.provider.config }}
+  config:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.provider.defaults }}
+  defaults:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 ---
 apiVersion: agents.agentops.io/v1alpha1
 kind: Integration
