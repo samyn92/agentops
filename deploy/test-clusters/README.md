@@ -34,7 +34,7 @@ Spin up a realistic multi-cluster setup using k3d for testing the Agent Factory 
 just --justfile deploy/test-clusters/justfile up
 
 # Deploy CRDs + namespaces on mgmt.
-# This builds/imports local operator:dev, runtime:dev, and gitlab-label:dev images first.
+# This builds/imports local operator:dev, console:dev, runtime:dev, and gitlab-label:dev images first.
 just --justfile deploy/test-clusters/justfile deploy-platform
 
 # Create required GitLab/LLM secrets from environment variables
@@ -60,6 +60,9 @@ just --justfile deploy/test-clusters/justfile e2e-setup
 
 # Run the chart/server-side validation and rollout smoke test
 just --justfile deploy/test-clusters/justfile e2e-test
+
+# Open the console at http://localhost:8080
+just --justfile deploy/test-clusters/justfile ui
 
 # Tear down everything
 just --justfile deploy/test-clusters/justfile down

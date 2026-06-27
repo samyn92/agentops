@@ -99,7 +99,7 @@ agentops-console:
   console:
     # -- Restrict to a single namespace (empty = all)
     namespace: ""
-    webDir: "/app/web/dist"
+    webDir: "/web"
     dev: false
   # -- Service configuration
   service:
@@ -129,6 +129,10 @@ agentops-console:
     create: true
     namespaced: false
     watchNamespaces: []
+    extraRules:
+      - apiGroups: ["agents.agentops.io"]
+        resources: ["integrations", "providers"]
+        verbs: ["get", "list", "watch", "patch"]
 
 # =============================================================================
 # Memory — AgentOps Memory Service (inline templates, not a sub-chart)

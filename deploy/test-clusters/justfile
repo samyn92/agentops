@@ -11,6 +11,7 @@ network        := "agentops-net"
 release        := "agentops"
 factory_release := "infra"
 operator_image := "ghcr.io/samyn92/agentops/operator:dev"
+console_image  := "ghcr.io/samyn92/agentops/console:dev"
 runtime_image  := "ghcr.io/samyn92/agentops/runtime:dev"
 gitlab_label_image := "ghcr.io/samyn92/agentops/channels/gitlab-label:dev"
 
@@ -125,24 +126,33 @@ deploy-platform: import-platform-images
       --set createNamespace=false \
       --set agentops-operator.image.tag=dev \
       --set agentops-operator.image.pullPolicy=IfNotPresent \
-      --set agentops-console.image.tag=latest \
+      --set agentops-console.image.tag=dev \
+      --set agentops-console.image.pullPolicy=IfNotPresent \
+      --set agentops-console.console.webDir=/web \
       --set memory.image.tag=latest
 
     echo "==> Waiting for platform pods..."
     kubectl --context "$ctx" -n agent-system rollout status deploy/{{release}}-agentops-operator --timeout=180s || true
+    kubectl --context "$ctx" -n agent-system rollout status deploy/{{release}}-agentops-console --timeout=180s || true
     kubectl --context "$ctx" -n agent-system get pods
 
 # Build local images used by the E2E environment.
 build-platform-images:
     docker build -t {{operator_image}} -f {{justfile_directory()}}/../../Dockerfile.operator {{justfile_directory()}}/../..
+    docker build -t {{console_image}} -f {{justfile_directory()}}/../../Dockerfile.console {{justfile_directory()}}/../..
     docker build -t {{runtime_image}} -f {{justfile_directory()}}/../../Dockerfile.runtime {{justfile_directory()}}/../..
     docker build -t {{gitlab_label_image}} -f {{justfile_directory()}}/../../channels/gitlab-label/Dockerfile {{justfile_directory()}}/../..
 
 # Import local images into the management k3d cluster.
 import-platform-images: build-platform-images
     k3d image import {{operator_image}} -c {{mgmt_cluster}}
+    k3d image import {{console_image}} -c {{mgmt_cluster}}
     k3d image import {{runtime_image}} -c {{mgmt_cluster}}
     k3d image import {{gitlab_label_image}} -c {{mgmt_cluster}}
+
+# Port-forward the console UI to http://localhost:8080.
+ui:
+    kubectl --context k3d-{{mgmt_cluster}} -n agent-system port-forward svc/{{release}}-agentops-console 8080:80
 
 # Create secrets required by the E2E factory.
 # Requires: ANTHROPIC_API_KEY, GITLAB_PLANNER_TOKEN, GITLAB_CODER_TOKEN
