@@ -1,9 +1,9 @@
 # Values for the k3d multi-cluster E2E scaffold.
 #
-# This first E2E target runs an observer against the management cluster itself.
-# The prod/staging clusters and kubeconfig secrets are created by the justfile,
-# but remote observer pods need Agent secret-volume support before they can use
-# those kubeconfigs as files.
+# This E2E target runs one observer against the management cluster and one
+# observer for each workload cluster. Workload observers receive kubeconfigs via
+# KUBECONFIG_DATA secret env vars; the runtime writes those to a temp file and
+# exports KUBECONFIG before it launches OCI tool servers.
 
 scope:
   gitlab:
@@ -13,9 +13,20 @@ scope:
     - name: mgmt
       displayName: Management
       local: true
+    - name: prod
+      displayName: Production
+      kubeconfigSecret: kubeconfig-agentops-prod
+      kubeconfigKey: kubeconfig
+      tools: [kubectl, flux, tempo]
+    - name: staging
+      displayName: Staging
+      kubeconfigSecret: kubeconfig-agentops-staging
+      kubeconfigKey: kubeconfig
+      tools: [kubectl, flux, tempo]
 
 runtime:
-  image: ghcr.io/samyn92/agentops/runtime:latest
+  image: ghcr.io/samyn92/agentops/runtime:dev
+  imagePullPolicy: Never
 
 provider:
   name: anthropic

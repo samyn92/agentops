@@ -254,9 +254,9 @@ func buildMainContainer(agent *agentsv1alpha1.Agent, providers []agentsv1alpha1.
 	// Build command: Fantasy runtime
 	var command []string
 	if taskMode {
-		command = []string{"/app/agent-runtime", "task"}
+		command = []string{"/runtime", "task"}
 	} else {
-		command = []string{"/app/agent-runtime", "daemon"}
+		command = []string{"/runtime", "daemon"}
 	}
 
 	container := corev1.Container{

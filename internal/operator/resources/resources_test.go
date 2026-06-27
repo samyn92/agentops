@@ -104,8 +104,8 @@ func TestBuildAgentDeployment(t *testing.T) {
 	if main.Image != agentsv1alpha1.DefaultFantasyImage {
 		t.Errorf("expected image %q, got %q", agentsv1alpha1.DefaultFantasyImage, main.Image)
 	}
-	if main.Command[0] != "/app/agent-runtime" {
-		t.Errorf("expected '/app/agent-runtime' command, got %q", main.Command[0])
+	if main.Command[0] != "/runtime" {
+		t.Errorf("expected '/runtime' command, got %q", main.Command[0])
 	}
 	if len(main.Command) < 2 || main.Command[1] != "daemon" {
 		t.Errorf("expected 'daemon' arg, got %v", main.Command)
@@ -178,7 +178,7 @@ func TestBuildAgentRunJob(t *testing.T) {
 	job := BuildAgentRunJob(run, agent, nil, nil, "", InfraConfig{})
 
 	main := job.Spec.Template.Spec.Containers[0]
-	if main.Command[0] != "/app/agent-runtime" || main.Command[1] != "task" {
+	if main.Command[0] != "/runtime" || main.Command[1] != "task" {
 		t.Errorf("expected task command, got %v", main.Command)
 	}
 

@@ -1,6 +1,7 @@
 {{- $fullname := include "factory.fullname" . }}
 {{- $provider := .Values.provider.name }}
 {{- $runtime := .Values.runtime.image }}
+{{- $runtimePullPolicy := .Values.runtime.imagePullPolicy }}
 {{- $model := .Values.provider.model }}
 {{- $fallback := .Values.provider.fallbackModel }}
 {{- $memory := .Values.memory }}
@@ -27,6 +28,9 @@ spec:
   mode: {{ $agent.mode }}
   model: {{ $model }}
   image: {{ $runtime }}
+  {{- if or $agent.imagePullPolicy $runtimePullPolicy }}
+  imagePullPolicy: {{ $agent.imagePullPolicy | default $runtimePullPolicy }}
+  {{- end }}
   systemPrompt: {{ tpl $agent.systemPrompt $ctx | quote }}
   {{- if $agent.temperature }}
   temperature: {{ $agent.temperature }}
@@ -45,9 +49,10 @@ spec:
     {{- range ($agent.builtinTools | default (list "bash" "read" "edit" "write" "grep" "ls" "glob" "fetch")) }}
     - {{ . }}
     {{- end }}
-  {{- if $agent.tools }}
+  {{- $tools := ($cluster.tools | default $agent.tools) }}
+  {{- if $tools }}
   tools:
-    {{- range $agent.tools }}
+    {{- range $tools }}
     - name: {{ . }}
       oci:
         ref: ghcr.io/samyn92/agentops/tools/{{ . }}:latest
@@ -62,6 +67,21 @@ spec:
   env:
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $ctx | quote }}
+    {{- end }}
+  {{- end }}
+  {{- if or $agent.secrets $cluster.kubeconfigSecret }}
+  secrets:
+    {{- range ($agent.secrets | default list) }}
+    - name: {{ .name }}
+      secretRef:
+        name: {{ tpl .secretRef.name $ctx }}
+        key: {{ .secretRef.key }}
+    {{- end }}
+    {{- if $cluster.kubeconfigSecret }}
+    - name: KUBECONFIG_DATA
+      secretRef:
+        name: {{ $cluster.kubeconfigSecret }}
+        key: {{ $cluster.kubeconfigKey | default "kubeconfig" }}
     {{- end }}
   {{- end }}
   {{- if and $memory $memory.enabled }}
@@ -100,6 +120,9 @@ spec:
   mode: {{ $agent.mode }}
   model: {{ $model }}
   image: {{ $runtime }}
+  {{- if or $agent.imagePullPolicy $runtimePullPolicy }}
+  imagePullPolicy: {{ $agent.imagePullPolicy | default $runtimePullPolicy }}
+  {{- end }}
   systemPrompt: {{ tpl $agent.systemPrompt $root | quote }}
   {{- if $agent.temperature }}
   temperature: {{ $agent.temperature }}
@@ -135,6 +158,15 @@ spec:
   env:
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $root | quote }}
+    {{- end }}
+  {{- end }}
+  {{- if $agent.secrets }}
+  secrets:
+    {{- range $agent.secrets }}
+    - name: {{ .name }}
+      secretRef:
+        name: {{ tpl .secretRef.name $root }}
+        key: {{ .secretRef.key }}
     {{- end }}
   {{- end }}
   {{- if and $memory $memory.enabled }}

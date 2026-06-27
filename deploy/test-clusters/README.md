@@ -33,7 +33,8 @@ Spin up a realistic multi-cluster setup using k3d for testing the Agent Factory 
 # Spin up all 3 clusters (~30 seconds)
 just --justfile deploy/test-clusters/justfile up
 
-# Deploy CRDs + namespaces on mgmt
+# Deploy CRDs + namespaces on mgmt.
+# This builds/imports local operator:dev, runtime:dev, and gitlab-label:dev images first.
 just --justfile deploy/test-clusters/justfile deploy-platform
 
 # Create required GitLab/LLM secrets from environment variables
@@ -48,7 +49,7 @@ just --justfile deploy/test-clusters/justfile inject-kubeconfigs
 # Apply read-only RBAC for the generated management-cluster observer
 just --justfile deploy/test-clusters/justfile deploy-observer-rbac
 
-# Deploy the agent factory
+# Deploy the agent factory. This creates mgmt, prod, and staging observers.
 just --justfile deploy/test-clusters/justfile deploy-factory
 
 # Deploy sample workloads on prod/staging
@@ -56,6 +57,9 @@ just --justfile deploy/test-clusters/justfile deploy-workloads
 
 # Or run the full setup after `up`
 just --justfile deploy/test-clusters/justfile e2e-setup
+
+# Run the chart/server-side validation and rollout smoke test
+just --justfile deploy/test-clusters/justfile e2e-test
 
 # Tear down everything
 just --justfile deploy/test-clusters/justfile down
@@ -84,20 +88,24 @@ data:
   kubeconfig: <base64-encoded kubeconfig for prod cluster>
 ```
 
-The agent's `kubectl` tool uses `KUBECONFIG` env var pointing to the mounted secret.
+The factory injects the secret as the agent env var `KUBECONFIG_DATA`. At
+runtime, the agent writes that value to a temporary kubeconfig file and exports
+`KUBECONFIG` before launching OCI tool servers. Existing `kubectl` and `flux`
+tool binaries then use the remote cluster kubeconfig without needing secret
+volume mounts.
 
 ## Current E2E Target
 
-The first prepared E2E path deploys `infra-observer-mgmt`, an observer daemon
-that watches the management cluster using its in-cluster service account. It can
-inspect Kubernetes/Flux state and use native GitLab tools from the coder
-Integration to create planning issues.
+The prepared E2E path deploys three observer daemons:
 
-The prod/staging clusters and kubeconfig secrets are still created so the
-multi-cluster topology is ready, but remote observer pods are not enabled yet.
-The missing platform feature is arbitrary Secret volume mounts on Agent pods, so
-the generated kubeconfig secrets cannot yet be mounted as kubeconfig files for
-`kubectl`/`kube-explore`.
+| Agent | Cluster access | Kubernetes tools |
+|-------|----------------|------------------|
+| `infra-observer-mgmt` | In-cluster service account | `kubectl`, `flux`, `kube-explore`, `tempo` |
+| `infra-observer-prod` | `kubeconfig-agentops-prod` secret | `kubectl`, `flux`, `tempo` |
+| `infra-observer-staging` | `kubeconfig-agentops-staging` secret | `kubectl`, `flux`, `tempo` |
+
+All three observers can use native GitLab tools from the coder Integration to
+create planning issues when they find actionable failures.
 
 ## Validation Without Starting Clusters
 
@@ -105,4 +113,11 @@ Render the E2E factory manifests locally:
 
 ```bash
 just --justfile deploy/test-clusters/justfile render-factory
+```
+
+With clusters running and CRDs installed, validate rendered manifests against
+the API server and wait for observer rollouts:
+
+```bash
+just --justfile deploy/test-clusters/justfile e2e-test
 ```

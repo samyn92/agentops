@@ -10,6 +10,9 @@ staging_cluster := "agentops-staging"
 network        := "agentops-net"
 release        := "agentops"
 factory_release := "infra"
+operator_image := "ghcr.io/samyn92/agentops/operator:dev"
+runtime_image  := "ghcr.io/samyn92/agentops/runtime:dev"
+gitlab_label_image := "ghcr.io/samyn92/agentops/channels/gitlab-label:dev"
 
 # ── Lifecycle ─────────────────────────────────────────
 
@@ -103,7 +106,7 @@ inject-kubeconfigs:
 # ── Platform Deployment ───────────────────────────────
 
 # Deploy AgentOps platform on the mgmt cluster.
-deploy-platform:
+deploy-platform: import-platform-images
     #!/usr/bin/env bash
     set -euo pipefail
     ctx="k3d-{{mgmt_cluster}}"
@@ -118,13 +121,28 @@ deploy-platform:
     helm upgrade --install {{release}} {{justfile_directory()}}/../charts/agentops \
       -n agent-system --create-namespace \
       --kube-context "$ctx" \
-      --set agentops-operator.image.tag=latest \
+      --skip-crds \
+      --set createNamespace=false \
+      --set agentops-operator.image.tag=dev \
+      --set agentops-operator.image.pullPolicy=IfNotPresent \
       --set agentops-console.image.tag=latest \
       --set memory.image.tag=latest
 
     echo "==> Waiting for platform pods..."
     kubectl --context "$ctx" -n agent-system rollout status deploy/{{release}}-agentops-operator --timeout=180s || true
     kubectl --context "$ctx" -n agent-system get pods
+
+# Build local images used by the E2E environment.
+build-platform-images:
+    docker build -t {{operator_image}} -f {{justfile_directory()}}/../../Dockerfile.operator {{justfile_directory()}}/../..
+    docker build -t {{runtime_image}} -f {{justfile_directory()}}/../../Dockerfile.runtime {{justfile_directory()}}/../..
+    docker build -t {{gitlab_label_image}} -f {{justfile_directory()}}/../../channels/gitlab-label/Dockerfile {{justfile_directory()}}/../..
+
+# Import local images into the management k3d cluster.
+import-platform-images: build-platform-images
+    k3d image import {{operator_image}} -c {{mgmt_cluster}}
+    k3d image import {{runtime_image}} -c {{mgmt_cluster}}
+    k3d image import {{gitlab_label_image}} -c {{mgmt_cluster}}
 
 # Create secrets required by the E2E factory.
 # Requires: ANTHROPIC_API_KEY, GITLAB_PLANNER_TOKEN, GITLAB_CODER_TOKEN
@@ -187,7 +205,46 @@ deploy-workloads:
 
 # Prepare the management-cluster observer E2E path.
 # Does not create clusters; run `up` first.
-e2e-setup: deploy-platform prepare-secrets inject-kubeconfigs deploy-observer-rbac deploy-factory deploy-workloads verify
+e2e-setup: deploy-platform prepare-secrets inject-kubeconfigs deploy-observer-rbac deploy-factory deploy-workloads e2e-test verify
+
+# Validate rendered manifests and the deployed E2E resources.
+e2e-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    tmp="$(mktemp)"
+    trap 'rm -f "$tmp"' EXIT
+
+    echo "==> Linting factory chart..."
+    helm lint {{justfile_directory()}}/../charts/agent-factory \
+      -f {{justfile_directory()}}/factory-e2e-values.yaml
+
+    echo "==> Rendering factory chart..."
+    helm template {{factory_release}} {{justfile_directory()}}/../charts/agent-factory \
+      -n agents \
+      -f {{justfile_directory()}}/factory-e2e-values.yaml > "$tmp"
+
+    echo "==> Server-side validating manifests..."
+    kubectl --context "$ctx" -n agents apply --dry-run=server -f "$tmp"
+
+    echo "==> Checking generated observers..."
+    kubectl --context "$ctx" -n agents get agent \
+      {{factory_release}}-observer-mgmt \
+      {{factory_release}}-observer-prod \
+      {{factory_release}}-observer-staging
+
+    echo "==> Waiting for observer deployments..."
+    for name in {{factory_release}}-observer-mgmt {{factory_release}}-observer-prod {{factory_release}}-observer-staging; do
+      kubectl --context "$ctx" -n agents rollout status "deploy/$name" --timeout=180s
+    done
+
+    echo "==> Waiting for channel deployments..."
+    kubectl --context "$ctx" -n agents rollout status "deploy/{{factory_release}}-label-bridge" --timeout=180s
+
+    echo "==> Checking kubeconfig secrets..."
+    kubectl --context "$ctx" -n agents get secrets kubeconfig-{{prod_cluster}} kubeconfig-{{staging_cluster}}
+
+    echo "==> E2E smoke test passed."
 
 # Show the important E2E resources.
 verify:
@@ -200,7 +257,7 @@ verify:
     echo "==> Agent pods"
     kubectl --context "$ctx" -n agents get pods
     echo ""
-    echo "==> Kubeconfig secrets for future remote observers"
+    echo "==> Kubeconfig secrets for remote observers"
     kubectl --context "$ctx" -n agents get secrets kubeconfig-{{prod_cluster}} kubeconfig-{{staging_cluster}} 2>/dev/null || true
 
 # ── Utilities ─────────────────────────────────────────

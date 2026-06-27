@@ -39,6 +39,7 @@ tokens:
 
 runtime:
   image: ghcr.io/samyn92/agentops/runtime:dev
+  imagePullPolicy: IfNotPresent
 
 memory:
   enabled: true
@@ -120,7 +121,11 @@ agents:
       - When action is needed, create GitLab planning issues using native gitlab_* tools.
 
       Start every scheduled run with read-only inspection. Do not mutate cluster state.
+      {{- if .cluster.local }}
       Prefer kube-explore for high-level health and kubectl/flux for exact evidence.
+      {{- else }}
+      Use kubectl and flux for exact evidence from the remote kubeconfig.
+      {{- end }}
     schedule: "*/15 * * * *"
     schedulePrompt: |
       Run the observer health check for cluster {{ .cluster.displayName }}.

@@ -8,5 +8,6 @@ RUN CGO_ENABLED=0 go build -o runtime ./cmd/runtime/
 
 FROM gcr.io/distroless/static:nonroot
 COPY --from=builder /workspace/runtime /runtime
+COPY --from=builder /workspace/runtime /app/agent-runtime
 USER 65532:65532
 ENTRYPOINT ["/runtime"]

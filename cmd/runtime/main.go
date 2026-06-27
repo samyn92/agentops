@@ -94,6 +94,12 @@ type agentBundle struct {
 }
 
 func buildAgentBundle(ctx context.Context, cfg *Config, engram *EngramClient, injector *contextInjector, extraTools ...fantasy.AgentTool) (*agentBundle, error) {
+	if path, err := configureKubeconfigFromEnv(); err != nil {
+		return nil, err
+	} else if path != "" {
+		slog.Info("configured kubeconfig for tool processes", "path", path)
+	}
+
 	// Resolve providers
 	providers := make(map[string]fantasy.Provider)
 	for _, p := range cfg.Providers {
