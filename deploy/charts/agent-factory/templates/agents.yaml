@@ -8,6 +8,83 @@
 
 {{- range $key, $agent := .Values.agents }}
 {{- if $agent.enabled }}
+{{- if $agent.perCluster }}
+{{- range $cluster := $.Values.scope.clusters }}
+{{- $ctx := dict "Values" $.Values "Release" $.Release "Chart" $.Chart "Capabilities" $.Capabilities "cluster" $cluster }}
+---
+apiVersion: agents.agentops.io/v1alpha1
+kind: Agent
+metadata:
+  name: {{ $fullname }}-{{ $key | kebabcase }}-{{ $cluster.name | kebabcase }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "factory.labels" $root | nindent 4 }}
+    agentops.dev/role: {{ $agent.role | default $key | kebabcase | quote }}
+    agentops.dev/cluster: {{ $cluster.name | quote }}
+  annotations:
+    agentops.dev/description: {{ $agent.description | default "" | quote }}
+spec:
+  mode: {{ $agent.mode }}
+  model: {{ $model }}
+  image: {{ $runtime }}
+  systemPrompt: {{ tpl $agent.systemPrompt $ctx | quote }}
+  {{- if $agent.temperature }}
+  temperature: {{ $agent.temperature }}
+  {{- end }}
+  {{- if $agent.maxSteps }}
+  maxSteps: {{ $agent.maxSteps }}
+  {{- end }}
+  {{- if $agent.timeout }}
+  timeout: {{ $agent.timeout | quote }}
+  {{- end }}
+  providerRefs:
+    - name: {{ $provider }}
+  fallbackModels:
+    - {{ $fallback }}
+  builtinTools:
+    {{- range ($agent.builtinTools | default (list "bash" "read" "edit" "write" "grep" "ls" "glob" "fetch")) }}
+    - {{ . }}
+    {{- end }}
+  {{- if $agent.tools }}
+  tools:
+    {{- range $agent.tools }}
+    - name: {{ . }}
+      oci:
+        ref: ghcr.io/samyn92/agentops/tools/{{ . }}:latest
+    {{- end }}
+  {{- end }}
+  integrations:
+    - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "integrationRole" $agent.integrationRole "root" $root) }}
+      {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
+      readOnly: true
+      {{- end }}
+  {{- if $agent.env }}
+  env:
+    {{- range $name, $value := $agent.env }}
+    {{ $name }}: {{ tpl (toString $value) $ctx | quote }}
+    {{- end }}
+  {{- end }}
+  {{- if and $memory $memory.enabled }}
+  memory:
+    serverRef: {{ $memory.serverRef }}
+  {{- end }}
+  {{- if $agent.schedule }}
+  schedule: {{ tpl $agent.schedule $ctx | quote }}
+  {{- end }}
+  {{- if $agent.schedulePrompt }}
+  schedulePrompt: {{ tpl $agent.schedulePrompt $ctx | quote }}
+  {{- end }}
+  {{- if $agent.storage }}
+  storage:
+    size: {{ $agent.storage.size | quote }}
+  {{- end }}
+  {{- if $agent.concurrency }}
+  concurrency:
+    maxRuns: {{ $agent.concurrency.maxRuns }}
+    policy: {{ $agent.concurrency.policy }}
+  {{- end }}
+{{- end }}
+{{- else }}
 ---
 apiVersion: agents.agentops.io/v1alpha1
 kind: Agent
@@ -23,7 +100,7 @@ spec:
   mode: {{ $agent.mode }}
   model: {{ $model }}
   image: {{ $runtime }}
-  systemPrompt: {{ $agent.systemPrompt | quote }}
+  systemPrompt: {{ tpl $agent.systemPrompt $root | quote }}
   {{- if $agent.temperature }}
   temperature: {{ $agent.temperature }}
   {{- end }}
@@ -37,7 +114,10 @@ spec:
     - name: {{ $provider }}
   fallbackModels:
     - {{ $fallback }}
-  builtinTools: [bash, read, edit, write, grep, ls, glob, fetch]
+  builtinTools:
+    {{- range ($agent.builtinTools | default (list "bash" "read" "edit" "write" "grep" "ls" "glob" "fetch")) }}
+    - {{ . }}
+    {{- end }}
   {{- if $agent.tools }}
   tools:
     {{- range $agent.tools }}
@@ -47,18 +127,35 @@ spec:
     {{- end }}
   {{- end }}
   integrations:
-    - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "root" $root) }}
-      {{- if eq $agent.mode "daemon" }}
+    - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "integrationRole" $agent.integrationRole "root" $root) }}
+      {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
+  {{- if $agent.env }}
+  env:
+    {{- range $name, $value := $agent.env }}
+    {{ $name }}: {{ tpl (toString $value) $root | quote }}
+    {{- end }}
+  {{- end }}
   {{- if and $memory $memory.enabled }}
   memory:
     serverRef: {{ $memory.serverRef }}
+  {{- end }}
+  {{- if $agent.schedule }}
+  schedule: {{ tpl $agent.schedule $root | quote }}
+  {{- end }}
+  {{- if $agent.schedulePrompt }}
+  schedulePrompt: {{ tpl $agent.schedulePrompt $root | quote }}
+  {{- end }}
+  {{- if $agent.storage }}
+  storage:
+    size: {{ $agent.storage.size | quote }}
   {{- end }}
   {{- if $agent.concurrency }}
   concurrency:
     maxRuns: {{ $agent.concurrency.maxRuns }}
     policy: {{ $agent.concurrency.policy }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

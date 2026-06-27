@@ -14,12 +14,19 @@ agentops.dev/domain: {{ .Values.factory.domain }}
 {{- end }}
 
 {{/*
-Resolve the integration name based on agent mode:
-  daemon → planner integration (read-only)
-  task → coder integration (read-write)
+Resolve the integration name based on explicit role first, then agent mode:
+  integrationRole: planner → planner integration
+  integrationRole: coder   → coder integration
+  default daemon           → planner integration
+  default task             → coder integration
 */}}
 {{- define "factory.integrationFor" -}}
-{{- if eq .mode "daemon" -}}
+{{- $role := default "" .integrationRole -}}
+{{- if eq $role "planner" -}}
+{{ include "factory.fullname" .root }}-planner
+{{- else if eq $role "coder" -}}
+{{ include "factory.fullname" .root }}-coder
+{{- else if eq .mode "daemon" -}}
 {{ include "factory.fullname" .root }}-planner
 {{- else -}}
 {{ include "factory.fullname" .root }}-coder

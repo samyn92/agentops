@@ -8,6 +8,8 @@ mgmt_cluster   := "agentops-mgmt"
 prod_cluster   := "agentops-prod"
 staging_cluster := "agentops-staging"
 network        := "agentops-net"
+release        := "agentops"
+factory_release := "infra"
 
 # ── Lifecycle ─────────────────────────────────────────
 
@@ -100,7 +102,7 @@ inject-kubeconfigs:
 
 # ── Platform Deployment ───────────────────────────────
 
-# Deploy AgentOps platform on the mgmt cluster (CRDs + operator)
+# Deploy AgentOps platform on the mgmt cluster.
 deploy-platform:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -112,8 +114,52 @@ deploy-platform:
     kubectl --context "$ctx" create namespace agent-system 2>/dev/null || true
     kubectl --context "$ctx" create namespace agents 2>/dev/null || true
 
-    echo "==> Platform ready. Deploy agents with:"
-    echo "  helm install infra deploy/charts/agent-factory -n agents --kube-context k3d-{{mgmt_cluster}}"
+    echo "==> Installing AgentOps umbrella chart..."
+    helm upgrade --install {{release}} {{justfile_directory()}}/../charts/agentops \
+      -n agent-system --create-namespace \
+      --kube-context "$ctx" \
+      --set agentops-operator.image.tag=latest \
+      --set agentops-console.image.tag=latest \
+      --set memory.image.tag=latest
+
+    echo "==> Waiting for platform pods..."
+    kubectl --context "$ctx" -n agent-system rollout status deploy/{{release}}-agentops-operator --timeout=180s || true
+    kubectl --context "$ctx" -n agent-system get pods
+
+# Create secrets required by the E2E factory.
+# Requires: ANTHROPIC_API_KEY, GITLAB_PLANNER_TOKEN, GITLAB_CODER_TOKEN
+prepare-secrets:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    : "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY}"
+    : "${GITLAB_PLANNER_TOKEN:?set GITLAB_PLANNER_TOKEN}"
+    : "${GITLAB_CODER_TOKEN:?set GITLAB_CODER_TOKEN}"
+
+    kubectl --context "$ctx" create namespace agents 2>/dev/null || true
+    kubectl --context "$ctx" -n agents create secret generic llm-api-keys \
+      --from-literal=ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" \
+      --dry-run=client -o yaml | kubectl --context "$ctx" apply -f -
+    kubectl --context "$ctx" -n agents create secret generic gitlab-bot-planner \
+      --from-literal=token="$GITLAB_PLANNER_TOKEN" \
+      --dry-run=client -o yaml | kubectl --context "$ctx" apply -f -
+    kubectl --context "$ctx" -n agents create secret generic gitlab-bot-coder \
+      --from-literal=token="$GITLAB_CODER_TOKEN" \
+      --dry-run=client -o yaml | kubectl --context "$ctx" apply -f -
+    echo "==> E2E secrets applied."
+
+# Apply RBAC needed by the generated management-cluster observer.
+deploy-observer-rbac:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    kubectl --context "$ctx" apply -f {{justfile_directory()}}/observer-rbac.yaml
+
+# Render the factory chart for local validation.
+render-factory:
+    helm template {{factory_release}} {{justfile_directory()}}/../charts/agent-factory \
+      -n agents \
+      -f {{justfile_directory()}}/factory-e2e-values.yaml
 
 # Deploy the agent factory on the mgmt cluster
 deploy-factory preset="devops-gitops":
@@ -121,10 +167,10 @@ deploy-factory preset="devops-gitops":
     set -euo pipefail
     ctx="k3d-{{mgmt_cluster}}"
     echo "==> Deploying agent factory ({{preset}})..."
-    helm install infra {{justfile_directory()}}/../charts/agent-factory \
+    helm upgrade --install {{factory_release}} {{justfile_directory()}}/../charts/agent-factory \
       -n agents --create-namespace \
       --kube-context "$ctx" \
-      --set scope.gitlab.group=samyn92/lab
+      -f {{justfile_directory()}}/factory-e2e-values.yaml
     echo "==> Factory deployed. Check: kubectl --context $ctx get agents,channels,integrations -n agents"
 
 # Simulate workload on prod/staging (deploy sample apps for agents to observe)
@@ -138,6 +184,24 @@ deploy-workloads:
       kubectl --context "$ctx" apply -f {{justfile_directory()}}/workloads/ -n demo
     done
     echo "==> Workloads deployed."
+
+# Prepare the management-cluster observer E2E path.
+# Does not create clusters; run `up` first.
+e2e-setup: deploy-platform prepare-secrets inject-kubeconfigs deploy-observer-rbac deploy-factory deploy-workloads verify
+
+# Show the important E2E resources.
+verify:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ctx="k3d-{{mgmt_cluster}}"
+    echo "==> AgentOps resources"
+    kubectl --context "$ctx" -n agents get providers,integrations,agents,channels
+    echo ""
+    echo "==> Agent pods"
+    kubectl --context "$ctx" -n agents get pods
+    echo ""
+    echo "==> Kubeconfig secrets for future remote observers"
+    kubectl --context "$ctx" -n agents get secrets kubeconfig-{{prod_cluster}} kubeconfig-{{staging_cluster}} 2>/dev/null || true
 
 # ── Utilities ─────────────────────────────────────────
 

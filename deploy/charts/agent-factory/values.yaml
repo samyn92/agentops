@@ -15,6 +15,10 @@ scope:
   gitlab:
     group: samyn92-lab
     baseURL: https://gitlab.com
+  clusters:
+    - name: mgmt
+      displayName: Management
+      local: true
 
 provider:
   name: anthropic
@@ -47,7 +51,8 @@ agents:
     mode: daemon
     role: "Project Manager"
     description: "Plans work, refines specs, coordinates execution, reviews outcomes"
-    tools: [git, gitlab]
+    tools: [git]
+    integrationRole: planner
     systemPrompt: |
       You are the Project Manager for a DevOps/GitOps infrastructure team.
 
@@ -71,7 +76,8 @@ agents:
     mode: task
     role: "Engineering Lead"
     description: "Implements plans, opens MRs, reviews code, fixes CI failures"
-    tools: [git, gitlab]
+    tools: [git]
+    integrationRole: coder
     systemPrompt: |
       You are the Engineering Lead for a DevOps/GitOps infrastructure team.
 
@@ -91,6 +97,39 @@ agents:
     concurrency:
       maxRuns: 3
       policy: queue
+
+  observer:
+    enabled: true
+    mode: daemon
+    role: "Observer"
+    description: "Watches Kubernetes and GitOps health, then opens planning issues for failures"
+    perCluster: true
+    tools: [kubectl, flux, kube-explore, tempo]
+    integrationRole: coder
+    builtinTools: [read, grep, ls]
+    env:
+      MODE: readonly
+      TEMPO_URL: http://tempo.observability.svc.cluster.local:3200
+    systemPrompt: |
+      You are the Observer for cluster {{ .cluster.displayName }}.
+
+      Your responsibilities:
+      - Inspect Kubernetes workloads, events, Flux Kustomizations, and HelmReleases.
+      - Detect unhealthy pods, rollout failures, reconciliation failures, and drift signals.
+      - Summarize findings clearly with affected namespace, resource, evidence, and severity.
+      - When action is needed, create GitLab planning issues using native gitlab_* tools.
+
+      Start every scheduled run with read-only inspection. Do not mutate cluster state.
+      Prefer kube-explore for high-level health and kubectl/flux for exact evidence.
+    schedule: "*/15 * * * *"
+    schedulePrompt: |
+      Run the observer health check for cluster {{ .cluster.displayName }}.
+      Inspect workload health, Flux/Kustomize/Helm status, recent events, and trace health.
+      If you find actionable failures, create or update GitLab planning issues with labels
+      agent::planning,cluster::{{ .cluster.name }}.
+    maxSteps: 40
+    storage:
+      size: 1Gi
 
 channels:
   labelBridge:

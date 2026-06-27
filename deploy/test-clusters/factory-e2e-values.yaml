@@ -1,0 +1,52 @@
+# Values for the k3d multi-cluster E2E scaffold.
+#
+# This first E2E target runs an observer against the management cluster itself.
+# The prod/staging clusters and kubeconfig secrets are created by the justfile,
+# but remote observer pods need Agent secret-volume support before they can use
+# those kubeconfigs as files.
+
+scope:
+  gitlab:
+    group: samyn92/lab
+    baseURL: https://gitlab.com
+  clusters:
+    - name: mgmt
+      displayName: Management
+      local: true
+
+runtime:
+  image: ghcr.io/samyn92/agentops/runtime:latest
+
+provider:
+  name: anthropic
+  type: anthropic
+  model: anthropic/claude-haiku-4-5-20251001
+  fallbackModel: anthropic/claude-haiku-4-5-20251001
+  apiKeySecret:
+    name: llm-api-keys
+    key: ANTHROPIC_API_KEY
+
+tokens:
+  planner:
+    secretName: gitlab-bot-planner
+    secretKey: token
+  coder:
+    secretName: gitlab-bot-coder
+    secretKey: token
+
+memory:
+  enabled: true
+  serverRef: agentops-memory
+
+agents:
+  pm:
+    enabled: true
+  engineer:
+    enabled: true
+  observer:
+    enabled: true
+    schedule: "*/15 * * * *"
+
+channels:
+  labelBridge:
+    enabled: true

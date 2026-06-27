@@ -36,14 +36,26 @@ just --justfile deploy/test-clusters/justfile up
 # Deploy CRDs + namespaces on mgmt
 just --justfile deploy/test-clusters/justfile deploy-platform
 
+# Create required GitLab/LLM secrets from environment variables
+export ANTHROPIC_API_KEY=...
+export GITLAB_PLANNER_TOKEN=...
+export GITLAB_CODER_TOKEN=...
+just --justfile deploy/test-clusters/justfile prepare-secrets
+
 # Inject workload cluster kubeconfigs as secrets
 just --justfile deploy/test-clusters/justfile inject-kubeconfigs
+
+# Apply read-only RBAC for the generated management-cluster observer
+just --justfile deploy/test-clusters/justfile deploy-observer-rbac
 
 # Deploy the agent factory
 just --justfile deploy/test-clusters/justfile deploy-factory
 
 # Deploy sample workloads on prod/staging
 just --justfile deploy/test-clusters/justfile deploy-workloads
+
+# Or run the full setup after `up`
+just --justfile deploy/test-clusters/justfile e2e-setup
 
 # Tear down everything
 just --justfile deploy/test-clusters/justfile down
@@ -73,3 +85,24 @@ data:
 ```
 
 The agent's `kubectl` tool uses `KUBECONFIG` env var pointing to the mounted secret.
+
+## Current E2E Target
+
+The first prepared E2E path deploys `infra-observer-mgmt`, an observer daemon
+that watches the management cluster using its in-cluster service account. It can
+inspect Kubernetes/Flux state and use native GitLab tools from the coder
+Integration to create planning issues.
+
+The prod/staging clusters and kubeconfig secrets are still created so the
+multi-cluster topology is ready, but remote observer pods are not enabled yet.
+The missing platform feature is arbitrary Secret volume mounts on Agent pods, so
+the generated kubeconfig secrets cannot yet be mounted as kubeconfig files for
+`kubectl`/`kube-explore`.
+
+## Validation Without Starting Clusters
+
+Render the E2E factory manifests locally:
+
+```bash
+just --justfile deploy/test-clusters/justfile render-factory
+```
