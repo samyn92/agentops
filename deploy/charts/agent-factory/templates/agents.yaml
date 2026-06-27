@@ -63,8 +63,12 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if $agent.env }}
+  {{- if or $agent.env $.Values.scope.gitlab.workboardProject }}
   env:
+    {{- if $.Values.scope.gitlab.workboardProject }}
+    GITLAB_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    GITLAB_WORKBOARD_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $ctx | quote }}
     {{- end }}
@@ -154,8 +158,12 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if $agent.env }}
+  {{- if or $agent.env $.Values.scope.gitlab.workboardProject }}
   env:
+    {{- if $.Values.scope.gitlab.workboardProject }}
+    GITLAB_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    GITLAB_WORKBOARD_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $root | quote }}
     {{- end }}

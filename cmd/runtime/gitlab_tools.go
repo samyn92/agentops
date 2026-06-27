@@ -164,9 +164,28 @@ type glListIssuesInput struct {
 
 func newGitLabListIssuesTool() fantasy.AgentTool {
 	return fantasy.NewAgentTool("gitlab_list_issues",
-		"List issues for a project.",
+		"List issues for a named project, the agent default project, or the bound group. If the default project is inaccessible and a group is bound, this falls back to recursively discovered group projects.",
 		func(_ context.Context, in glListIssuesInput, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
-			issues, err := gitlabClient.ListIssues(in.Project, in.State, in.Labels)
+			issues, err := gitlabClient.ListIssuesForScope(in.Project, in.State, in.Labels)
+			if err != nil {
+				return glErr(err)
+			}
+			return jsonResponse(issues)
+		})
+}
+
+type glListGroupIssuesInput struct {
+	Group  string `json:"group,omitempty" description:"Group full path. Omit to use the agent's bound group."`
+	State  string `json:"state,omitempty" description:"Issue state: opened (default) / closed / all."`
+	Labels string `json:"labels,omitempty" description:"Comma-separated label filter."`
+	Search string `json:"search,omitempty" description:"Optional issue search query."`
+}
+
+func newGitLabListGroupIssuesTool() fantasy.AgentTool {
+	return fantasy.NewAgentTool("gitlab_list_group_issues",
+		"List issues across projects in a GitLab group, including subgroup projects. Use this for group-wide issue inventory.",
+		func(_ context.Context, in glListGroupIssuesInput, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
+			issues, err := gitlabClient.ListGroupIssues(in.Group, in.State, in.Labels, in.Search)
 			if err != nil {
 				return glErr(err)
 			}
@@ -692,6 +711,7 @@ func gitlabTools() []fantasy.AgentTool {
 		newGitLabGetMRDiffTool(),
 		newGitLabListMRNotesTool(),
 		newGitLabListIssuesTool(),
+		newGitLabListGroupIssuesTool(),
 		newGitLabGetIssueTool(),
 		newGitLabListIssueNotesTool(),
 		newGitLabListPipelinesTool(),

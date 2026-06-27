@@ -1,11 +1,25 @@
 package gitlab
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
 	"strings"
+	"time"
 
 	gl "gitlab.com/gitlab-org/api/client-go"
 )
+
+type ProjectIssue struct {
+	Project   string   `json:"project"`
+	ProjectID int64    `json:"project_id"`
+	IID       int64    `json:"iid"`
+	Title     string   `json:"title"`
+	State     string   `json:"state"`
+	Labels    []string `json:"labels,omitempty"`
+	WebURL    string   `json:"web_url"`
+	UpdatedAt string   `json:"updated_at,omitempty"`
+}
 
 // ── Projects / Groups ───────────────────────────────────────────────────────
 
@@ -36,9 +50,17 @@ func (c *Client) ListGroupProjects(group string, search string) ([]*gl.Project, 
 	if search != "" {
 		opt.Search = gl.Ptr(search)
 	}
-	projects, _, err := c.api.Groups.ListGroupProjects(gid, opt)
-	if err != nil {
-		return nil, err
+	var projects []*gl.Project
+	for {
+		page, resp, err := c.api.Groups.ListGroupProjects(gid, opt)
+		if err != nil {
+			return nil, err
+		}
+		projects = append(projects, page...)
+		if resp == nil || resp.NextPage == 0 {
+			break
+		}
+		opt.Page = resp.NextPage
 	}
 	return c.filterAllowedProjects(projects), nil
 }
@@ -222,6 +244,103 @@ func (c *Client) ListIssues(project, state, labels string) ([]*gl.Issue, error) 
 	}
 	issues, _, err := c.api.Issues.ListProjectIssues(pid, opt)
 	return issues, err
+}
+
+// ListIssuesForScope lists issues for a specific project when one is bound or
+// provided. If the client is group-bound with no default project, it falls back
+// to recursively listing issues from projects in the bound group.
+func (c *Client) ListIssuesForScope(project, state, labels string) (any, error) {
+	if strings.TrimSpace(project) != "" {
+		return c.ListIssues(project, state, labels)
+	}
+	if c.project != "" {
+		issues, err := c.ListIssues("", state, labels)
+		if err == nil {
+			return issues, nil
+		}
+		if c.group == "" || !isGitLabStatus(err, http.StatusForbidden, http.StatusNotFound) {
+			return nil, err
+		}
+	}
+	if c.group != "" {
+		return c.ListGroupIssues(c.group, state, labels, "")
+	}
+	return nil, fmt.Errorf("gitlab: no project specified and no default project or group bound")
+}
+
+func isGitLabStatus(err error, statusCodes ...int) bool {
+	var resp *gl.ErrorResponse
+	if !errors.As(err, &resp) {
+		return false
+	}
+	for _, statusCode := range statusCodes {
+		if resp.HasStatusCode(statusCode) {
+			return true
+		}
+	}
+	return false
+}
+
+// ListGroupIssues lists issues across projects in a group, including subgroup
+// projects discovered through ListGroupProjects(include_subgroups=true).
+func (c *Client) ListGroupIssues(group, state, labels, search string) ([]ProjectIssue, error) {
+	projects, err := c.ListGroupProjects(group, "")
+	if err != nil {
+		return nil, err
+	}
+	if state == "" {
+		state = "opened"
+	}
+	out := make([]ProjectIssue, 0)
+	for _, p := range projects {
+		if p == nil {
+			continue
+		}
+		opt := &gl.ListProjectIssuesOptions{
+			State:       gl.Ptr(state),
+			ListOptions: gl.ListOptions{PerPage: 50},
+		}
+		if labels != "" {
+			lo := gl.LabelOptions(splitCSV(labels))
+			opt.Labels = &lo
+		}
+		if search != "" {
+			opt.Search = gl.Ptr(search)
+		}
+		for {
+			issues, resp, err := c.api.Issues.ListProjectIssues(p.PathWithNamespace, opt)
+			if err != nil {
+				return nil, fmt.Errorf("list issues for %s: %w", p.PathWithNamespace, err)
+			}
+			for _, issue := range issues {
+				if issue == nil {
+					continue
+				}
+				out = append(out, summarizeProjectIssue(p.PathWithNamespace, issue))
+			}
+			if resp == nil || resp.NextPage == 0 {
+				break
+			}
+			opt.Page = resp.NextPage
+		}
+	}
+	return out, nil
+}
+
+func summarizeProjectIssue(project string, issue *gl.Issue) ProjectIssue {
+	item := ProjectIssue{
+		Project:   project,
+		ProjectID: issue.ProjectID,
+		IID:       issue.IID,
+		Title:     issue.Title,
+		State:     issue.State,
+		Labels:    issue.Labels,
+		WebURL:    issue.WebURL,
+	}
+	if issue.UpdatedAt != nil {
+		item.UpdatedAt = issue.UpdatedAt.Format(time.RFC3339)
+	}
+	return item
 }
 
 // GetIssue returns a single issue by IID.
