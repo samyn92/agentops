@@ -151,6 +151,13 @@ func (c *Client) resolveProject(project string) (string, error) {
 	return p, nil
 }
 
+// ResolveProject returns the effective project for an operation and enforces
+// the configured project allow-list. It is exported for higher-level runtime
+// tools that need to validate dry-run plans without performing API writes.
+func (c *Client) ResolveProject(project string) (string, error) {
+	return c.resolveProject(project)
+}
+
 // checkAllowed enforces the GITLAB_PROJECTS allow-list. When the list is empty,
 // all projects are allowed (the token's own scope is the boundary).
 func (c *Client) checkAllowed(project string) error {

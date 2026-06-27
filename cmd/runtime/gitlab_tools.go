@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"charm.land/fantasy"
 	"github.com/samyn92/agentops/cmd/runtime/gitlab"
@@ -21,6 +22,8 @@ import (
 
 // gitlabClient is the process-wide GitLab client, initialized in gitlabTools.
 var gitlabClient *gitlab.Client
+
+const maxGitLabBulkItems = 20
 
 // jsonResponse marshals v to indented JSON as a tool text response.
 func jsonResponse(v any) (fantasy.ToolResponse, error) {
@@ -394,6 +397,278 @@ func newGitLabUpdateIssueContentTool() fantasy.AgentTool {
 		})
 }
 
+type glBulkCreateIssueItem struct {
+	Project     string `json:"project,omitempty" description:"Project path or ID. Omit only when the agent is bound to a single project."`
+	Title       string `json:"title" description:"Issue title."`
+	Description string `json:"description" description:"Issue description in Markdown."`
+	Labels      string `json:"labels,omitempty" description:"Comma-separated labels to set on the created issue."`
+}
+
+type glBulkCreateIssuesInput struct {
+	DryRun *bool                   `json:"dry_run,omitempty" description:"Defaults to true when omitted. Keep true to preview the issue creation plan; set false only after explicit user approval."`
+	Issues []glBulkCreateIssueItem `json:"issues" description:"Issues to create. Maximum 20 per call."`
+}
+
+type glBulkUpdateIssueItem struct {
+	Project      string `json:"project,omitempty" description:"Project path or ID. Omit only when the agent is bound to a single project."`
+	IID          int64  `json:"iid" description:"Issue IID (project-scoped number)."`
+	Labels       string `json:"labels,omitempty" description:"Comma-separated labels to SET (replaces all labels)."`
+	AddLabels    string `json:"add_labels,omitempty" description:"Comma-separated labels to add."`
+	RemoveLabels string `json:"remove_labels,omitempty" description:"Comma-separated labels to remove."`
+	AssigneeID   int64  `json:"assignee_id,omitempty" description:"User ID to assign. Omit/0 to leave unchanged."`
+	StateEvent   string `json:"state_event,omitempty" description:"Issue state change: 'close' or 'reopen'. Omit to leave unchanged."`
+}
+
+type glBulkUpdateIssuesInput struct {
+	DryRun *bool                   `json:"dry_run,omitempty" description:"Defaults to true when omitted. Keep true to preview issue updates; set false only after explicit user approval."`
+	Issues []glBulkUpdateIssueItem `json:"issues" description:"Issues to update. Maximum 20 per call."`
+}
+
+type glBulkIssueNoteItem struct {
+	Project string `json:"project,omitempty" description:"Project path or ID. Omit only when the agent is bound to a single project."`
+	IID     int64  `json:"iid" description:"Issue IID (project-scoped number)."`
+	Body    string `json:"body" description:"Note body in Markdown."`
+}
+
+type glBulkAddIssueNotesInput struct {
+	DryRun *bool                 `json:"dry_run,omitempty" description:"Defaults to true when omitted. Keep true to preview notes; set false only after explicit user approval."`
+	Notes  []glBulkIssueNoteItem `json:"notes" description:"Issue notes to add. Maximum 20 per call."`
+}
+
+type glBulkResult struct {
+	Action  string       `json:"action"`
+	DryRun  bool         `json:"dry_run"`
+	Total   int          `json:"total"`
+	OK      int          `json:"ok"`
+	Failed  int          `json:"failed"`
+	Results []glBulkItem `json:"results"`
+	Warning string       `json:"warning,omitempty"`
+}
+
+type glBulkItem struct {
+	Index   int            `json:"index"`
+	Project string         `json:"project,omitempty"`
+	IID     int64          `json:"iid,omitempty"`
+	OK      bool           `json:"ok"`
+	Error   string         `json:"error,omitempty"`
+	Result  map[string]any `json:"result,omitempty"`
+	Plan    map[string]any `json:"plan,omitempty"`
+}
+
+func bulkDryRun(v *bool) bool {
+	if v == nil {
+		return true
+	}
+	return *v
+}
+
+func validateBulkSize(count int) error {
+	if count == 0 {
+		return fmt.Errorf("at least one item is required")
+	}
+	if count > maxGitLabBulkItems {
+		return fmt.Errorf("too many items: got %d, max %d", count, maxGitLabBulkItems)
+	}
+	return nil
+}
+
+func newGitLabBulkCreateIssuesTool() fantasy.AgentTool {
+	return fantasy.NewAgentTool("gitlab_bulk_create_issues",
+		"Create issues across multiple GitLab projects for Lab-PM/factory planning. Defaults to dry_run=true; call once to preview, then set dry_run=false only after user approval.",
+		func(_ context.Context, in glBulkCreateIssuesInput, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
+			if err := validateBulkSize(len(in.Issues)); err != nil {
+				return glErr(err)
+			}
+			dryRun := bulkDryRun(in.DryRun)
+			out := glBulkResult{Action: "create_issues", DryRun: dryRun, Total: len(in.Issues)}
+			if dryRun {
+				out.Warning = "dry_run=true: no GitLab issues were created. Re-run with dry_run=false after explicit user approval."
+			}
+			for i, item := range in.Issues {
+				result := glBulkItem{Index: i}
+				project, err := gitlabClient.ResolveProject(item.Project)
+				result.Project = project
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if strings.TrimSpace(item.Title) == "" {
+					result.Error = "title is required"
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if dryRun {
+					result.OK = true
+					result.Plan = map[string]any{
+						"project":     project,
+						"title":       item.Title,
+						"description": item.Description,
+						"labels":      item.Labels,
+					}
+					out.OK++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				issue, err := gitlabClient.CreateIssue(project, item.Title, item.Description, item.Labels)
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				result.OK = true
+				result.IID = int64(issue.IID)
+				result.Result = map[string]any{
+					"iid":     issue.IID,
+					"title":   issue.Title,
+					"state":   issue.State,
+					"web_url": issue.WebURL,
+				}
+				out.OK++
+				out.Results = append(out.Results, result)
+			}
+			return jsonResponse(out)
+		})
+}
+
+func newGitLabBulkUpdateIssuesTool() fantasy.AgentTool {
+	return fantasy.NewAgentTool("gitlab_bulk_update_issues",
+		"Bulk update GitLab issues across projects: labels, add/remove labels, assignee, and close/reopen. Defaults to dry_run=true; execute only after user approval.",
+		func(_ context.Context, in glBulkUpdateIssuesInput, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
+			if err := validateBulkSize(len(in.Issues)); err != nil {
+				return glErr(err)
+			}
+			dryRun := bulkDryRun(in.DryRun)
+			out := glBulkResult{Action: "update_issues", DryRun: dryRun, Total: len(in.Issues)}
+			if dryRun {
+				out.Warning = "dry_run=true: no GitLab issues were updated. Re-run with dry_run=false after explicit user approval."
+			}
+			for i, item := range in.Issues {
+				result := glBulkItem{Index: i, IID: item.IID}
+				project, err := gitlabClient.ResolveProject(item.Project)
+				result.Project = project
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if item.IID <= 0 {
+					result.Error = "iid must be greater than zero"
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if item.Labels == "" && item.AddLabels == "" && item.RemoveLabels == "" && item.AssigneeID <= 0 && item.StateEvent == "" {
+					result.Error = "at least one update field is required"
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if dryRun {
+					result.OK = true
+					result.Plan = map[string]any{
+						"project":       project,
+						"iid":           item.IID,
+						"labels":        item.Labels,
+						"add_labels":    item.AddLabels,
+						"remove_labels": item.RemoveLabels,
+						"assignee_id":   item.AssigneeID,
+						"state_event":   item.StateEvent,
+					}
+					out.OK++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				issue, err := gitlabClient.UpdateIssue(project, item.IID, item.Labels, item.AddLabels, item.RemoveLabels, item.AssigneeID, item.StateEvent)
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				result.OK = true
+				result.Result = map[string]any{
+					"iid":     issue.IID,
+					"title":   issue.Title,
+					"state":   issue.State,
+					"labels":  issue.Labels,
+					"web_url": issue.WebURL,
+				}
+				out.OK++
+				out.Results = append(out.Results, result)
+			}
+			return jsonResponse(out)
+		})
+}
+
+func newGitLabBulkAddIssueNotesTool() fantasy.AgentTool {
+	return fantasy.NewAgentTool("gitlab_bulk_add_issue_notes",
+		"Add comments to multiple GitLab issues across projects. Defaults to dry_run=true; execute only after user approval.",
+		func(_ context.Context, in glBulkAddIssueNotesInput, _ fantasy.ToolCall) (fantasy.ToolResponse, error) {
+			if err := validateBulkSize(len(in.Notes)); err != nil {
+				return glErr(err)
+			}
+			dryRun := bulkDryRun(in.DryRun)
+			out := glBulkResult{Action: "add_issue_notes", DryRun: dryRun, Total: len(in.Notes)}
+			if dryRun {
+				out.Warning = "dry_run=true: no GitLab issue notes were added. Re-run with dry_run=false after explicit user approval."
+			}
+			for i, item := range in.Notes {
+				result := glBulkItem{Index: i, IID: item.IID}
+				project, err := gitlabClient.ResolveProject(item.Project)
+				result.Project = project
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if item.IID <= 0 {
+					result.Error = "iid must be greater than zero"
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if strings.TrimSpace(item.Body) == "" {
+					result.Error = "body is required"
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				if dryRun {
+					result.OK = true
+					result.Plan = map[string]any{
+						"project": project,
+						"iid":     item.IID,
+						"body":    item.Body,
+					}
+					out.OK++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				note, err := gitlabClient.AddIssueNote(project, item.IID, item.Body)
+				if err != nil {
+					result.Error = err.Error()
+					out.Failed++
+					out.Results = append(out.Results, result)
+					continue
+				}
+				result.OK = true
+				result.Result = map[string]any{
+					"id":   note.ID,
+					"body": note.Body,
+				}
+				out.OK++
+				out.Results = append(out.Results, result)
+			}
+			return jsonResponse(out)
+		})
+}
+
 // gitlabTools initializes the GitLab client from the environment and returns the
 // native GitLab tools. Returns nil when GITLAB_TOKEN is not set. Write tools are
 // included only when the client is read-write.
@@ -431,6 +706,9 @@ func gitlabTools() []fantasy.AgentTool {
 			newGitLabAddIssueNoteTool(),
 			newGitLabCreateIssueTool(),
 			newGitLabUpdateIssueContentTool(),
+			newGitLabBulkCreateIssuesTool(),
+			newGitLabBulkUpdateIssuesTool(),
+			newGitLabBulkAddIssueNotesTool(),
 		)
 	}
 	slog.Info("native gitlab tools enabled",

@@ -34,6 +34,17 @@ func TestResolveProject_DefaultAndExplicit(t *testing.T) {
 	}
 }
 
+func TestResolveProject_Exported(t *testing.T) {
+	c := newTestClient(t, Config{Project: "grp/app", Projects: []string{"grp/app"}})
+	got, err := c.ResolveProject("")
+	if err != nil || got != "grp/app" {
+		t.Fatalf("ResolveProject default: got %q err %v", got, err)
+	}
+	if _, err := c.ResolveProject("grp/secret"); !errors.Is(err, ErrProjectNotAllowed) {
+		t.Fatalf("ResolveProject allow-list: expected ErrProjectNotAllowed, got %v", err)
+	}
+}
+
 func TestResolveProject_NoneBound(t *testing.T) {
 	c := newTestClient(t, Config{})
 	if _, err := c.resolveProject(""); err == nil {
@@ -96,6 +107,9 @@ func TestWriteMethods_BlockedWhenReadOnly(t *testing.T) {
 	}
 	if _, err := c.UpdateIssue("", 1, "", "agent::in-progress", "agent::todo", 0, ""); !errors.Is(err, ErrReadOnly) {
 		t.Errorf("UpdateIssue: expected ErrReadOnly, got %v", err)
+	}
+	if _, err := c.CreateIssue("", "title", "body", "agent::planning"); !errors.Is(err, ErrReadOnly) {
+		t.Errorf("CreateIssue: expected ErrReadOnly, got %v", err)
 	}
 }
 

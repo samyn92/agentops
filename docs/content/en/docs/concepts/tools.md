@@ -264,6 +264,16 @@ GitLab is not distributed as an OCI MCP artifact. GitLab tools are runtime-nativ
 
 Native GitLab tools include project, group, merge request, issue, pipeline, and note operations. Mutating tools are registered only when the injected GitLab client is not read-only.
 
+For Lab-PM and factory planning workflows, the runtime also exposes dry-run-first bulk helpers:
+
+| Tool | Purpose |
+|------|---------|
+| `gitlab_bulk_create_issues` | Create one planning/work item issue per target project. |
+| `gitlab_bulk_update_issues` | Move or update many issues by labels, assignee, or state. |
+| `gitlab_bulk_add_issue_notes` | Post coordinated status or planning notes across many issues. |
+
+Each bulk helper accepts up to 20 items, defaults to `dry_run=true`, validates Integration project scope before execution, and reports partial successes/failures as JSON.
+
 ## mcputil SDK
 
 All built-in tool servers are built on the shared `mcputil` SDK (`tools/pkg/mcputil/` in this monorepo). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.

@@ -268,3 +268,9 @@ spec:
 ## Platform-native GitLab tools
 
 GitLab is not an OCI MCP artifact. GitLab operations are provided by runtime-native platform tools that are enabled when the operator injects a GitLab Integration identity into the agent environment. The runtime uses `GITLAB_TOKEN`, `GITLAB_URL`, scope variables, project allow-lists, and `GITLAB_READONLY=true` to decide which `gitlab_*` tools are registered and whether mutating operations are available.
+
+Standard read tools: `gitlab_get_project`, `gitlab_list_group_projects`, `gitlab_search`, `gitlab_list_mrs`, `gitlab_get_mr`, `gitlab_get_mr_diff`, `gitlab_list_mr_notes`, `gitlab_list_issues`, `gitlab_get_issue`, `gitlab_list_issue_notes`, `gitlab_list_pipelines`, `gitlab_get_pipeline`.
+
+Standard write tools: `gitlab_create_issue`, `gitlab_update_issue`, `gitlab_update_issue_content`, `gitlab_add_issue_note`, `gitlab_create_mr`, `gitlab_update_mr`, `gitlab_add_mr_note`.
+
+Bulk Lab-PM helpers: `gitlab_bulk_create_issues`, `gitlab_bulk_update_issues`, `gitlab_bulk_add_issue_notes`. These accept up to 20 items, default to `dry_run=true`, validate Integration project scope, and return per-item JSON results with partial success/failure reporting.
