@@ -10,9 +10,18 @@
 
 <p align="center">
   <a href="https://github.com/samyn92/agentops/actions/workflows/ci.yaml"><img src="https://img.shields.io/github/actions/workflow/status/samyn92/agentops/ci.yaml?branch=main&style=flat-square&label=CI" alt="CI"></a>
-  <a href="https://github.com/samyn92/agentops/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops?style=flat-square&color=blue" alt="Release"></a>
-  <img src="https://img.shields.io/badge/Go-1.26-00ADD8?style=flat-square&logo=go" alt="Go 1.26">
-  <img src="https://img.shields.io/badge/Kubernetes-1.31+-326CE5?style=flat-square&logo=kubernetes&logoColor=white" alt="Kubernetes">
+  <a href="https://github.com/samyn92/agentops/actions/workflows/release.yaml"><img src="https://img.shields.io/github/actions/workflow/status/samyn92/agentops/release.yaml?style=flat-square&label=release" alt="Release pipeline"></a>
+  <a href="https://github.com/samyn92/agentops/releases"><img src="https://img.shields.io/github/v/release/samyn92/agentops?style=flat-square&color=blue&label=latest" alt="Latest release"></a>
+  <a href="deploy/charts/agentops/Chart.yaml"><img src="https://img.shields.io/badge/Helm%20chart-v0.17.3-0F1689?style=flat-square&logo=helm&logoColor=white" alt="Helm chart v0.17.3"></a>
+  <a href="https://github.com/samyn92/agentops/pkgs/container/agentops%2Foperator"><img src="https://img.shields.io/badge/GHCR-agentops-2496ED?style=flat-square&logo=github&logoColor=white" alt="GHCR agentops packages"></a>
+  <a href="https://samyn92.github.io/agentops/"><img src="https://img.shields.io/badge/docs-Hugo-FF4088?style=flat-square&logo=hugo&logoColor=white" alt="Documentation"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Go-1.26.4-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go 1.26.4">
+  <img src="https://img.shields.io/badge/Kubernetes-1.28+-326CE5?style=flat-square&logo=kubernetes&logoColor=white" alt="Kubernetes 1.28+">
+  <img src="https://img.shields.io/badge/CRDs-v1alpha1-6B7280?style=flat-square" alt="CRDs v1alpha1">
+  <img src="https://img.shields.io/badge/repo-monorepo-7C3AED?style=flat-square" alt="Monorepo">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-green?style=flat-square" alt="License"></a>
 </p>
 
