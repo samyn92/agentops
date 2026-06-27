@@ -54,10 +54,13 @@ memory:
 agents:
   pm:
     enabled: true
+    temperature: 1
   engineer:
     enabled: true
+    temperature: 1
   observer:
     enabled: true
+    temperature: 1
     schedule: "*/15 * * * *"
 
 channels:
