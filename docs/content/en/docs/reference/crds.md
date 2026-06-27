@@ -242,7 +242,7 @@ OCI artifact containing an MCP tool server binary. Pulled via crane init contain
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `ref` | string | Yes | Full OCI reference (e.g. `ghcr.io/samyn92/agentops/tools/kubectl:0.3.3`). |
+| `ref` | string | Yes | Full OCI reference (e.g. `ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3`). |
 | `digest` | string | No | Optional digest for pinning. |
 | `pullPolicy` | `Always` \| `IfNotPresent` \| `Never` | No | Pull policy. |
 | `pullSecret` | SecretKeyRef | No | Pull secret for private registries. |

@@ -35,7 +35,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/kubectl:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3
     pullPolicy: IfNotPresent
   defaultPermissions:
     mode: deny
@@ -127,8 +127,10 @@ MCP tool servers are packaged as OCI artifacts using the `agent-tools` CLI. The 
 | Component | Value |
 |-----------|-------|
 | **Manifest mediaType** | `application/vnd.oci.image.manifest.v1+json` |
-| **Layer mediaType** | `application/vnd.agents.io.mcp-tool.v1` |
-| **Layer content** | tar+gzip archive containing `manifest.json`, compiled binary, optional co-bundled CLI |
+| **Artifact type** | `application/vnd.agents.io.mcp-tool.v1` |
+| **Config mediaType** | `application/vnd.agents.io.mcp-tool.config.v1+json` |
+| **Layer mediaType** | `application/vnd.agents.io.mcp-tool.code.v1.tar+gzip` |
+| **Layer content** | tar+gzip archive containing `manifest.json`, `bin/<server>`, and optional co-bundled CLIs |
 
 ### manifest.json
 
@@ -173,7 +175,7 @@ The gateway image is `ghcr.io/samyn92/mcp-gateway`. It supports two modes:
 
 ## Built-in tool servers
 
-AgentOps ships seven MCP tool servers in the `agent-tools` repository, all compiled as static Go binaries and distributed as OCI artifacts. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
+AgentOps ships eight MCP tool artifacts in this monorepo, all compiled as static Go binaries and distributed as OCI artifacts. Each artifact is an OCI interface to an MCP stdio server: agents declare the artifact ref, the operator pulls it into the pod, and the runtime starts the binary and discovers its MCP tools. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
 
 ### kubectl (16 tools)
 
@@ -195,7 +197,7 @@ metadata:
 spec:
   category: infrastructure
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/kubectl:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3
 ```
 
 ### kube-explore (8 tools)
@@ -217,7 +219,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/kube-explore:1.0.0
+    ref: ghcr.io/samyn92/agentops/tools/kube-explore:v0.17.3
 ```
 
 ### git (12 tools)
@@ -234,9 +236,13 @@ Git operations with workspace sandboxing. All paths are resolved relative to a `
 
 GitHub API operations: `github_get_repo`, `github_list_prs`, `github_get_pr`, `github_get_pr_diff`, `github_create_pr`, `github_add_pr_comment`, `github_list_issues`, `github_get_issue`, `github_add_issue_comment`, `github_list_branches`, `github_get_check_runs`, `github_get_workflow_runs`
 
+### helm (5 tools)
+
+Helm chart inspection and values analysis: `helm_show_values`, `helm_show_chart`, `helm_values_diff`, `helm_get_values`, `helm_drift`
+
 ### gitlab (10 tools)
 
-GitLab API operations: `gitlab_get_project`, `gitlab_list_mrs`, `gitlab_get_mr`, `gitlab_get_mr_diff`, `gitlab_create_mr`, `gitlab_add_mr_note`, `gitlab_list_issues`, `gitlab_get_issue`, `gitlab_add_issue_note`, `gitlab_get_pipeline`
+Deprecated GitLab API MCP artifact. Prefer GitLab Integrations and the runtime-native `gitlab_*` tools for GitLab workflows. Packaged tools: `gitlab_get_project`, `gitlab_list_mrs`, `gitlab_get_mr`, `gitlab_get_mr_diff`, `gitlab_create_mr`, `gitlab_add_mr_note`, `gitlab_list_issues`, `gitlab_get_issue`, `gitlab_add_issue_note`, `gitlab_get_pipeline`
 
 ### flux (15 tools)
 
@@ -258,7 +264,7 @@ Requires `TEMPO_URL` environment variable pointing to the Tempo HTTP API.
 
 ## mcputil SDK
 
-All built-in tool servers are built on the shared `mcputil` SDK (`tools/pkg/mcputil/` in the agent-tools repository). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.
+All built-in tool servers are built on the shared `mcputil` SDK (`tools/pkg/mcputil/` in this monorepo). The SDK makes OpenTelemetry tracing structural — you cannot register a tool without getting a span.
 
 Key features:
 - **Session-level root span** — `NewServer()` + `Run()` creates an `mcp.session` span for the server lifecycle

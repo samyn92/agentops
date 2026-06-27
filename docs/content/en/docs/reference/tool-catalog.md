@@ -5,7 +5,7 @@ weight: 3
 description: "Complete catalog of built-in MCP tool servers with tool names and OCI references."
 ---
 
-AgentOps ships seven MCP tool servers as OCI artifacts. Each server is a compiled Go binary implementing MCP stdio transport, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents reference them via AgentTool CRs, and the operator pulls the binary at pod startup via a crane init container.
+AgentOps ships eight packaged MCP tool artifacts. Each artifact is an OCI reference containing a compiled Go MCP stdio server binary plus `manifest.json`, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents declare tool refs in their specs, the operator pulls each artifact at pod startup with a `crane` init container, and the runtime starts the binary over MCP stdio.
 
 All tool servers are published to `ghcr.io/samyn92/agentops/tools/`. Binaries follow the `mcp-{server}` naming convention.
 
@@ -15,7 +15,7 @@ All tool servers are published to `ghcr.io/samyn92/agentops/tools/`. Binaries fo
 
 Intent-based Kubernetes exploration. Higher-level than raw kubectl -- the agent describes what it wants to understand, and the tool returns structured, relevant information.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/kube-explore:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/kube-explore:v0.17.3`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -36,7 +36,7 @@ Intent-based Kubernetes exploration. Higher-level than raw kubectl -- the agent 
 
 Direct kubectl access for all standard operations. Provides fine-grained control when kube-explore's higher-level tools are insufficient.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/kubectl:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3`
 
 ### Read-only tools
 
@@ -72,7 +72,7 @@ Direct kubectl access for all standard operations. Provides fine-grained control
 
 Git operations for repository management. Agents use this for cloning repos, making changes, and pushing commits.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/git:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/git:v0.17.3`
 
 ### Read-only tools
 
@@ -104,7 +104,7 @@ Git operations for repository management. Agents use this for cloning repos, mak
 
 GitHub API operations. Agents use this for pull request workflows, issue management, and CI status checks.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/github:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/github:v0.17.3`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -125,11 +125,29 @@ GitHub API operations. Agents use this for pull request workflows, issue managem
 
 ---
 
+## helm
+
+Helm chart inspection and release value analysis. Agents use this to inspect chart metadata, compare default values across versions, and detect value drift in deployed releases.
+
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/helm:v0.17.3`
+
+| Tool | Mode | Description |
+|------|------|-------------|
+| `helm_show_values` | ro | Show default `values.yaml` for a chart version from an OCI or repository source. |
+| `helm_show_chart` | ro | Show `Chart.yaml` metadata including version, appVersion, description, and dependencies. |
+| `helm_values_diff` | ro | Diff default values between two versions of the same chart. |
+| `helm_get_values` | ro | Get user-supplied values for a deployed Helm release. |
+| `helm_drift` | ro | Compare a release's effective values against chart defaults. |
+
+**5 tools** (5 read-only)
+
+---
+
 ## gitlab
 
-GitLab API operations. Agents use this for merge request workflows, issue management, and pipeline status.
+Deprecated GitLab API MCP artifact. Prefer GitLab Integrations and the runtime-native `gitlab_*` tools for merge request workflows, issue management, and pipeline status.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/gitlab:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/gitlab:v0.17.3`
 
 | Tool | Mode | Description |
 |------|------|-------------|
@@ -152,7 +170,7 @@ GitLab API operations. Agents use this for merge request workflows, issue manage
 
 Flux CD operations for GitOps workflows. Covers inspection, debugging, reconciliation, and lifecycle management of Flux resources.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/flux:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/flux:v0.17.3`
 
 ### Read-only tools
 
@@ -187,7 +205,7 @@ Flux CD operations for GitOps workflows. Covers inspection, debugging, reconcili
 
 Grafana Tempo trace analysis. Agents use this to search, inspect, and aggregate execution traces for observability-driven development.
 
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/tempo:0.8.2`
+**OCI ref:** `ghcr.io/samyn92/agentops/tools/tempo:v0.17.3`
 
 **Requires:** `TEMPO_URL` environment variable (e.g. `http://tempo.observability.svc:3200`).
 
@@ -219,7 +237,7 @@ spec:
   category: infrastructure
   uiHint: kubernetes-resources
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/kubectl:0.8.2
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3
     pullPolicy: IfNotPresent
 ```
 

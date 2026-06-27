@@ -136,11 +136,13 @@ spec:
     You are an SRE agent responsible for the production cluster.
     Investigate alerts, correlate with recent deployments, and
     propose remediation. Delegate deep-dives to specialist agents.
-  toolRefs:
-    - name: kubectl-tool
-      registry: ghcr.io/samyn92/agentops/tools/kubectl:v0.3.0
-    - name: prometheus-tool
-      registry: ghcr.io/samyn92/agentops/tools/prometheus:v0.2.1
+  tools:
+    - name: kubectl
+      oci:
+        ref: ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3
+    - name: tempo
+      oci:
+        ref: ghcr.io/samyn92/agentops/tools/tempo:v0.17.3
   memory:
     workingMemory: {}
     shortTerm:

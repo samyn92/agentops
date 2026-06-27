@@ -131,7 +131,7 @@ Protected branches prevent agents from merging — human approval is always requ
 
 - **Three-layer memory** — Working memory (ephemeral, token-budgeted), short-term memory (auto-generated session summaries), and long-term memory (user-managed decisions and lessons learned). BM25 relevance-ranked context injection.
 
-- **MCP tool ecosystem** — Eight tool servers via Model Context Protocol: `kubectl`, `git`, `gitlab`, `helm`, `flux`, `github`, `kube-explore`, `tempo`. Agents compose tools declaratively.
+- **OCI tool interface for MCP** — Tools are declared as OCI artifact refs and loaded into agent pods at startup. Each artifact contains an MCP stdio server binary plus `manifest.json`; the operator pulls it with `crane`, and the runtime discovers its MCP tools automatically. Built-in artifacts include `kubectl`, `git`, `gitlab` (deprecated), `helm`, `flux`, `github`, `kube-explore`, and `tempo`.
 
 - **Plan refinement** — Human-in-the-loop via GitLab issue threads. Planners propose, humans refine, implementers execute. Full audit trail in GitLab.
 

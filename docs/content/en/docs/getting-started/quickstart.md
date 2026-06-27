@@ -97,7 +97,7 @@ spec:
   description: "Git operations — clone, commit, push, branch, diff, log, blame"
   category: development
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/git:0.0.8
+    ref: ghcr.io/samyn92/agentops/tools/git:v0.17.3
     pullPolicy: IfNotPresent
 ---
 apiVersion: agents.agentops.io/v1alpha1
@@ -109,7 +109,7 @@ spec:
   description: "GitHub API — create/review PRs, manage issues, search code"
   category: development
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/github:0.3.1
+    ref: ghcr.io/samyn92/agentops/tools/github:v0.17.3
     pullPolicy: IfNotPresent
 ---
 apiVersion: agents.agentops.io/v1alpha1
@@ -121,7 +121,7 @@ spec:
   description: "Kubernetes read-only — get, list, describe, logs across namespaces"
   category: infrastructure
   oci:
-    ref: ghcr.io/samyn92/agentops/tools/kubectl:0.3.3
+    ref: ghcr.io/samyn92/agentops/tools/kubectl:v0.17.3
     pullPolicy: IfNotPresent
 ```
 
