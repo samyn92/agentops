@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 
 	"charm.land/fantasy"
@@ -690,7 +691,8 @@ func newGitLabBulkAddIssueNotesTool() fantasy.AgentTool {
 
 // gitlabTools initializes the GitLab client from the environment and returns the
 // native GitLab tools. Returns nil when GITLAB_TOKEN is not set. Write tools are
-// included only when the client is read-write.
+// included only when the client is read-write. GITLAB_WRITE_SCOPE=issues limits
+// mutating tools to issue/card operations while keeping MR operations read-only.
 func gitlabTools() []fantasy.AgentTool {
 	if !gitlab.IsConfigured() {
 		return nil
@@ -718,18 +720,27 @@ func gitlabTools() []fantasy.AgentTool {
 		newGitLabGetPipelineTool(),
 	}
 	if !c.ReadOnly() {
-		tools = append(tools,
-			newGitLabCreateMRTool(),
-			newGitLabUpdateMRTool(),
-			newGitLabAddMRNoteTool(),
-			newGitLabUpdateIssueTool(),
-			newGitLabAddIssueNoteTool(),
-			newGitLabCreateIssueTool(),
-			newGitLabUpdateIssueContentTool(),
-			newGitLabBulkCreateIssuesTool(),
-			newGitLabBulkUpdateIssuesTool(),
-			newGitLabBulkAddIssueNotesTool(),
-		)
+		writeScope := strings.ToLower(strings.TrimSpace(os.Getenv("GITLAB_WRITE_SCOPE")))
+		if writeScope == "" || writeScope == "all" {
+			tools = append(tools,
+				newGitLabCreateMRTool(),
+				newGitLabUpdateMRTool(),
+				newGitLabAddMRNoteTool(),
+			)
+		}
+		if writeScope == "" || writeScope == "all" || writeScope == "issue" || writeScope == "issues" {
+			tools = append(tools,
+				newGitLabUpdateIssueTool(),
+				newGitLabAddIssueNoteTool(),
+				newGitLabCreateIssueTool(),
+				newGitLabUpdateIssueContentTool(),
+				newGitLabBulkCreateIssuesTool(),
+				newGitLabBulkUpdateIssuesTool(),
+				newGitLabBulkAddIssueNotesTool(),
+			)
+		} else {
+			slog.Warn("unknown GITLAB_WRITE_SCOPE; no gitlab write tools registered", "scope", writeScope)
+		}
 	}
 	slog.Info("native gitlab tools enabled",
 		"count", len(tools), "readOnly", c.ReadOnly(),

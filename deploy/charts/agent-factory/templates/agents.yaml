@@ -60,7 +60,11 @@ spec:
   {{- end }}
   integrations:
     - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "integrationRole" $agent.integrationRole "root" $root) }}
-      {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
+      {{- if hasKey $agent "readOnly" }}
+      {{- if $agent.readOnly }}
+      readOnly: true
+      {{- end }}
+      {{- else if and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder") }}
       readOnly: true
       {{- end }}
   {{- if $agent.env }}
@@ -151,7 +155,11 @@ spec:
   {{- end }}
   integrations:
     - name: {{ include "factory.integrationFor" (dict "mode" $agent.mode "integrationRole" $agent.integrationRole "root" $root) }}
-      {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
+      {{- if hasKey $agent "readOnly" }}
+      {{- if $agent.readOnly }}
+      readOnly: true
+      {{- end }}
+      {{- else if and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder") }}
       readOnly: true
       {{- end }}
   {{- if $agent.env }}
