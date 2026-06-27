@@ -63,12 +63,8 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if or $agent.env $.Values.scope.gitlab.coordinationProject }}
+  {{- if $agent.env }}
   env:
-    {{- if $.Values.scope.gitlab.coordinationProject }}
-    GITLAB_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
-    GITLAB_COORDINATION_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
-    {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $ctx | quote }}
     {{- end }}
@@ -158,12 +154,8 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if or $agent.env $.Values.scope.gitlab.coordinationProject }}
+  {{- if $agent.env }}
   env:
-    {{- if $.Values.scope.gitlab.coordinationProject }}
-    GITLAB_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
-    GITLAB_COORDINATION_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
-    {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $root | quote }}
     {{- end }}

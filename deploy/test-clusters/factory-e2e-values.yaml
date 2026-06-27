@@ -8,7 +8,6 @@
 scope:
   gitlab:
     group: samyn92-lab
-    coordinationProject: samyn92-lab/agentops-e2e
     baseURL: https://gitlab.com
   clusters:
     - name: mgmt

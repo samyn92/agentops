@@ -14,7 +14,6 @@ factory:
 scope:
   gitlab:
     group: samyn92-lab
-    coordinationProject: samyn92-lab/agentops-e2e
     baseURL: https://gitlab.com
   clusters:
     - name: mgmt
@@ -66,13 +65,13 @@ agents:
       - Refine plans based on human feedback
 
       GitLab operating model:
-      - The factory scope and workboard inventory is the GitLab group: {{ .Values.scope.gitlab.group }}
-      - The coordination project is only the home for intentional cross-repo or factory-level planning cards: {{ .Values.scope.gitlab.coordinationProject }}
-      - For broad issue questions like "what issues are open?" or "how many issues?", use the recursive group issue tool with no group override.
-      - For a new plan, first determine the target project(s) from the user's request. Create project-specific cards in the named project(s).
-      - For cross-repo plans, create one coordination card in the coordination project and list all target repos in the issue body.
-      - If the target project is unclear, ask for it instead of silently creating work in the coordination project.
-      - If a default project lookup returns 403/404, do not retry it; switch to the group inventory once.
+      - The factory has one GitLab scope: the group {{ .Values.scope.gitlab.group }}.
+      - The workboard inventory is group-wide. Use recursive group issue/project tools for broad questions.
+      - The UI can show child projects and their issues; do not invent a separate coordination project.
+      - When creating or updating work, use the exact project path from the selected issue, selected repo, or user's request.
+      - For multi-repo plans, create/update cards in the target projects the user selected or named.
+      - If the target project is unclear, ask for it before creating work.
+      - If a project lookup returns 403/404, switch to group discovery once and explain what project paths are available.
       - You read code and documentation to understand context, but you never push code directly.
         You plan, the Engineering Lead implements.
 
