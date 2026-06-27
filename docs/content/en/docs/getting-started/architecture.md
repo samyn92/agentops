@@ -74,7 +74,7 @@ All components export OpenTelemetry traces via OTLP to Tempo. The console BFF qu
 | **Tempo** | `grafana/tempo` | Trace storage and query. Receives OTLP on gRPC :4317 and HTTP :4318. Search API on :3200. |
 | **Runtime** | `ghcr.io/samyn92/agentops/runtime` | Go binary built on the Charm Fantasy SDK. Runs inside agent pods. Handles LLM calls, built-in tools (bash, read, edit, write, grep, ls, glob, fetch), MCP tool client, memory integration, FEP streaming, OTLP export. |
 | **MCP Gateway** | `ghcr.io/samyn92/mcp-gateway` | Sidecar for `mcpServer`/`mcpEndpoint` tool sources. Proxies MCP protocol between agent runtime and remote MCP servers. Handles spawn and proxy modes. |
-| **Tool Artifacts** | `ghcr.io/samyn92/agentops/tools/*` | OCI artifacts containing compiled Go MCP stdio server binaries plus `manifest.json` (`kubectl`, `git`, `gitlab`, `helm`, `flux`, `github`, `kube-explore`, `tempo`). Pulled via `crane` init container and launched by the runtime over stdio. |
+| **Tool Artifacts** | `ghcr.io/samyn92/agentops/tools/*` | OCI artifacts containing compiled Go MCP stdio server binaries plus `manifest.json` (`kubectl`, `git`, `github`, `helm`, `flux`, `kube-explore`, `tempo`). Pulled via `crane` init container and launched by the runtime over stdio. |
 
 ## Platform vs. user ecosystem
 

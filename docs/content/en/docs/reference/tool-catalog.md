@@ -5,7 +5,7 @@ weight: 3
 description: "Complete catalog of built-in MCP tool servers with tool names and OCI references."
 ---
 
-AgentOps ships eight packaged MCP tool artifacts. Each artifact is an OCI reference containing a compiled Go MCP stdio server binary plus `manifest.json`, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents declare tool refs in their specs, the operator pulls each artifact at pod startup with a `crane` init container, and the runtime starts the binary over MCP stdio.
+AgentOps ships seven packaged MCP tool artifacts. Each artifact is an OCI reference containing a compiled Go MCP stdio server binary plus `manifest.json`, built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation. Agents declare tool refs in their specs, the operator pulls each artifact at pod startup with a `crane` init container, and the runtime starts the binary over MCP stdio.
 
 All tool servers are published to `ghcr.io/samyn92/agentops/tools/`. Binaries follow the `mcp-{server}` naming convention.
 
@@ -143,29 +143,6 @@ Helm chart inspection and release value analysis. Agents use this to inspect cha
 
 ---
 
-## gitlab
-
-Deprecated GitLab API MCP artifact. Prefer GitLab Integrations and the runtime-native `gitlab_*` tools for merge request workflows, issue management, and pipeline status.
-
-**OCI ref:** `ghcr.io/samyn92/agentops/tools/gitlab:v0.17.3`
-
-| Tool | Mode | Description |
-|------|------|-------------|
-| `gitlab_get_project` | ro | Get project information. |
-| `gitlab_list_mrs` | ro | List merge requests with filters. |
-| `gitlab_get_mr` | ro | Get merge request details. |
-| `gitlab_get_mr_diff` | ro | Get the diff for a merge request. |
-| `gitlab_create_mr` | **rw** | Create a new merge request. |
-| `gitlab_add_mr_note` | **rw** | Add a note (comment) to a merge request. |
-| `gitlab_list_issues` | ro | List issues with filters. |
-| `gitlab_get_issue` | ro | Get issue details. |
-| `gitlab_add_issue_note` | **rw** | Add a note to an issue. |
-| `gitlab_get_pipeline` | ro | Get pipeline status and jobs. |
-
-**10 tools** (6 read-only, 4 read-write)
-
----
-
 ## flux
 
 Flux CD operations for GitOps workflows. Covers inspection, debugging, reconciliation, and lifecycle management of Flux resources.
@@ -279,11 +256,15 @@ spec:
 
 | Server | Tools | Read-only | Read-write | OCI tag |
 |--------|-------|-----------|------------|---------|
-| kube-explore | 8 | 6 | 2 | `0.8.2` |
-| kubectl | 16 | 7 | 9 | `0.8.2` |
-| git | 12 | 5 | 7 | `0.8.2` |
-| github | 12 | 8 | 4 | `0.8.2` |
-| gitlab | 10 | 6 | 4 | `0.8.2` |
-| flux | 15 | 11 | 4 | `0.8.2` |
-| tempo | 6 | 6 | 0 | `0.8.2` |
-| **Total** | **79** | **49** | **30** | |
+| kube-explore | 8 | 6 | 2 | `v0.17.3` |
+| kubectl | 16 | 7 | 9 | `v0.17.3` |
+| git | 12 | 5 | 7 | `v0.17.3` |
+| github | 12 | 8 | 4 | `v0.17.3` |
+| helm | 5 | 5 | 0 | `v0.17.3` |
+| flux | 15 | 11 | 4 | `v0.17.3` |
+| tempo | 6 | 6 | 0 | `v0.17.3` |
+| **Total** | **74** | **48** | **26** | |
+
+## Platform-native GitLab tools
+
+GitLab is not an OCI MCP artifact. GitLab operations are provided by runtime-native platform tools that are enabled when the operator injects a GitLab Integration identity into the agent environment. The runtime uses `GITLAB_TOKEN`, `GITLAB_URL`, scope variables, project allow-lists, and `GITLAB_READONLY=true` to decide which `gitlab_*` tools are registered and whether mutating operations are available.

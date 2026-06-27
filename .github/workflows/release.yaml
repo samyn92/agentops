@@ -237,7 +237,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        tool: [kubectl, flux, git, github, gitlab, helm, tempo, kube-explore]
+        tool: [kubectl, flux, git, github, helm, tempo, kube-explore]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

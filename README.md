@@ -131,7 +131,7 @@ Protected branches prevent agents from merging — human approval is always requ
 
 - **Three-layer memory** — Working memory (ephemeral, token-budgeted), short-term memory (auto-generated session summaries), and long-term memory (user-managed decisions and lessons learned). BM25 relevance-ranked context injection.
 
-- **OCI tool interface for MCP** — Tools are declared as OCI artifact refs and loaded into agent pods at startup. Each artifact contains an MCP stdio server binary plus `manifest.json`; the operator pulls it with `crane`, and the runtime discovers its MCP tools automatically. Built-in artifacts include `kubectl`, `git`, `gitlab` (deprecated), `helm`, `flux`, `github`, `kube-explore`, and `tempo`.
+- **OCI tool interface for MCP** — Tools are declared as OCI artifact refs and loaded into agent pods at startup. Each artifact contains an MCP stdio server binary plus `manifest.json`; the operator pulls it with `crane`, and the runtime discovers its MCP tools automatically. Built-in artifacts include `kubectl`, `git`, `github`, `helm`, `flux`, `kube-explore`, and `tempo`.
 
 - **Plan refinement** — Human-in-the-loop via GitLab issue threads. Planners propose, humans refine, implementers execute. Full audit trail in GitLab.
 
@@ -222,7 +222,6 @@ agentops/
 ├── tools/                     MCP tool servers
 │   ├── kubectl/               Kubernetes operations
 │   ├── git/                   Git operations
-│   ├── gitlab/                GitLab API (issues, MRs, pipelines)
 │   ├── github/                GitHub API
 │   ├── helm/                  Helm chart operations
 │   ├── flux/                  Flux GitOps operations

@@ -175,7 +175,7 @@ The gateway image is `ghcr.io/samyn92/mcp-gateway`. It supports two modes:
 
 ## Built-in tool servers
 
-AgentOps ships eight MCP tool artifacts in this monorepo, all compiled as static Go binaries and distributed as OCI artifacts. Each artifact is an OCI interface to an MCP stdio server: agents declare the artifact ref, the operator pulls it into the pod, and the runtime starts the binary and discovers its MCP tools. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
+AgentOps ships seven MCP tool artifacts in this monorepo, all compiled as static Go binaries and distributed as OCI artifacts. Each artifact is an OCI interface to an MCP stdio server: agents declare the artifact ref, the operator pulls it into the pod, and the runtime starts the binary and discovers its MCP tools. All servers are built on the shared `mcputil` SDK that provides automatic OpenTelemetry tracing for every tool invocation.
 
 ### kubectl (16 tools)
 
@@ -240,10 +240,6 @@ GitHub API operations: `github_get_repo`, `github_list_prs`, `github_get_pr`, `g
 
 Helm chart inspection and values analysis: `helm_show_values`, `helm_show_chart`, `helm_values_diff`, `helm_get_values`, `helm_drift`
 
-### gitlab (10 tools)
-
-Deprecated GitLab API MCP artifact. Prefer GitLab Integrations and the runtime-native `gitlab_*` tools for GitLab workflows. Packaged tools: `gitlab_get_project`, `gitlab_list_mrs`, `gitlab_get_mr`, `gitlab_get_mr_diff`, `gitlab_create_mr`, `gitlab_add_mr_note`, `gitlab_list_issues`, `gitlab_get_issue`, `gitlab_add_issue_note`, `gitlab_get_pipeline`
-
 ### flux (15 tools)
 
 Flux CD GitOps operations. Like kubectl, the OCI artifact co-bundles the `flux` CLI binary.
@@ -261,6 +257,12 @@ Grafana Tempo trace analysis. Agents use this for observability-driven developme
 `tempo_search`, `tempo_get`, `tempo_agent_stats`, `tempo_slow_tools`, `tempo_errors`, `tempo_compare`
 
 Requires `TEMPO_URL` environment variable pointing to the Tempo HTTP API.
+
+## Platform-native GitLab tools
+
+GitLab is not distributed as an OCI MCP artifact. GitLab tools are runtime-native platform tools enabled when the operator injects a GitLab Integration identity into the agent environment (`GITLAB_TOKEN`, `GITLAB_URL`, scope variables, and optional `GITLAB_READONLY=true`). This keeps GitLab access tied to AgentOps Integration scoping, project allow-lists, and read-only enforcement instead of a separately declared MCP package.
+
+Native GitLab tools include project, group, merge request, issue, pipeline, and note operations. Mutating tools are registered only when the injected GitLab client is not read-only.
 
 ## mcputil SDK
 
