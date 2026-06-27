@@ -63,11 +63,11 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if or $agent.env $.Values.scope.gitlab.workboardProject }}
+  {{- if or $agent.env $.Values.scope.gitlab.coordinationProject }}
   env:
-    {{- if $.Values.scope.gitlab.workboardProject }}
-    GITLAB_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
-    GITLAB_WORKBOARD_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    {{- if $.Values.scope.gitlab.coordinationProject }}
+    GITLAB_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
+    GITLAB_COORDINATION_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
     {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $ctx | quote }}
@@ -158,11 +158,11 @@ spec:
       {{- if or $agent.readOnly (and (eq $agent.mode "daemon") (ne ($agent.integrationRole | default "") "coder")) }}
       readOnly: true
       {{- end }}
-  {{- if or $agent.env $.Values.scope.gitlab.workboardProject }}
+  {{- if or $agent.env $.Values.scope.gitlab.coordinationProject }}
   env:
-    {{- if $.Values.scope.gitlab.workboardProject }}
-    GITLAB_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
-    GITLAB_WORKBOARD_PROJECT: {{ $.Values.scope.gitlab.workboardProject | quote }}
+    {{- if $.Values.scope.gitlab.coordinationProject }}
+    GITLAB_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
+    GITLAB_COORDINATION_PROJECT: {{ $.Values.scope.gitlab.coordinationProject | quote }}
     {{- end }}
     {{- range $name, $value := $agent.env }}
     {{ $name }}: {{ tpl (toString $value) $root | quote }}

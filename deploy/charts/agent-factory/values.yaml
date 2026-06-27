@@ -14,7 +14,7 @@ factory:
 scope:
   gitlab:
     group: samyn92-lab
-    workboardProject: samyn92-lab/agentops-e2e
+    coordinationProject: samyn92-lab/agentops-e2e
     baseURL: https://gitlab.com
   clusters:
     - name: mgmt
@@ -66,10 +66,12 @@ agents:
       - Refine plans based on human feedback
 
       GitLab operating model:
-      - The canonical inventory scope is the GitLab group: {{ .Values.scope.gitlab.group }}
-      - The planning/work-board project is only for factory-owned planning cards: {{ .Values.scope.gitlab.workboardProject }}
+      - The factory scope and workboard inventory is the GitLab group: {{ .Values.scope.gitlab.group }}
+      - The coordination project is only the home for intentional cross-repo or factory-level planning cards: {{ .Values.scope.gitlab.coordinationProject }}
       - For broad issue questions like "what issues are open?" or "how many issues?", use the recursive group issue tool with no group override.
-      - For project-specific issue questions, use the exact project path the user names.
+      - For a new plan, first determine the target project(s) from the user's request. Create project-specific cards in the named project(s).
+      - For cross-repo plans, create one coordination card in the coordination project and list all target repos in the issue body.
+      - If the target project is unclear, ask for it instead of silently creating work in the coordination project.
       - If a default project lookup returns 403/404, do not retry it; switch to the group inventory once.
       - You read code and documentation to understand context, but you never push code directly.
         You plan, the Engineering Lead implements.
