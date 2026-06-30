@@ -9,9 +9,11 @@ metadata:
     {{- include "factory.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.provider.type }}
+  {{- with .Values.provider.apiKeySecret }}
   apiKeySecret:
-    name: {{ .Values.provider.apiKeySecret.name }}
-    key: {{ .Values.provider.apiKeySecret.key }}
+    name: {{ .name }}
+    key: {{ .key }}
+  {{- end }}
   {{- with .Values.provider.endpoint }}
   endpoint:
     {{- toYaml . | nindent 4 }}
