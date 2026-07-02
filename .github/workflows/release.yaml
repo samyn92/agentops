@@ -251,6 +251,29 @@ jobs:
           mkdir -p tools/${{ matrix.tool }}/dist/bin
           CGO_ENABLED=0 go build -o tools/${{ matrix.tool }}/dist/bin/mcp-${{ matrix.tool }} ./tools/${{ matrix.tool }}/
           cp tools/${{ matrix.tool }}/manifest.json tools/${{ matrix.tool }}/dist/
+      - name: Bundle required CLI binaries
+        run: |
+          set -euo pipefail
+          TOOL="${{ matrix.tool }}"
+          DIST="tools/${TOOL}/dist/bin"
+          case "$TOOL" in
+            kubectl)
+              curl -sLo "${DIST}/kubectl" "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+              chmod +x "${DIST}/kubectl"
+              ;;
+            flux)
+              FLUX_VERSION=$(curl -s https://api.github.com/repos/fluxcd/flux2/releases/latest | jq -r .tag_name)
+              curl -sLo /tmp/flux.tar.gz "https://github.com/fluxcd/flux2/releases/download/${FLUX_VERSION}/flux_${FLUX_VERSION#v}_linux_amd64.tar.gz"
+              tar -xzf /tmp/flux.tar.gz -C "${DIST}" flux
+              ;;
+            helm)
+              curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | HELM_INSTALL_DIR="${DIST}" USE_SUDO=false bash
+              ;;
+            git)
+              # git is expected to be available in the runtime base image (alpine/debian)
+              # The tool checks /usr/bin/git first, then PATH
+              ;;
+          esac
       - name: Login to GHCR
         run: echo "${PACKAGE_TOKEN}" | docker login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
       - name: Push OCI artifact
