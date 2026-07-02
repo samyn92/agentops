@@ -138,7 +138,7 @@ func New(cfg *bridge.Config, interval time.Duration, logger *slog.Logger) *Polle
 		integrationRef: os.Getenv("GITLAB_INTEGRATION_REF"),
 		baseBranch:     envOrDefault("GITLAB_BASE_BRANCH", "main"),
 
-		inProgressLabel: envOrDefault("GITLAB_IN_PROGRESS_LABEL", "agent::in-progress"),
+		inProgressLabel: os.Getenv("GITLAB_IN_PROGRESS_LABEL"), // empty by default: just remove trigger label
 		reviewLabel:     envOrDefault("GITLAB_REVIEW_LABEL", "agent::needs-review"),
 		maxRetries:      maxRetries,
 		attempts:        make(map[int]int),
@@ -501,16 +501,25 @@ func (p *Poller) fire(ctx context.Context, it glItem, label string) {
 		return
 	}
 
-	// Task agents: the AgentRun create is fast + authoritative, so transition
-	// after it succeeds. Deterministic half of the hybrid label protocol — the
-	// item stops matching on the next poll without relying on the LLM.
-	if p.inProgressLabel != "" && label != p.inProgressLabel {
-		if err := p.transition(ctx, it, label, p.inProgressLabel); err != nil {
-			p.logger.Error("label transition failed",
-				"iid", it.IID, "from", label, "to", p.inProgressLabel, "error", err)
+	// Task agents: the AgentRun create is fast + authoritative, so remove the
+	// trigger label after it succeeds. The item stops matching on the next poll.
+	if label != p.inProgressLabel {
+		if p.inProgressLabel != "" {
+			if err := p.transition(ctx, it, label, p.inProgressLabel); err != nil {
+				p.logger.Error("label transition failed",
+					"iid", it.IID, "from", label, "to", p.inProgressLabel, "error", err)
+			} else {
+				p.logger.Info("label transitioned",
+					"iid", it.IID, "from", label, "to", p.inProgressLabel)
+			}
 		} else {
-			p.logger.Info("label transitioned",
-				"iid", it.IID, "from", label, "to", p.inProgressLabel)
+			if err := p.removeLabel(ctx, it, label); err != nil {
+				p.logger.Error("label removal failed",
+					"iid", it.IID, "label", label, "error", err)
+			} else {
+				p.logger.Info("trigger label removed",
+					"iid", it.IID, "label", label)
+			}
 		}
 	}
 
