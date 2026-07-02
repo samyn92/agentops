@@ -6,22 +6,22 @@ schema: agentops.versions/v1
 updated: 2026-06-30
 status: release
 
-release: v0.18.1
-chart_version: 0.18.1
-app_version: 0.18.1
+release: v0.18.2
+chart_version: 0.18.2
+app_version: 0.18.2
 
 source:
   repo: github.com/samyn92/agentops
-  ref: v0.18.1
+  ref: v0.18.2
 
 packages:
-  operator_image: ghcr.io/samyn92/agentops/operator:v0.18.1
-  console_image: ghcr.io/samyn92/agentops/console:v0.18.1
-  runtime_image: ghcr.io/samyn92/agentops/runtime:v0.18.1
-  memory_image: ghcr.io/samyn92/agentops/memory:v0.18.1
-  tool_artifacts: ghcr.io/samyn92/agentops/tools/*:v0.18.1
-  channel_images: ghcr.io/samyn92/agentops/channels/*:v0.18.1
-  chart: oci://ghcr.io/samyn92/agentops/charts/agentops:v0.18.1
+  operator_image: ghcr.io/samyn92/agentops/operator:v0.18.2
+  console_image: ghcr.io/samyn92/agentops/console:v0.18.2
+  runtime_image: ghcr.io/samyn92/agentops/runtime:v0.18.2
+  memory_image: ghcr.io/samyn92/agentops/memory:v0.18.2
+  tool_artifacts: ghcr.io/samyn92/agentops/tools/*:v0.18.2
+  channel_images: ghcr.io/samyn92/agentops/channels/*:v0.18.2
+  chart: oci://ghcr.io/samyn92/agentops/charts/agentops:v0.18.2
 
 chart_dependencies:
   agentops_operator_chart: 0.17.1
@@ -30,8 +30,8 @@ chart_dependencies:
   nats_chart: 2.12.6
 
 images:
-  runtime_default_image: ghcr.io/samyn92/agentops/runtime:v0.18.1
-  memory_image: ghcr.io/samyn92/agentops/memory:v0.18.1
+  runtime_default_image: ghcr.io/samyn92/agentops/runtime:v0.18.2
+  memory_image: ghcr.io/samyn92/agentops/memory:v0.18.2
 
 contracts:
   agent_api: agents.agentops.io/v1alpha1
