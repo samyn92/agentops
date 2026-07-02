@@ -195,8 +195,14 @@ func pushBlob(ctx context.Context, store *memory.Store, mediaType string, data [
 		Size:      int64(len(data)),
 	}
 
+	// memory.Store validates size; use Exists check to avoid double-push.
+	exists, _ := store.Exists(ctx, desc)
+	if exists {
+		return desc, nil
+	}
+
 	if err := store.Push(ctx, desc, bytes.NewReader(data)); err != nil {
-		return ocispec.Descriptor{}, err
+		return ocispec.Descriptor{}, fmt.Errorf("%w (size=%d)", err, desc.Size)
 	}
 
 	return desc, nil

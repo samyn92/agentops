@@ -279,10 +279,30 @@ jobs:
       - name: Push OCI artifact
         run: |
           set -euo pipefail
-          /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
-            -t ghcr.io/samyn92/agentops/tools/${{ matrix.tool }}:${{ github.ref_name }}
-          /tmp/agent-tools push tools/${{ matrix.tool }}/dist/ \
-            -t ghcr.io/samyn92/agentops/tools/${{ matrix.tool }}:latest
+          TOOL="${{ matrix.tool }}"
+          DIST="tools/${TOOL}/dist"
+          TAG="${{ github.ref_name }}"
+
+          # Create tar.gz of the dist directory
+          tar -czf /tmp/tool-layer.tar.gz -C "${DIST}" .
+          SIZE=$(stat -c%s /tmp/tool-layer.tar.gz)
+
+          # For large artifacts (>10MB), use ORAS CLI for chunked upload
+          if [ "$SIZE" -gt 10485760 ]; then
+            curl -sLo /tmp/oras.tar.gz "https://github.com/oras-project/oras/releases/download/v1.2.2/oras_1.2.2_linux_amd64.tar.gz"
+            tar -xzf /tmp/oras.tar.gz -C /tmp oras
+            /tmp/oras push "ghcr.io/samyn92/agentops/tools/${TOOL}:${TAG}" \
+              --artifact-type "application/vnd.agents.io.mcp-tool.v1" \
+              "/tmp/tool-layer.tar.gz:application/vnd.agents.io.mcp-tool.code.v1.tar+gzip"
+            /tmp/oras push "ghcr.io/samyn92/agentops/tools/${TOOL}:latest" \
+              --artifact-type "application/vnd.agents.io.mcp-tool.v1" \
+              "/tmp/tool-layer.tar.gz:application/vnd.agents.io.mcp-tool.code.v1.tar+gzip"
+          else
+            /tmp/agent-tools push "${DIST}" \
+              -t "ghcr.io/samyn92/agentops/tools/${TOOL}:${TAG}"
+            /tmp/agent-tools push "${DIST}" \
+              -t "ghcr.io/samyn92/agentops/tools/${TOOL}:latest"
+          fi
 
   publish-chart:
     name: Publish Chart
