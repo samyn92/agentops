@@ -449,13 +449,25 @@ func (p *Poller) fire(ctx context.Context, it glItem, label string) {
 		// trigger label and re-fire it every poll (a storm), spawning duplicate
 		// daemon turns. The daemon still receives and processes the prompt; we
 		// just don't block the idempotency transition on its (slow) response.
-		if p.inProgressLabel != "" && label != p.inProgressLabel {
-			if err := p.transition(ctx, it, label, p.inProgressLabel); err != nil {
-				p.logger.Error("label transition failed",
-					"iid", it.IID, "from", label, "to", p.inProgressLabel, "error", err)
+		if label != p.inProgressLabel {
+			if p.inProgressLabel != "" {
+				if err := p.transition(ctx, it, label, p.inProgressLabel); err != nil {
+					p.logger.Error("label transition failed",
+						"iid", it.IID, "from", label, "to", p.inProgressLabel, "error", err)
+				} else {
+					p.logger.Info("label transitioned",
+						"iid", it.IID, "from", label, "to", p.inProgressLabel)
+				}
 			} else {
-				p.logger.Info("label transitioned",
-					"iid", it.IID, "from", label, "to", p.inProgressLabel)
+				// No in-progress label configured: just remove the trigger label
+				// so the item stops matching on subsequent polls.
+				if err := p.removeLabel(ctx, it, label); err != nil {
+					p.logger.Error("label removal failed",
+						"iid", it.IID, "label", label, "error", err)
+				} else {
+					p.logger.Info("trigger label removed",
+						"iid", it.IID, "label", label)
+				}
 			}
 		}
 		p.markSeen(key)
@@ -531,6 +543,36 @@ func extractProjectPath(webURL string) string {
 
 // transition moves an item from one label to another via the GitLab REST API
 // (PUT issues/merge_requests with add_labels/remove_labels). It always targets
+// removeLabel removes a single label from an item without adding a replacement.
+func (p *Poller) removeLabel(ctx context.Context, it glItem, label string) error {
+	endpoint := fmt.Sprintf("%s/api/v4/projects/%d/%s/%d",
+		p.baseURL, it.ProjectID, p.target, it.IID)
+
+	q := url.Values{}
+	q.Set("remove_labels", label)
+	reqURL := endpoint + "?" + q.Encode()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPut, reqURL, nil)
+	if err != nil {
+		return fmt.Errorf("build request: %w", err)
+	}
+	req.Header.Set("PRIVATE-TOKEN", p.token)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := p.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
+		return fmt.Errorf("gitlab API %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	return nil
+}
+
+// transition removes the `from` label and adds the `to` label on an item. Uses
 // the item's own project (projects/{project_id}/...), so it works for both
 // project- and group-scoped pollers.
 func (p *Poller) transition(ctx context.Context, it glItem, from, to string) error {
