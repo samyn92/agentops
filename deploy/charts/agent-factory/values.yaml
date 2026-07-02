@@ -154,9 +154,8 @@ channels:
     enabled: true
     type: gitlab-label
     image: ghcr.io/samyn92/agentops/channels/gitlab-label:dev
-    targets:
-      - label: "agent::todo"
-        agent: engineer
-      - label: "agent::changes-requested"
-        agent: engineer
+    agent: engineer
+    labels:
+      - "agent::todo"
+      - "agent::changes-requested"
     pollInterval: "30s"

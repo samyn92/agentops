@@ -13,14 +13,17 @@ metadata:
     {{- include "factory.labels" $root | nindent 4 }}
 spec:
   type: {{ $channel.type }}
-  agentRef: {{ $fullname }}-{{ $channel.targets | first | dig "agent" "software-engineer" | kebabcase }}
+  agentRef: {{ $fullname }}-{{ $channel.agent | kebabcase }}
   image: {{ $channel.image }}
+  {{- if $channel.imagePullPolicy }}
+  imagePullPolicy: {{ $channel.imagePullPolicy }}
+  {{- end }}
   gitlabLabel:
-    integrationRef: {{ $fullname }}-planner
+    integrationRef: {{ $fullname }}-{{ $channel.integrationRole | default "planner" }}
     target: issues
     labels:
-      {{- range $channel.targets }}
-      - {{ .label }}
+      {{- range $channel.labels }}
+      - {{ . }}
       {{- end }}
     state: opened
     {{- if $channel.pollInterval }}

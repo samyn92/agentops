@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -268,6 +269,11 @@ func New(cfg Config, k8sClient *k8s.Client, mux *multiplexer.Multiplexer) *Serve
 	if cfg.WebDir != "" {
 		staticHandler := http.FileServer(http.Dir(cfg.WebDir))
 		r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+			// Never serve SPA for /auth/* or /api/* — those are server routes
+			if strings.HasPrefix(r.URL.Path, "/auth/") || strings.HasPrefix(r.URL.Path, "/api/") {
+				http.NotFound(w, r)
+				return
+			}
 			// Try static file first
 			path := filepath.Join(cfg.WebDir, filepath.Clean(r.URL.Path))
 			if _, err := os.Stat(path); err == nil {

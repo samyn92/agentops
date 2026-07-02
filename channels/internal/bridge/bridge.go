@@ -481,6 +481,11 @@ func newInClusterClient() (*inClusterClient, error) {
 		},
 	}
 
+	// Wrap IPv6 addresses in brackets for valid URL formatting.
+	if strings.Contains(host, ":") {
+		host = "[" + host + "]"
+	}
+
 	return &inClusterClient{
 		host:  fmt.Sprintf("https://%s:%s", host, port),
 		token: strings.TrimSpace(string(token)),

@@ -5,6 +5,8 @@
 {{- $model := .Values.provider.model }}
 {{- $fallback := .Values.provider.fallbackModel }}
 {{- $memory := .Values.memory }}
+{{- $toolRegistry := .Values.runtime.toolRegistry | default "ghcr.io/samyn92/agentops/tools" }}
+{{- $toolTag := .Values.runtime.toolTag | default "latest" }}
 {{- $root := . }}
 
 {{- range $key, $agent := .Values.agents }}
@@ -55,7 +57,7 @@ spec:
     {{- range $tools }}
     - name: {{ . }}
       oci:
-        ref: ghcr.io/samyn92/agentops/tools/{{ . }}:latest
+        ref: {{ $toolRegistry }}/{{ . }}:{{ $toolTag }}
     {{- end }}
   {{- end }}
   integrations:
@@ -101,6 +103,9 @@ spec:
   {{- if $agent.storage }}
   storage:
     size: {{ $agent.storage.size | quote }}
+    {{- if $agent.storage.storageClass }}
+    storageClass: {{ $agent.storage.storageClass | quote }}
+    {{- end }}
   {{- end }}
   {{- if $agent.concurrency }}
   concurrency:
@@ -150,7 +155,7 @@ spec:
     {{- range $agent.tools }}
     - name: {{ . }}
       oci:
-        ref: ghcr.io/samyn92/agentops/tools/{{ . }}:latest
+        ref: {{ $toolRegistry }}/{{ . }}:{{ $toolTag }}
     {{- end }}
   {{- end }}
   integrations:
@@ -190,6 +195,9 @@ spec:
   {{- if $agent.storage }}
   storage:
     size: {{ $agent.storage.size | quote }}
+    {{- if $agent.storage.storageClass }}
+    storageClass: {{ $agent.storage.storageClass | quote }}
+    {{- end }}
   {{- end }}
   {{- if $agent.concurrency }}
   concurrency:
