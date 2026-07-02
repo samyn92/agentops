@@ -145,7 +145,7 @@ memory:
     # -- Memory service container image
     repository: ghcr.io/samyn92/agentops/memory
     # -- Image tag (defaults to the monorepo release tag)
-    tag: "v0.18.3"
+    tag: "v0.18.4"
     # -- Image pull policy
     pullPolicy: IfNotPresent
   # -- Persistence for SQLite database

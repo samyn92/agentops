@@ -94,6 +94,10 @@ spec:
   memory:
     serverRef: {{ $memory.serverRef }}
   {{- end }}
+  {{- if $agent.security }}
+  security:
+    {{- toYaml $agent.security | nindent 4 }}
+  {{- end }}
   {{- if $agent.schedule }}
   schedule: {{ tpl $agent.schedule $ctx | quote }}
   {{- end }}
@@ -106,6 +110,10 @@ spec:
     {{- if $agent.storage.storageClass }}
     storageClass: {{ $agent.storage.storageClass | quote }}
     {{- end }}
+  {{- end }}
+  {{- if $agent.resources }}
+  resources:
+    {{- toYaml $agent.resources | nindent 4 }}
   {{- end }}
   {{- if $agent.concurrency }}
   concurrency:
@@ -186,6 +194,10 @@ spec:
   memory:
     serverRef: {{ $memory.serverRef }}
   {{- end }}
+  {{- if $agent.security }}
+  security:
+    {{- toYaml $agent.security | nindent 4 }}
+  {{- end }}
   {{- if $agent.schedule }}
   schedule: {{ tpl $agent.schedule $root | quote }}
   {{- end }}
@@ -198,6 +210,10 @@ spec:
     {{- if $agent.storage.storageClass }}
     storageClass: {{ $agent.storage.storageClass | quote }}
     {{- end }}
+  {{- end }}
+  {{- if $agent.resources }}
+  resources:
+    {{- toYaml $agent.resources | nindent 4 }}
   {{- end }}
   {{- if $agent.concurrency }}
   concurrency:
