@@ -12,11 +12,12 @@ import (
 // ── Input types ──
 
 type getInput struct {
-	Resource  string `json:"resource" jsonschema_description:"Resource type (e.g. pods, deployments, services, nodes, all)"`
-	Name      string `json:"name,omitempty" jsonschema_description:"Resource name (omit to list all)"`
-	Namespace string `json:"namespace,omitempty" jsonschema_description:"Namespace (omit for default, use '-A' for all namespaces)"`
-	Selector  string `json:"selector,omitempty" jsonschema_description:"Label selector (e.g. app=nginx)"`
-	Output    string `json:"output,omitempty" jsonschema_description:"Output format: wide, yaml, json, name, jsonpath=... (default: wide)"`
+	Resource      string `json:"resource" jsonschema_description:"Resource type (e.g. pods, deployments, services, nodes, all)"`
+	Name          string `json:"name,omitempty" jsonschema_description:"Resource name (omit to list all)"`
+	Namespace     string `json:"namespace,omitempty" jsonschema_description:"Namespace (omit for default)"`
+	AllNamespaces bool   `json:"allNamespaces,omitempty" jsonschema_description:"List across all namespaces (like kubectl -A)"`
+	Selector      string `json:"selector,omitempty" jsonschema_description:"Label selector (e.g. app=nginx)"`
+	Output        string `json:"output,omitempty" jsonschema_description:"Output format: wide, yaml, json, name, jsonpath=... (default: wide)"`
 }
 
 type describeInput struct {
@@ -68,7 +69,11 @@ func handleGet(ctx context.Context, _ *mcp.CallToolRequest, in getInput) (*mcp.C
 	if in.Name != "" {
 		args = append(args, in.Name)
 	}
-	args = appendNamespace(args, in.Namespace)
+	if in.AllNamespaces {
+		args = append(args, "--all-namespaces")
+	} else {
+		args = appendNamespace(args, in.Namespace)
+	}
 	if in.Selector != "" {
 		args = append(args, "-l", in.Selector)
 	}
